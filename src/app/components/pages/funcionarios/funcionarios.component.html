@@ -21,7 +21,7 @@
 
         <div class="drop-selection">
             <mat-form-field class="">
-                <mat-label>Situacion</mat-label>
+                <mat-label>Estado</mat-label>
                 <mat-select (selectionChange)="estadoSeleccion($event)" [(ngModel)]="filtrarEstado"
                     [disabled]="searchEstado">
                     <mat-option value="none">Todos</mat-option>
@@ -68,7 +68,7 @@
                 </ng-container>
 
                 <ng-container matColumnDef="estado">
-                    <th mat-header-cell *matHeaderCellDef> Situacion </th>
+                    <th mat-header-cell *matHeaderCellDef> Estado </th>
                     <td mat-cell *matCellDef="let element">
                         <span *ngIf="element?.estado !== false ">
                             <span class="badge bg-success">Habilitado</span>

@@ -12,9 +12,13 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
 //import { Observable } from 'rxjs';
 //import { map, startWith } from 'rxjs/operators';
+import { map } from "rxjs/operators";
+import { forkJoin } from "rxjs";
 
 import { DialogCargoComponent } from "./dialog-cargo/dialog-cargo.component";
 import { CargosService } from "../../../services/cargos.service";
+import { RegistrosService } from "../../../services/registros.service";
+import { FuncionariosService } from "../../../services/funcionarios.service";
 import { NivelesService } from "../../../services/niveles.service";
 
 @Component({
@@ -36,6 +40,8 @@ export class CargosComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(
     private cargosService: CargosService,
+    private registrosService: RegistrosService,
+    private funcionariosService: FuncionariosService,
     private nivelesService: NivelesService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog
@@ -43,6 +49,7 @@ export class CargosComponent implements AfterViewInit {
     this.displayedColumns = [
       "registro",
       "nombre",
+      "personal",
       "dependencia",
       "contrato",
       "nivel",
@@ -63,31 +70,94 @@ export class CargosComponent implements AfterViewInit {
     } else if (this.filtrarEstado !== "none") {
       this.estadoByFilter(this.filtrarEstado);
     } else {
-      this.cargosService.getCargos().subscribe(
-        (data) => {
-          this.cargos = data;
-          this.dataSource = new MatTableDataSource(data);
+      this.loadCargos(undefined, undefined);
+    }
+  }
+
+  loadCargos(
+    filtroNivel?: { elemento: string; campo: string; valor: string },
+    filtroEstado?: { campo: string; valor: string }
+  ) {
+    // console.log(filtroNivel);
+    // console.log(filtroEstado);
+    let cargosRequest = filtroNivel
+      ? this.cargosService.getFiltroElementos(
+          filtroNivel.elemento,
+          filtroNivel.campo,
+          filtroNivel.valor
+        )
+      : filtroEstado
+      ? this.cargosService.getFiltroCampos(
+          filtroEstado.campo,
+          filtroEstado.valor
+        )
+      : this.cargosService.getCargos();
+
+    const registrosRequest = this.registrosService.getFiltroCampos(
+      "estado",
+      "true"
+    );
+
+    const funcionariosRequest = this.funcionariosService.getFiltroCampos(
+      "estado",
+      "true"
+    );
+    forkJoin({
+      cargos: cargosRequest,
+      registros: registrosRequest,
+      funcionarios: funcionariosRequest,
+    })
+      .pipe(
+        map(({ cargos, registros, funcionarios }) => {
+          return this.combinarDatos(cargos, registros, funcionarios);
+        })
+      )
+      .subscribe(
+        (combinedData) => {
+          this.dataSource = new MatTableDataSource(combinedData);
           this.dataSource.paginator = this.paginator;
           this.cdr.detectChanges();
         },
         (error) => {
-          console.error("Error al obtener los cargos:", error);
+          console.error("Error al obtener los datos:", error);
         }
       );
-    }
   }
 
-  loadCargos() {
-    this.cargosService.getCargos().subscribe(
-      (data) => {
-        this.dataSource = new MatTableDataSource(data);
-        this.dataSource.paginator = this.paginator;
-        this.cdr.detectChanges();
-      },
-      (error) => {
-        console.error("Error al obtener los cargos:", error);
+  combinarDatos(cargos: any[], registros: any[], funcionarios: any[]): any[] {
+    return cargos.map((cargo: any) => {
+      // Encontrar el registro correspondiente al cargo
+      const registro = registros.find((reg: any) => reg.id_cargo === cargo._id);
+      //console.log(registro);
+      // Si no hay registro, asignar "SIN ASIGNACION"
+      if (!registro) {
+        return {
+          ...cargo,
+          personal: "SIN ASIGNACION",
+        };
       }
-    );
+
+      // Encontrar el funcionario correspondiente al registro
+      const funcionario = funcionarios.find(
+        (func: any) => func._id === registro.id_funcionario
+      );
+
+      // Si no hay funcionario, asignar "SIN ASIGNACION"
+      if (!funcionario) {
+        return {
+          ...cargo,
+          personal: "SIN ASIGNACION",
+        };
+      }
+
+      // Concatenar los campos del funcionario para el campo personal
+      const personal = `${funcionario.nombre} ${funcionario.paterno} ${funcionario.materno}`;
+
+      return {
+        ...cargo,
+        personal: personal,
+      };
+    });
   }
 
   nivelByName() {
@@ -104,30 +174,17 @@ export class CargosComponent implements AfterViewInit {
   }
 
   nivelByFilter(valor: string) {
-    let elemento = "id_nivel_salarial";
-    let campo = "nombre";
-    this.cargosService.getFiltroElementos(elemento, campo, valor).subscribe(
-      (data) => {
-        this.dataSource = new MatTableDataSource(data);
-        this.dataSource.paginator = this.paginator;
-      },
-      (error) => {
-        console.error("Error al obtener los cargos:", error);
-      }
-    );
+    const filtroNivel = {
+      elemento: "id_nivel_salarial",
+      campo: "nombre",
+      valor: valor,
+    };
+    this.loadCargos(filtroNivel);
   }
 
   estadoByFilter(valor: string) {
-    let campo = "estado";
-    this.cargosService.getFiltroCampos(campo, valor).subscribe(
-      (data) => {
-        this.dataSource = new MatTableDataSource(data);
-        this.dataSource.paginator = this.paginator;
-      },
-      (error) => {
-        console.error("Error al obtener los cargos:", error);
-      }
-    );
+    const filtroEstado = { campo: "estado", valor: valor };
+    this.loadCargos(undefined, filtroEstado);
   }
 
   nivelSeleccion(event: any) {
@@ -167,8 +224,6 @@ export class CargosComponent implements AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      // Aquí puedes manejar la respuesta del diálogo de edición
-      //   console.log("El diálogo de edición se cerró");
       //   console.log("Resultado:", result);
       this.load();
     });
@@ -178,14 +233,8 @@ export class CargosComponent implements AfterViewInit {
       width: "600px",
     });
     dialogRef.afterClosed().subscribe((result: any) => {
+      //   console.log("Resultado:", result);
       this.load();
-      //   if (result) {
-      //     this.dataSource = new MatTableDataSource([
-      //       result,
-      //       ...this.dataSource.data,
-      //     ]);
-      //     this.dataSource.paginator = this.paginator;
-      //   }
     });
   }
 

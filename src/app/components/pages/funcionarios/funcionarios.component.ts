@@ -35,7 +35,7 @@ export class FuncionariosComponent implements AfterViewInit {
   filtrarEstado: string = "none";
   displayedColumns: string[];
   dataSource = new MatTableDataSource<any>([]);
-  
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(
     private cargosService: CargosService,
