@@ -1,0 +1,19 @@
+<div class="">
+    <div class="diagram-options">
+        <mat-tab-group (selectedTabChange)="tabSelected($event)">
+            <mat-tab label="DESPACHO"></mat-tab>
+            <mat-tab label="SUB-ALCALDIA"></mat-tab>
+            <mat-tab label="SMPDT"></mat-tab>
+            <mat-tab label="SMFA"></mat-tab>
+            <mat-tab label="SMIS"></mat-tab>
+            <mat-tab label="SMMTDP"></mat-tab>
+            <mat-tab label="SMS"></mat-tab>
+            <mat-tab label="SMDHI"></mat-tab>
+        </mat-tab-group>
+    </div>
+    <div class="organigrama-container">
+        <div class="organigrama" #grid>
+            <div #organigramaContainer class="contents"></div>
+        </div>
+    </div>
+</div>

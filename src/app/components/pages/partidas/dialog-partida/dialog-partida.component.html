@@ -1,0 +1,156 @@
+<h2 mat-dialog-title class="title">{{data?'EDICION':'CREACION'}} PARTIDAS </h2>
+<mat-dialog-content>
+    <form [formGroup]="FormPartida" class="container">
+        <div class="card-1">
+            <mat-form-field hintLabel="Máximo 100 caracteres." [style.width.%]="100">
+                <mat-label>Nombre</mat-label>
+                <input formControlName="nombre" matInput #nombre maxlength="100" minlength="2"
+                    placeholder="Ej. UNIDAD DE TRANSPORTE" onkeyup="this.value = this.value.toUpperCase();">
+                <mat-hint align="end">{{nombre.value.length}}/100</mat-hint>
+                <mat-error *ngIf="FormPartida.get('nombre')?.invalid && 
+                                    (FormPartida.get('nombre')?.dirty || FormPartida.get('nombre')?.touched)">
+                    <ng-container *ngIf="FormPartida.get('nombre')?.hasError('minlength')">
+                        El nombre debe tener al menos 5 caracteres.
+                    </ng-container>
+                    <ng-container *ngIf="FormPartida.get('nombre')?.hasError('pattern')">
+                        El nombre debe contener solo letras.
+                    </ng-container>
+                    <ng-container *ngIf="FormPartida.get('nombre')?.hasError('nombreExists')">
+                        El nombre ya existe en la base de datos.
+                    </ng-container>
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <div class="card-2">
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 8 dígitos.">
+                    <mat-label>Código</mat-label>
+                    <input formControlName="codigo" matInput #codigo maxlength="8" minlength="5"
+                        placeholder="Ej: 30003330">
+                    <mat-hint align="end">{{codigo.value.length}}/8</mat-hint>
+                    <mat-error
+                        *ngIf="FormPartida.get('codigo')?.invalid &&  (FormPartida.get('codigo')?.dirty || FormPartida.get('codigo')?.touched)">
+                        <ng-container *ngIf="FormPartida.get('codigo')?.hasError('minlength')">
+                            El código debe tener al menos 5 dígitos.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormPartida.get('codigo')?.hasError('pattern') && !FormPartida.get('codigo')?.hasError('minlength')">
+                            El código debe contener solo números.
+                        </ng-container>
+                        <ng-container *ngIf="FormPartida.get('codigo')?.hasError('codigoExists')">
+                            El código ya existe en la base de datos.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 3 dígitos.">
+                    <mat-label>Fuente</mat-label>
+                    <input formControlName="fuente" matInput #fuente maxlength="3" minlength="1" placeholder="Ej. 20">
+                    <mat-hint align="end">{{fuente.value.length}}/3</mat-hint>
+                    <mat-error
+                        *ngIf="FormPartida.get('fuente')?.invalid &&                              (FormPartida.get('fuente')?.dirty || FormPartida.get('fuente')?.touched)">
+                        <ng-container *ngIf="FormPartida.get('fuente')?.hasError('minlength')">
+                            El fuente debe tener al menos 1 dígitos
+                        </ng-container>
+                        <ng-container *ngIf="FormPartida.get('fuente')?.hasError('pattern')">
+                            El fuente debe contener solo números.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 4 dígitos.">
+                    <mat-label>Organismo</mat-label>
+                    <input formControlName="organismo" matInput #organismo maxlength="4" minlength="1"
+                        placeholder="Ej: 1111">
+                    <mat-hint align="end">{{organismo.value.length}}/4</mat-hint>
+                    <mat-error
+                        *ngIf="FormPartida.get('organismo')?.invalid &&  (FormPartida.get('organismo')?.dirty || FormPartida.get('organismo')?.touched)">
+                        <ng-container *ngIf="FormPartida.get('organismo')?.hasError('minlength')">
+                            El organismo debe tener al menos 2 dígitos.
+                        </ng-container>
+                        <ng-container *ngIf="FormPartida.get('organismo')?.hasError('pattern')">
+                            El organismo debe contener solo números.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="card-2 card-space">
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 10 dígitos.">
+                    <mat-label>Monto Asignado</mat-label>
+                    <input formControlName="monto_asignado" matInput #monto_asignado maxlength="10" minlength="2"
+                        placeholder="Ej: 100000000.10">
+                    <mat-hint align="end">{{monto_asignado.value.length}}/10</mat-hint>
+                    <mat-error
+                        *ngIf="FormPartida.get('monto_asignado')?.invalid &&  (FormPartida.get('monto_asignado')?.dirty || FormPartida.get('monto_asignado')?.touched)">
+                        <ng-container *ngIf="FormPartida.get('monto_asignado')?.hasError('minlength')">
+                            El monto asignado debe tener al menos 2 dígitos.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormPartida.get('monto_asignado')?.hasError('pattern') && !FormPartida.get('monto_asignado')?.hasError('minlength')">
+                            El monto asignado debe contener números entero/decimal.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 10 dígitos.">
+                    <mat-label>Monto Refuerzo</mat-label>
+                    <input formControlName="monto_refuerzo" matInput #monto_refuerzo maxlength="10" minlength="2"
+                        placeholder="Ej. 20">
+                    <mat-hint align="end">{{monto_refuerzo.value.length}}/10</mat-hint>
+                    <mat-error
+                        *ngIf="FormPartida.get('monto_refuerzo')?.invalid &&                              (FormPartida.get('monto_refuerzo')?.dirty || FormPartida.get('monto_refuerzo')?.touched)">
+                        <ng-container *ngIf="FormPartida.get('monto_refuerzo')?.hasError('minlength')">
+                            El monto refuerzo debe tener al menos 1 dígito.
+                        </ng-container>
+                        <ng-container *ngIf="FormPartida.get('monto_refuerzo')?.hasError('pattern')">
+                            El monto refuerzo debe contener números entero/decimal.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 50 caracteres.">
+                    <mat-label>Tipo Gasto</mat-label>
+                    <input formControlName="tipo" matInput #tipo maxlength="50" minlength="2"
+                        placeholder="Ej. SERVICIOS PERSONALES" onkeyup="this.value = this.value.toUpperCase();">
+                    <mat-hint align="end">{{tipo.value.length}}/50</mat-hint>
+                    <mat-error
+                        *ngIf="FormPartida.get('tipo')?.invalid && 
+                                                    (FormPartida.get('tipo')?.dirty || FormPartida.get('tipo')?.touched)">
+                        <ng-container *ngIf="FormPartida.get('tipo')?.hasError('minlength')">
+                            El tipo gasto debe tener al menos 5 caracteres.
+                        </ng-container>
+                        <ng-container *ngIf="FormPartida.get('tipo')?.hasError('pattern')">
+                            El tipo gasto debe contener solo letras.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="card-3">
+            <!-- <h4 class="space-title">Estado: </h4> -->
+            <mat-chip-listbox formControlName="estado">
+                <mat-chip-option color="primary" [value]='true'> Habilitar </mat-chip-option>
+                <mat-chip-option color="warn" [value]='false'> Deshabilitar</mat-chip-option>
+            </mat-chip-listbox>
+        </div>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="form-button">
+    <button mat-flat-button color="warn" mat-dialog-close class="button-send">Cancelar</button>
+    <button mat-raised-button color="primary" mat-button [disabled]="FormPartida.invalid" (click)="guardar()"
+        class="button-send">Guardar</button>
+</mat-dialog-actions>

@@ -1,0 +1,121 @@
+<h2 mat-dialog-title class="title">{{data?'EDICION':'CREACION'}} DEPENDENCIAS </h2>
+<mat-dialog-content>
+    <form [formGroup]="FormDependence">
+        <div class="container">
+            <div class="card-1">
+                <mat-form-field hintLabel="Máximo 150 caracteres." [style.width.%]="100">
+                    <mat-label>Nombre</mat-label>
+                    <input formControlName="nombre" matInput #nombre maxlength="150" minlength="2"
+                        placeholder="Ej. DESPACHO" onkeyup="this.value = this.value.toUpperCase();">
+                    <mat-hint align="end">{{nombre.value.length}}/150</mat-hint>
+                    <mat-error *ngIf="FormDependence.get('nombre')?.invalid && 
+                                    (FormDependence.get('nombre')?.dirty || FormDependence.get('nombre')?.touched)">
+                        <ng-container *ngIf="FormDependence.get('nombre')?.hasError('minlength')">
+                            El nombre debe tener al menos 2 caracteres.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormDependence.get('nombre')?.hasError('pattern') && !FormDependence.get('nombre')?.hasError('minlength')">
+                            El nombre debe contener solo letras.
+                        </ng-container>
+                        <ng-container *ngIf="FormDependence.get('nombre')?.hasError('nombreExists')">
+                            El nombre ya existe en la base de datos.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+
+                <div class="container-option">
+                    <div *ngIf="!noDependence" class="container-option-select" [style.width.%]="78">
+                        <app-sever-mat-select [initialValue]="data?data.id_dependencia:null"
+                            [placeholder]="'Buscar dependencia'" [pathPropertyOfObjectDisplay]="'nombre'"
+                            [data]="availableDependences" (eventSelectedOption)="selectDependence($event)"
+                            (eventSearch)="searchDependence($event)">
+                        </app-sever-mat-select>
+                    </div>
+
+                    <mat-checkbox (change)="removeDependence()" [(ngModel)]="noDependence"
+                        [ngModelOptions]="{standalone:true}" class="container-option-box" [style.width.%]="30">
+                        Sin dependencia
+                    </mat-checkbox>
+                </div>
+
+                <!-- <div class="container-option">
+                    <div *ngIf="!noDependence" class="container-option-select">
+                        <app-sever-mat-select [initialValue]="data?data.id_dependencia:null"
+                            [placeholder]="'Buscar dependencia'" [pathPropertyOfObjectDisplay]="'nombre'"
+                            [data]="availableDependences" (eventSelectedOption)="selectDependence($event)"
+                            (eventSearch)="searchDependence($event)" [disabled]="noDependence">
+                        </app-sever-mat-select>
+                    </div>
+
+                    <mat-checkbox (change)="removeDependence()" [(ngModel)]="noDependence"
+                        [ngModelOptions]="{standalone:true}" class="container-option-box">
+                        Sin dependencia
+                    </mat-checkbox>
+                </div>
+
+                <div class="">
+                    <mat-form-field appearance="fill" *ngIf="FormDependence.get('id_dependencia')?.value === false"
+                        [style.width.%]="78">
+                        <mat-label>Buscar dependencia</mat-label>
+                        <input type="text" matInput [matAutocomplete]="auto" [formControl]="idDependenciaControl"
+                            placeholder="Ej. Dirección Jurídica">
+                        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+                            <mat-option *ngFor="let dependencia of filteredDependencias | async" [value]="dependencia">
+                                {{ dependencia.nombre }}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+
+                    <mat-checkbox formControlName="disableDependenciaControl"
+                        *ngIf="FormDependence.get('id_dependencia')?.value === false" class="container-option-box">
+                        Sin dependencia
+                    </mat-checkbox>
+                </div> -->
+
+
+                <div class="form-select-1">
+                    <mat-form-field hintLabel="Máximo 10 caracteres." [style.width.%]="40">
+                        <mat-label>Sigla</mat-label>
+                        <input formControlName="sigla" matInput #sigla maxlength="10" minlength="2"
+                            placeholder="Ej. DSA" onkeyup="this.value = this.value.toUpperCase();">
+                        <mat-hint align="end">{{sigla.value.length}}/10</mat-hint>
+                        <mat-error
+                            *ngIf="FormDependence.get('sigla')?.invalid && 
+                                                            (FormDependence.get('sigla')?.dirty || FormDependence.get('sigla')?.touched)">
+                            <ng-container *ngIf="FormDependence.get('sigla')?.hasError('minlength')">
+                                La sigla debe tener al menos 2 caracteres.
+                            </ng-container>
+                            <ng-container
+                                *ngIf="FormDependence.get('sigla')?.hasError('pattern') && !FormDependence.get('sigla')?.hasError('minlength')">
+                                La sigla debe contener solo letras.
+                            </ng-container>
+
+                            <ng-container *ngIf="FormDependence.get('sigla')?.hasError('siglaExists')">
+                                La sigla ya existe en la base de datos.
+                            </ng-container>
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field class="" [style.width.%]="40">
+                        <mat-label>Categoria</mat-label>
+                        <mat-select formControlName='tipo'>
+                            <mat-option value="SECRETARIA">SECRETARIA</mat-option>
+                            <mat-option value="JEFATURA">JEFATURA</mat-option>
+                            <mat-option value="DIRECCION">DIRECCION</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-checkbox formControlName="estado" matTooltip="Habilita el cargo" [style.width.%]="30"
+                        class="container-option-box">Habilitar
+                        Dependencia</mat-checkbox>
+                </div>
+            </div>
+        </div>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="form-button">
+    <button mat-flat-button color="warn" mat-dialog-close class="button-send">Cancelar</button>
+    <button mat-raised-button color="primary" mat-button [disabled]="FormDependence.invalid" (click)="guardar()"
+        class="button-send">Guardar</button>
+</mat-dialog-actions>

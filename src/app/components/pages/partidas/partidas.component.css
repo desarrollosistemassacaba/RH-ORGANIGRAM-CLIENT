@@ -1,0 +1,89 @@
+.container-fluid {
+  width: 100%;
+}
+
+.drop {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  margin-top: 0.4%;
+  justify-content: space-between;
+}
+
+.drop div {
+  padding-left: 5px;
+}
+
+.drop-filter {
+  width: 100%;
+}
+
+.drop-selection {
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+  padding: 0;
+  margin: 0;
+}
+
+.first {
+  padding-left: 1%;
+}
+
+.drop-add {
+  display: flex;
+  min-width: 170px;
+  padding: 0;
+  margin: 0;
+}
+
+.drop-add mat-toolbar {
+  background-color: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1%;
+  height: 80%;
+  font-size: 15px;
+}
+
+.drop-add mat-toolbar span {
+  padding-top: 2%;
+}
+
+.form-filter {
+  width: 100%;
+}
+
+.form-table {
+  margin-top: -1.2%;
+}
+
+.form-options {
+  width: 9%;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-top {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media only screen and (max-width: 600px) {
+  .drop {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .drop-selection {
+    width: 100%;
+  }
+}
+
+@media only screen and (min-width: 2000px) {
+  .form-table {
+    margin-top: -0.5%;
+  }
+}

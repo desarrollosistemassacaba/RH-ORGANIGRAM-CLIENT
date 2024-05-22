@@ -1,0 +1,116 @@
+<div class="container-fluid">
+    <div class="drop">
+        <div class="drop-add">
+            <mat-toolbar>
+                <span>FUNCIONARIOS</span>
+                <button (click)="add()" mat-icon-button>
+                    <mat-icon>add</mat-icon>
+                </button>
+            </mat-toolbar>
+        </div>
+        <div class="drop-filter">
+            <mat-form-field class="form-filter">
+                <mat-label>Buscar Nombre/Ap. Paterno/Ap. Materno/Carnet Identidad/Cargo/Dependencia/Contrato</mat-label>
+                <input matInput (keyup)="applyFilter($event)"
+                    placeholder="Nombre/Ap. Paterno/Ap. Materno/Carnet Identidad/Cargo/Dependencia/Contrato" #input>
+                <button mat-icon-button matSuffix *ngIf="input.value !== ''" (click)="clearInput(input)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+
+        <div class="drop-selection">
+            <mat-form-field class="">
+                <mat-label>Situacion</mat-label>
+                <mat-select (selectionChange)="estadoSeleccion($event)" [(ngModel)]="filtrarEstado"
+                    [disabled]="searchEstado">
+                    <mat-option value="none">Todos</mat-option>
+                    <mat-option value="true">Habilitados</mat-option>
+                    <mat-option value="false">Deshabilitados</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div>
+        <div class="form-table">
+            <table mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                    <td mat-cell *matCellDef="let element"> {{element.nombre}} {{element.paterno}} {{element.materno}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="ci">
+                    <th mat-header-cell *matHeaderCellDef> C.I. </th>
+                    <td mat-cell *matCellDef="let element"> {{element.ci || "Sin C.I."}} {{ element.ci && element.ext?
+                        "- " + element.ext: ""}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="cargo">
+                    <th mat-header-cell *matHeaderCellDef> Cargo </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.registros && element.registros.length > 0 &&
+                        element.registros[0].id_cargo ?
+                        element.registros[0].id_cargo.nombre : 'Sin cargo.' }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="contrato">
+                    <th mat-header-cell *matHeaderCellDef> Contrato </th>
+                    <td mat-cell *matCellDef="let element">{{ element.registros && element.registros.length > 0 &&
+                        element.registros[0].id_cargo ?
+                        element.registros[0].id_cargo.contrato : 'Sin cargo.' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="dependencia">
+                    <th mat-header-cell *matHeaderCellDef> Dependencia </th>
+                    <td mat-cell *matCellDef="let element">{{element.sigla}}
+                </ng-container>
+
+                <ng-container matColumnDef="estado">
+                    <th mat-header-cell *matHeaderCellDef> Situacion </th>
+                    <td mat-cell *matCellDef="let element">
+                        <span *ngIf="element?.estado !== false ">
+                            <span class="badge bg-success">Habilitado</span>
+                        </span>
+                        <span *ngIf="element?.estado === false">
+                            <span class="badge bg-danger">Deshabilitado</span>
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="options">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let element" class="form-options">
+                        <button mat-icon-button [matMenuTriggerFor]="menu">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="edit(element)">
+                                <mat-icon style="color: royalblue;">edit</mat-icon>
+                                <span>Editar</span>
+                            </button>
+                            <button mat-menu-item (click)="delete(element)">
+                                <mat-icon style="color: royalblue;">delete</mat-icon>
+                                <span>Eliminar</span>
+                            </button>
+                            <button mat-menu-item (click)="rotation(element)">
+                                <mat-icon style="color: royalblue;">list</mat-icon>
+                                <span>Asignaciones</span>
+                            </button>
+                        </mat-menu>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell" colspan="4">No hay datos que coincidan con el filtro. </td>
+                </tr>
+            </table>
+            <mat-paginator [pageSizeOptions]="[8, 10, 15, 20, 50]" showFirstLastButtons>
+            </mat-paginator>
+        </div>
+
+    </div>

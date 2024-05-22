@@ -1,0 +1,213 @@
+<div class="form-container">
+    <mat-tab-group>
+        <form [formGroup]="FormJob">
+            <mat-tab label="Datos">
+                <div class="row form">
+
+                    <div>
+                        <mat-form-field hintLabel="Máximo 100 caracteres." [style.width.%]="100">
+                            <mat-label>Ingrese nombre del cargo</mat-label>
+                            <input formControlName="nombre" matInput #nombre maxlength="100" minlength="2"
+                                placeholder="Ej. AUXILIAR I" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{nombre.value.length}}/100</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('nombre')?.invalid && 
+                                                                (FormJob.get('nombre')?.dirty || FormJob.get('nombre')?.touched)">
+                                <ng-container *ngIf="FormJob.get('nombre')?.hasError('minlength')">
+                                    El nombre debe tener al menos 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('nombre')?.hasError('pattern') && !FormJob.get('nombre')?.hasError('minlength')">
+                                    El nombre solo admite letras, (.) y (-).
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="center">
+                        <div class="form-select-group">
+                            <mat-form-field class="" [style.width.%]="32.5">
+                                <mat-label>Dependencia</mat-label>
+                                <mat-select (selectionChange)="agregarDependencia($event)"
+                                    formControlName='id_dependencia'>
+                                    <mat-option *ngFor="let dep of dependence" [value]="dep._id">
+                                        {{dep.sigla}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <mat-form-field class="" [style.width.%]="32.5">
+                                <mat-label>Unidad</mat-label>
+                                <mat-select formControlName="id_unidad">
+                                    <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad
+                                        }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <mat-form-field class="" [style.width.%]="32.5">
+                                <mat-label>Categoria</mat-label>
+                                <mat-select formControlName='categoria'>
+                                    <mat-option value="SUPERIOR">SUPERIOR</mat-option>
+                                    <mat-option value="EJECUTIVO">EJECUTIVO</mat-option>
+                                    <mat-option value="OPERATIVO">OPERATIVO</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <div class="form-select-group">
+                        <mat-form-field class="form-select-1" [style.width.%]="30">
+                            <mat-label>Nivel</mat-label>
+                            <mat-select (selectionChange)="agregarNivel($event)" formControlName='id_nivel_salarial'>
+                                <mat-option *ngFor="let lev of level" [value]="lev._id">
+                                    {{lev.nombre}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field class="form-select-1 form-select-space" [style.width.%]="30">
+                            <mat-label>Contrato</mat-label>
+                            <mat-select formControlName="contrato" (selectionChange)="fillRegistro()">
+                                <mat-option value="ITEM">Item</mat-option>
+                                <mat-option value="EVENTUAL">Eventual</mat-option>
+                                <mat-option value="REMANENTE">Remanente</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field class="form-select-1 form-select-space" [style.width.%]="30">
+                            <mat-label>Número</mat-label>
+                            <input formControlName='registro' #register matInput maxlength="4" minlength="1">
+                            <mat-hint align="end">{{register.value.length}}/4</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('registro')?.invalid &&  (FormJob.get('registro')?.dirty || FormJob.get('registro')?.touched)">
+
+                                <ng-container *ngIf="FormJob.get('registro')?.hasError('min')">
+                                    El valor debe ser mayor o igual a 1.
+                                </ng-container>
+                                <ng-container *ngIf="FormJob.get('registro')?.hasError('max')">
+                                    El valor debe ser menor o igual a 2000.
+                                </ng-container>
+                                <ng-container *ngIf="FormJob.get('registro')?.hasError('pattern')">
+                                    Ingrese un número válido.
+                                </ng-container>
+                                <ng-container *ngIf="FormJob.get('registro')?.hasError('registroExists')">
+                                    El registro ya existe en la base de datos.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+
+                        <div class="box  form-select-space">
+                            <mat-checkbox formControlName="cargo_principal"
+                                matTooltip="Crear una nueva secretaria">Superior</mat-checkbox>
+                            <mat-checkbox formControlName="estado"
+                                matTooltip="Habilita el cargo">Habilitar</mat-checkbox>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
+
+            <mat-tab label="Detalles del cargo"
+                *ngIf="FormJob.get('contrato')?.value === 'EVENTUAL' || FormJob.get('contrato')?.value === 'REMANENTE'">
+
+                <div class="row form-hidden">
+
+                    <mat-form-field appearance="fill" [style.width.%]="100">
+                        <mat-label>Buscar partida presupuestaria</mat-label>
+                        <input type="text" matInput #input [matAutocomplete]="auto" [formControl]="idPartidaControl"
+                            placeholder="Ej. UNIDAD DE TRANSPORTE ">
+                        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+                            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                                {{ option.nombre }}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+
+                    <div class="form-select-group" [style.width.%]="100">
+                        <mat-form-field appearance="fill" [style.width.%]="65">
+                            <mat-label>Denominación del cargo</mat-label>
+                            <input formControlName='denominacion' matInput #input placeholder="Ej. PROFESIONAL I">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="fill" hintLabel="Máximo 12 meses." [style.width.%]="33">
+                            <mat-label>Contrato (meses)</mat-label>
+                            <input formControlName="duracion_contrato" matInput type="number" min="1" max="12">
+                            <mat-error *ngIf="FormJob.get('duracion_contrato')?.hasError('min')">
+                                El valor debe ser mayor o igual a 1.
+                            </mat-error>
+                            <mat-error *ngIf="FormJob.get('duracion_contrato')?.hasError('max')">
+                                El valor debe ser menor o igual a 12.
+                            </mat-error>
+                            <mat-error *ngIf="FormJob.get('duracion_contrato')?.hasError('pattern')">
+                                Ingrese un número válido.
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <mat-form-field appearance="fill" hintLabel="Máximo 300 caracteres." [style.width.%]="100">
+                        <mat-label>Objetivo del cargo</mat-label>
+                        <input formControlName="objetivo" matInput #input maxlength="300" placeholder="">
+                        <mat-hint align="end">{{input.value.length}}/300</mat-hint>
+                    </mat-form-field>
+                </div>
+            </mat-tab>
+
+            <mat-tab label="Organigrama">
+                <div class="row form">
+
+                    <div>
+                        <mat-form-field appearance="fill" *ngIf="FormJob.get('cargo_principal')?.value === false"
+                            [style.width.%]="78">
+                            <mat-label>Buscar cargo</mat-label>
+                            <input type="text" matInput #input [matAutocomplete]="auto" [formControl]="idCargoControl"
+                                placeholder="Ej. AUXILIAR II">
+                            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+                                <mat-option *ngFor="let cargo of filteredCharges | async" [value]="cargo">
+                                    {{ cargo.nombre }} - {{ cargo.contrato}} ( {{cargo.registro}} )
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+
+                        <mat-checkbox formControlName="disableCargoControl"
+                            *ngIf="FormJob.get('cargo_principal')?.value === false" [style.width.%]="20">Sin cargo
+                            superior</mat-checkbox>
+                    </div>
+
+                    <div>
+                        <!-- <mat-form-field class="full-width">
+                            <mat-label>Ingrese cargos dependientes</mat-label>
+                            <input formControlName="id_cargo_dependiente" matInput placeholder="Ej. PROFESIONAL I">
+                        </mat-form-field> -->
+
+                        <app-sever-mat-select [placeholder]="'Buscar cargos dependientes'" [data]="jobs"
+                            (eventSelectedOption)="selectDependents($event)" [pathPropertyOfObjectDisplay]="'nombre'"
+                            (eventSearch)="searchDependents($event)"></app-sever-mat-select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <mat-list>
+                                <mat-list-item *ngIf="dependentJobs.length===0">
+                                    Sin dependientes
+                                </mat-list-item>
+                                <mat-list-item *ngFor="let folder of dependentJobs; let i=index">
+                                    <div mat-subheader>Cargos</div>
+                                    <div matListItemTitle>{{folder.nombre}}</div>
+                                    <button (click)="removeDependentJob(i)" mat-icon-button matListItemMeta>
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                    <mat-divider></mat-divider>
+                                </mat-list-item>
+                            </mat-list>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
+        </form>
+    </mat-tab-group>
+
+    <mat-dialog-actions align="end" class="form-button">
+        <button mat-flat-button color="warn" mat-dialog-close class="button-send">Cancelar</button>
+        <button mat-flat-button color="primary" class="button-send" [disabled]="!FormJob.valid"
+            (click)="validar()">Aceptar</button>
+    </mat-dialog-actions>
+</div>

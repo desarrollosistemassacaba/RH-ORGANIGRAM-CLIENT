@@ -1,0 +1,137 @@
+<h2 mat-dialog-title class="title">{{data?'EDICION':'CREACION'}} NIVELES </h2>
+<mat-dialog-content>
+    <form [formGroup]="FormNivel" class="container">
+        <div class="card-1 card-2">
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 2 dígitos.">
+                    <mat-label>Nivel</mat-label>
+                    <input formControlName="nombre" matInput #nombre maxlength="2" minlength="1" placeholder="Ej: 12">
+                    <mat-hint align="end">{{nombre.value.length}}/2</mat-hint>
+                    <mat-error
+                        *ngIf="FormNivel.get('nombre')?.invalid &&  (FormNivel.get('nombre')?.dirty || FormNivel.get('nombre')?.touched)">
+                        <ng-container *ngIf="FormNivel.get('nombre')?.hasError('minlength')">
+                            El nivel debe tener al menos 1 dígito.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormNivel.get('nombre')?.hasError('pattern') && !FormNivel.get('nombre')?.hasError('minlength')">
+                            El nivel debe contener solo números.
+                        </ng-container>
+                        <ng-container *ngIf="FormNivel.get('nombre')?.hasError('nombreExists')">
+                            El nivel ya existe en la base de datos.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 10 dígitos.">
+                    <mat-label>Haber Básico</mat-label>
+                    <input formControlName="haber_basico" matInput #haber_basico maxlength="10" minlength="2"
+                        placeholder="Ej: 10000.10">
+                    <mat-hint align="end">{{haber_basico.value.length}}/10</mat-hint>
+                    <mat-error
+                        *ngIf="FormNivel.get('haber_basico')?.invalid &&  (FormNivel.get('haber_basico')?.dirty || FormNivel.get('haber_basico')?.touched)">
+                        <ng-container *ngIf="FormNivel.get('haber_basico')?.hasError('minlength')">
+                            El haber básico debe tener al menos 2 dígitos.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormNivel.get('haber_basico')?.hasError('pattern') && !FormNivel.get('haber_basico')?.hasError('minlength')">
+                            El haber básico debe contener números entero/decimal.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 5 dígitos.">
+                    <mat-label>CNS</mat-label>
+                    <input formControlName="cns" matInput #cns maxlength="5" minlength="2" placeholder="Ej: 0.1">
+                    <mat-hint align="end">{{cns.value.length}}/5</mat-hint>
+                    <mat-error
+                        *ngIf="FormNivel.get('cns')?.invalid &&  (FormNivel.get('cns')?.dirty || FormNivel.get('cns')?.touched)">
+                        <ng-container *ngIf="FormNivel.get('cns')?.hasError('minlength')">
+                            El cns debe tener al menos 2 dígitos.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormNivel.get('cns')?.hasError('pattern') && !FormNivel.get('cns')?.hasError('minlength')">
+                            El cns debe contener números entero/decimal.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="card-2">
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 5 dígitos.">
+                    <mat-label>Solidario</mat-label>
+                    <input formControlName="solidario" matInput #solidario maxlength="5" minlength="2"
+                        placeholder="Ej: 0.1">
+                    <mat-hint align="end">{{solidario.value.length}}/5</mat-hint>
+                    <mat-error
+                        *ngIf="FormNivel.get('solidario')?.invalid &&  (FormNivel.get('solidario')?.dirty || FormNivel.get('solidario')?.touched)">
+                        <ng-container *ngIf="FormNivel.get('solidario')?.hasError('minlength')">
+                            Solidario debe tener al menos 2 dígitos.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormNivel.get('solidario')?.hasError('pattern') && !FormNivel.get('solidario')?.hasError('minlength')">
+                            Solidario debe contener números entero/decimal.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 5 dígitos.">
+                    <mat-label>Pro Vivienda</mat-label>
+                    <input formControlName="provivienda" matInput #provivienda maxlength="5" minlength="2"
+                        placeholder="Ej: 0.1">
+                    <mat-hint align="end">{{provivienda.value.length}}/5</mat-hint>
+                    <mat-error
+                        *ngIf="FormNivel.get('provivienda')?.invalid &&  (FormNivel.get('provivienda')?.dirty || FormNivel.get('provivienda')?.touched)">
+                        <ng-container *ngIf="FormNivel.get('provivienda')?.hasError('minlength')">
+                            provivienda debe tener al menos 2 dígitos.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormNivel.get('provivienda')?.hasError('pattern') && !FormNivel.get('provivienda')?.hasError('minlength')">
+                            Pro Vivienda debe contener números entero/decimal.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-select-1">
+                <mat-form-field hintLabel="Máximo 5 dígitos.">
+                    <mat-label>Profesional</mat-label>
+                    <input formControlName="profesional" matInput #profesional maxlength="5" minlength="2"
+                        placeholder="Ej: 0.1">
+                    <mat-hint align="end">{{profesional.value.length}}/5</mat-hint>
+                    <mat-error
+                        *ngIf="FormNivel.get('profesional')?.invalid &&  (FormNivel.get('profesional')?.dirty || FormNivel.get('profesional')?.touched)">
+                        <ng-container *ngIf="FormNivel.get('profesional')?.hasError('minlength')">
+                            Profesional debe tener al menos 2 dígitos.
+                        </ng-container>
+                        <ng-container
+                            *ngIf="FormNivel.get('profesional')?.hasError('pattern') && !FormNivel.get('profesional')?.hasError('minlength')">
+                            Profesional debe contener números entero/decimal.
+                        </ng-container>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="card-3">
+            <!-- <h4 class="space-title">Estado: </h4> -->
+            <mat-chip-listbox formControlName="estado">
+                <mat-chip-option color="primary" [value]='true'> Habilitar </mat-chip-option>
+                <mat-chip-option color="warn" [value]='false'> Deshabilitar</mat-chip-option>
+            </mat-chip-listbox>
+        </div>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="form-button">
+    <button mat-flat-button color="warn" mat-dialog-close class="button-send">Cancelar</button>
+    <button mat-raised-button color="primary" mat-button [disabled]="FormNivel.invalid" (click)="guardar()"
+        class="button-send">Guardar</button>
+</mat-dialog-actions>
