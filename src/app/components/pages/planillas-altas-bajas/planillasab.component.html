@@ -1,0 +1,115 @@
+<div class="container-fluid">
+    <div class="drop">
+        <div class="drop-add">
+            <mat-toolbar>
+                <span>PLANILLAS A/B</span>
+                <button (click)="add()" mat-icon-button>
+                    <mat-icon>add</mat-icon>
+                </button>
+            </mat-toolbar>
+        </div>
+        <div class="drop-filter">
+            <mat-form-field class="form-filter">
+                <mat-label>Buscar Nombre/CI/Cargo</mat-label>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Nombre/CI/Cargo" #input>
+                <button mat-icon-button matSuffix *ngIf="input.value !== ''" (click)="clearInput(input)">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>                 
+
+            <mat-form-field class="first">
+                <mat-label>Estado</mat-label>
+                <mat-select (selectionChange)="estadoSeleccion($event)" [(ngModel)]="filtrarEstado"
+                    [disabled]="searchEstado">
+                    <mat-option value="none">Todos</mat-option>
+                    <mat-option value="true">Alta</mat-option>
+                    <mat-option value="false">Baja</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div>
+        <div class="form-table">
+            <table mat-table [dataSource]="dataSource">
+
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                    <td mat-cell *matCellDef="let element"> {{element.paterno}} {{element.materno}} {{element.nombre}} 
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="ci">
+                    <th mat-header-cell *matHeaderCellDef> C.I. </th>
+                    <td mat-cell *matCellDef="let element"> {{element.ci || "Sin C.I."}} {{ element.ci && element.ext?
+                        "- " + element.ext: ""}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="cargo">
+                    <th mat-header-cell *matHeaderCellDef> Cargo </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.registros && element.registros.length > 0 &&
+                        element.registros[0].id_cargo ?
+                        element.registros[0].id_cargo.nombre : 'Sin cargo.' }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="codigo">
+                    <th mat-header-cell *matHeaderCellDef> Código </th>
+                    <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="fecha_ingreso">
+                    <th mat-header-cell *matHeaderCellDef> Fecha Ingreso </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.registros && element.registros.length > 0 &&
+                        element.registros[0] ? (element.registros[0].fecha_ingreso | date: "dd/MM/yyy") : '' }} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="fechaConclusion">
+                    <th mat-header-cell *matHeaderCellDef> Fecha Conclusión </th>
+                    <td mat-cell *matCellDef="let element"> {{element.fecha_ingreso}} </td>
+                </ng-container>        
+
+                <ng-container matColumnDef="estado">
+                    <th mat-header-cell *matHeaderCellDef> Estado </th>
+                    <td mat-cell *matCellDef="let element">
+                        <span *ngIf="element?.estado !== false ">
+                            <span class="badge bg-success">Alta</span>
+                        </span>
+                        <span *ngIf="element?.estado === false">
+                            <span class="badge bg-danger">Baja</span>
+                        </span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="options">
+                    <th mat-header-cell *matHeaderCellDef> </th>
+                    <td mat-cell *matCellDef="let element" class="form-options">
+                        <button mat-icon-button [matMenuTriggerFor]="menu">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="edit(element)">
+                                <mat-icon style="color: royalblue;">edit</mat-icon>
+                                <span>Editar</span>
+                            </button>
+                            <button mat-menu-item (click)="delete(element)">
+                                <mat-icon style="color: royalblue;">delete</mat-icon>
+                                <span>Eliminar</span>
+                            </button>
+                        </mat-menu>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                <tr *matNoDataRow>
+                    <td colspan="6">No hay datos que coincidan con el filtro.</td>
+                </tr>
+            </table>
+            <mat-paginator [pageSizeOptions]="[8, 10, 15, 20, 50]" showFirstLastButtons>
+            </mat-paginator>
+        </div>
+
+    </div>
