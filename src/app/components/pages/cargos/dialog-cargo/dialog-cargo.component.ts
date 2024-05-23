@@ -1,11 +1,11 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectorRef } from "@angular/core";
 
 import { DependenciasService } from "../../../../services/dependencias.service";
 import { NivelesService } from "../../../../services/niveles.service";
 import { PartidasService } from "../../../../services/partidas.service";
+import { UnidadesService } from "../../../../services/unidades.service";
 import { CargosService } from "../../../../services/cargos.service";
-import { OrganigramaService } from "src/app/services/organigrama.service";
 
 import { Observable } from "rxjs";
 import { map, startWith } from "rxjs/operators";
@@ -26,84 +26,16 @@ import {
 export class DialogCargoComponent implements OnInit {
   level: any[] = [];
   dependence: any[] = [];
+  unidades: any[] = [];
   partida: any[] = [];
   options: any[] = [];
   cargos: any[] = [];
 
-  unidades = [
-    "DESPACHO DEL ALCALDE",
-    "DIRECCION JURIDICA",
-    "DIRECCION AUDITORIA INTERNA",
-    "DIRECCION DE COODINACION Y RELACIONES INTERINSTITUCIONALES",
-    "UNIDAD DE VENTANILLA UNICA",
-    "UNIDAD DE COMUNICACIÓN E IMAGEN INSTITUCIONAL",
-    "UNIDAD DE TRANSPARENCIA Y LUCHA CONTRA LA CORRUPCION",
-    "SECRETARIA MUNICIPAL DE PLANIFICACIÓN Y DESARROLLO TERRITORIAL",
-    "DIRECCION DE PLANIFICACION Y DESARROLLO INTEGRAL",
-    "UNIDAD DE PROYECTOS DE PRE-INVERSION",
-    "UNIDAD DE PROGRAMACION DE OPERACIONES Y SEGUIMIENTO P.O.A.",
-    "UNIDAD DE PLANIFICACION ESTRATEGICA",
-    "DIRECCION DE CATASTRO MULTIFINALITARIO Y ADMINISTRACION DE TIERRAS",
-    "DIRECCION DE GESTION URBANA Y TERRITORIAL",
-    "UNIDAD DE SERVICIOS DE URBANISMO",
-    "UNIDAD DE ORDENAMIENTO TERRITORIAL",
-    "UNIDAD DE SANEAMIENTO DE BIENES INMUEBLES MUNICIPALES",
-    "SECRETARIA MUNICIPAL DE FINANZAS Y ADMINISTRACION",
-    "DIRECION DE ORGANIZACIÓN ADMINISTRATIVA Y RECURSOS HUMANOS",
-    "UNIDAD DE ADMINISTRACION Y DESARROLLO DE PERSONAL",
-    "DIRECCION DE FINANZAS",
-    "UNIDAD DE TESORERIA Y CREDITO PUBLICO",
-    "UNIDAD DE CONTABILIDAD",
-    "UNIDAD DE PRESUPUESTOS",
-    "DIRECTOR (A) ADMINISTRATIVO",
-    "UNIDAD DE ARCHIVOS INSTITUCIONALES",
-    "UNIDAD DE CONTRATACIONES",
-    "UNIDAD DE ALMACENES",
-    "UNIDAD DE SERVICIOS GENERALES",
-    "UNIDAD DE ACTIVOS FIJOS",
-    "DIRECCION DE INGRESOS Y SERVICIOS MUNICIPALES",
-    "UNIDAD DE COBRANZA COACTIVA",
-    "UNIDAD DE FISCALIZACION TRIBUTARIA",
-    "UNIDAD DE VEHICULOS",
-    "UNIDAD DE BIENES INMUEBLES",
-    "UNIDAD DE ADMINISTRACION DE SERVICIOS MUNICIPALES",
-    "UNIDAD DE ACTIVIDADES ECONOMICAS",
-    "UNIDAD DE GOBIERNO ELECTRONICO",
-    "SECRETARIA MUNICIPAL DE INFRAESTRUCTURA Y SERVICIOS",
-    "DIRECCION DE OBRAS PUBLICAS Y SUPERVISION",
-    "UNIDAD DE OBRAS PUBLICAS",
-    "UNIDAD DE PLANTA DE ASFALTO Y SEÑALIZACION VIAL",
-    "DIRECCION DE TRANSPORTES Y SERVICIOS ELECTRICOS",
-    "UNIDAD DE MANTENIMIENTO DE INFRAESTRUCTURA ELECTRICA Y SEMAFORIZACION",
-    "UNIDAD DE TRANSPORTES Y MAQUINARIA",
-    "SECRETARIA MUNICIPAL DE LA MADRE TIERRA Y DESARROLLO PRODUCTIVO",
-    "DIRECCION DE MEDIO AMBIENTE Y MADRE TIERRA",
-    "UNIDAD DE GESTION DE RIESGOS",
-    "UNIDAD DE AREAS VERDES, PARQUES Y JARDINES",
-    "DIRECCION DE DESARROLLO PRODUCTIVO Y ECONOMIA PLURAL",
-    "UNIDAD DE MATADERO MUNICIPAL",
-    "UNIDAD DE TURISMO",
-    "UNIDAD DE FORTALECIMIENTO Y DESARROLLO PRODUCTIVO",
-    "UNIDAD AGROFORESTAL",
-    "SECRETARIA MUNICIPAL DE DESARROLLO HUMANO INTEGRAL",
-    "DIRECCION DE DESARROLLO HUMANO",
-    "UNIDAD DE GENERO GENERACIONAL Y FAMILIA",
-    "UNIDAD DE CULTURA",
-    "UNIDAD DE EDUCACION",
-    "UNIDAD DE DEPORTES Y PROMOCION",
-    "UNIDAD DE SEGURIDAD CIUDADANA Y MOVILIDAD MUNICIPAL",
-    "UNIDAD DE INTENDENCIA MUNICIPAL",
-    "SECRETARIA MUNICIPAL DE SALUD",
-    "DIRECCION DE ADMINISTRACION DE SALUD",
-    "UNIDAD DE CONTROL SANITARIO Y ZOONOSIS",
-    "UNIDAD ADMINISTRATIVO HOSPITAL MEXICO",
-    "UNIDAD ADMINISTRATIVO HOSPITAL SOLOMON KLEIN",
-    "UNIDAD ADMINISTRATIVO DE PROGRAMAS Y ESTABLECIMIENTOS DE SALUD DE 1º NIVEL",
-    "UNIDAD DE ADMINISTRACION FINANCIERA DE SALUD",
-    "UNIDAD DE CONTRATACIONES DE SALUD",
-  ];
-
   idPartidaControl = new FormControl();
+  idUnidadControl = new FormControl(
+    { value: "", disabled: true },
+    Validators.required
+  );
   idCargoControl = new FormControl();
 
   jobs: any[] = [];
@@ -116,11 +48,11 @@ export class DialogCargoComponent implements OnInit {
       [
         Validators.required,
         Validators.minLength(2),
-        Validators.pattern("[a-zA-Z\\s.-]*"),
+        Validators.pattern("[a-zA-Z\\s\\.\\-\\(\\)\\ñ\\Ñ]*"),
       ],
     ],
     id_dependencia: ["", Validators.required],
-    id_unidad: [{ value: "", disabled: true }, Validators.required],
+    id_unidad: this.idUnidadControl,
     categoria: [{ value: "", disabled: true }, Validators.required],
     id_nivel_salarial: ["", Validators.required],
     registro: [
@@ -146,25 +78,50 @@ export class DialogCargoComponent implements OnInit {
 
   filteredOptions!: Observable<any[]>;
   filteredCharges!: Observable<any[]>;
+  filteredUnits!: Observable<any[]>;
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<DialogCargoComponent>,
+    private cdr: ChangeDetectorRef,
     private dependenciaService: DependenciasService,
+    private unidadService: UnidadesService,
     private nivelService: NivelesService,
     private partidaService: PartidasService,
     private cargoService: CargosService,
-    private organigramaService: OrganigramaService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   ngOnInit(): void {
     this.load();
-    this.charge();
   }
-  charge() {
+
+  load() {
+    this.loadPartidas();
+    this.loadCargos();
+    this.filters();
+    this.loadDependencias();
+    this.loadUnidades();
+    this.loadNiveles();
+    const contratoControl = this.FormJob.get("contrato");
+    if (contratoControl) {
+      contratoControl.valueChanges.subscribe((value) => {
+        if (value === "EVENTUAL" || value === "REMANENTE") {
+          this.setValidarDatosOcultos(true);
+        } else {
+          this.setValidarDatosOcultos(false);
+        }
+      });
+    }
+    this.removeCargoSuperior();
+    this.formDatos();
+
+    this.cdr.detectChanges();
+  }
+
+  formDatos() {
     if (this.data) {
-      this.cargoService.getCargosById(this.data).subscribe((element) => {
+      this.cargoService.getCargosById(this.data.id).subscribe((element) => {
         this.FormJob.patchValue({
           nombre: element.nombre || "",
           id_dependencia: element.id_dependencia?._id || "",
@@ -182,35 +139,41 @@ export class DialogCargoComponent implements OnInit {
           id_cargo_superior: element.id_cargo_superior || "",
         });
 
+        this.idPartidaControl.setValue(element.id_partida);
+        this.idUnidadControl.setValue(element.id_unidad);
+        this.idCargoControl.setValue(element.id_cargo_superior);
+        this.fillRegistro();
+        this.toggleFields(this.data.asignacion);
+
+        // Cuando el cargo se encuentra deshabilitado, al habilitarlo el numero de registro no pasar por una verificacion y puede generar duplicidad, asi que se establecio quitar el valor del registro para validar la informacion y no generar duplicidad de registro.
         if (element.estado === false) {
           this.FormJob.get("registro")?.setValue("");
-          this.FormJob.get("registro")?.markAsUntouched();
-          this.FormJob.get("registro")?.markAsPristine();
         }
-
-        this.idPartidaControl.setValue(element.id_partida);
-        this.idCargoControl.setValue(element.id_cargo_superior);
       });
     }
   }
 
-  load() {
-    this.loadPartidas();
-    this.loadCargos();
-    this.filters();
-    this.loadDependencias();
-    this.loadNiveles();
-    const contratoControl = this.FormJob.get("contrato");
-    if (contratoControl) {
-      contratoControl.valueChanges.subscribe((value) => {
-        if (value === "EVENTUAL" || value === "REMANENTE") {
-          this.setValidarDatosOcultos(true);
-        } else {
-          this.setValidarDatosOcultos(false);
-        }
-      });
+  toggleFields(enable: boolean) {
+    const controls = this.FormJob.controls;
+    for (let controlName in controls) {
+      if (enable) {
+        controls[controlName].enable({ emitEvent: false });
+      } else {
+        controls[controlName].disable({ emitEvent: false });
+      }
     }
-    this.removeCargoSuperior();
+
+    if (enable) {
+      this.FormJob.get("contrato")?.enable({ emitEvent: false });
+    }
+
+    if (this.FormJob.value.contrato === "ITEM" && enable) {
+      this.idUnidadControl.enable({ emitEvent: false });
+      this.FormJob.get("categoria")?.enable({ emitEvent: false });
+    } else {
+      this.idUnidadControl.disable({ emitEvent: false });
+      this.FormJob.get("categoria")?.disable({ emitEvent: false });
+    }
   }
 
   displayFn(option: any): string {
@@ -226,6 +189,11 @@ export class DialogCargoComponent implements OnInit {
     this.filteredCharges = this.idCargoControl.valueChanges.pipe(
       startWith(""),
       map((value) => this._filterCharge(value || ""))
+    );
+
+    this.filteredUnits = this.idUnidadControl.valueChanges.pipe(
+      startWith(""),
+      map((value) => this._filterUnit(value || ""))
     );
   }
 
@@ -253,26 +221,43 @@ export class DialogCargoComponent implements OnInit {
     );
   }
 
+  private _filterUnit(value: string): any[] {
+    // Si el valor no es una cadena, no filtramos nada
+    if (typeof value !== "string") {
+      return this.unidades;
+    }
+
+    let filterValue = value.toUpperCase();
+    return this.unidades.filter((unidad) =>
+      unidad.nombre.toUpperCase().includes(filterValue)
+    );
+  }
+
   loadPartidas() {
-    this.partidaService.getPartidas().subscribe((items) => {
-      const value = items.filter((item: any) => item.estado === true);
-      //this.options = value.map((item: any) => item.nombre);
-      this.options = value;
-    });
+    this.partidaService
+      .getFiltroCampos("estado", "true")
+      .subscribe((partida) => {
+        this.options = partida;
+      });
   }
 
   loadDependencias() {
-    this.dependenciaService.getDependencias().subscribe((dependences) => {
-      const estado = dependences.filter(
-        (dependencia: any) => dependencia.estado === true
-      );
-      this.dependence = estado;
+    this.dependenciaService
+      .getFiltroCampos("estado", "true")
+      .subscribe((dependencia) => {
+        this.dependence = dependencia;
+      });
+  }
+
+  loadUnidades() {
+    this.unidadService.getFiltroCampos("estado", "true").subscribe((unidad) => {
+      this.unidades = unidad;
     });
   }
 
   loadNiveles() {
-    this.nivelService.getFiltroCampos("estado", "true").subscribe((levels) => {
-      this.level = levels;
+    this.nivelService.getFiltroCampos("estado", "true").subscribe((nivel) => {
+      this.level = nivel;
       const datosFiltradosYOrdenados = this.level.sort((a, b) => {
         if (a.nombre < b.nombre) {
           return -1;
@@ -296,16 +281,16 @@ export class DialogCargoComponent implements OnInit {
     this.FormJob.get("idPartidaControl")?.setValue(partida);
   }
 
-  agregarNivel(level: any) {
-    this.FormJob.get("id_nivel_salarial")?.setValue(level.value);
+  agregarNivel(nivel: any) {
+    this.FormJob.get("id_nivel_salarial")?.setValue(nivel.value);
   }
 
-  agregarDependencia(dependence: any) {
-    this.FormJob.get("id_dependencia")?.setValue(dependence.value);
+  agregarDependencia(dependencia: any) {
+    this.FormJob.get("id_dependencia")?.setValue(dependencia.value);
   }
 
-  agregarCargo(charge: any) {
-    this.FormJob.get("id_dependencia")?.setValue(charge.value);
+  agregarCargo(cargo: any) {
+    this.FormJob.get("id_dependencia")?.setValue(cargo.value);
   }
 
   selectJob(job: any) {
@@ -314,44 +299,47 @@ export class DialogCargoComponent implements OnInit {
 
   fillRegistro() {
     const contrato = this.FormJob.get("contrato")?.value;
-    const idUnidadControl = this.FormJob.get("id_unidad");
+    const unidad = this.idUnidadControl;
     const categoria = this.FormJob.get("categoria");
 
     if (contrato === "ITEM") {
-      idUnidadControl?.enable();
+      unidad?.enable();
       categoria?.enable();
     } else {
-      idUnidadControl?.disable();
+      unidad?.disable();
       categoria?.disable();
     }
+    if (!this.data) {
+      this.cargoService
+        .getFiltroCampos("estado", "true")
+        .subscribe((charge) => {
+          if (contrato) {
+            // Filtrar los datos según el tipo de contrato seleccionado
+            let filteredRegistros;
+            if (contrato === "EVENTUAL" || contrato == "REMANENTE") {
+              filteredRegistros = charge.filter(
+                (partida: any) => partida.contrato !== "ITEM"
+              );
+            } else {
+              filteredRegistros = charge.filter(
+                (cargo: any) => cargo.contrato === contrato
+              );
+            }
 
-    this.cargoService.getFiltroCampos("estado", "true").subscribe((charge) => {
-      if (contrato) {
-        // Filtrar los datos según el tipo de contrato seleccionado
-        let filteredRegistros;
-        if (contrato === "EVENTUAL" || contrato == "REMANENTE") {
-          filteredRegistros = charge.filter(
-            (partida: any) => partida.contrato !== "ITEM"
-          );
-        } else {
-          filteredRegistros = charge.filter(
-            (cargo: any) => cargo.contrato === contrato
-          );
-        }
-
-        // Filtrar los registros no numéricos
-        const registrosNumericos = filteredRegistros
-          .map((cargo: any) => parseInt(cargo.registro, 10))
-          .filter((registro: number) => !isNaN(registro));
-        // Verificar si hay registros numéricos
-        if (registrosNumericos.length > 0) {
-          // Obtener el registro más alto de las partidas filtradas
-          const maxRegistro = Math.max(...registrosNumericos) + 1;
-          // Asignar el registro más alto al campo de entrada
-          this.FormJob.patchValue({ registro: maxRegistro });
-        }
-      }
-    });
+            // Filtrar los registros no numéricos
+            const registrosNumericos = filteredRegistros
+              .map((cargo: any) => parseInt(cargo.registro, 10))
+              .filter((registro: number) => !isNaN(registro));
+            // Verificar si hay registros numéricos
+            if (registrosNumericos.length > 0) {
+              // Obtener el registro más alto de las partidas filtradas
+              const maxRegistro = Math.max(...registrosNumericos) + 1;
+              // Asignar el registro más alto al campo de entrada
+              this.FormJob.patchValue({ registro: maxRegistro });
+            }
+          }
+        });
+    }
   }
 
   searchDependents(text: string) {
@@ -425,13 +413,17 @@ export class DialogCargoComponent implements OnInit {
   registroExistsValidator(
     control: AbstractControl
   ): { [key: string]: any } | null {
-    return this.existsValidator(control, "registro", this.data, this.cargos);
+    let id;
+    if (this.data) {
+      id = this.data.id;
+    }
+    return this.existsValidator(control, "registro", id, this.cargos);
   }
 
   existsValidator(
     control: AbstractControl,
-    field: string,
-    data: any,
+    campo: string,
+    id: any,
     cargos: any[]
   ): { [key: string]: any } | null {
     let value = control.value;
@@ -439,22 +431,17 @@ export class DialogCargoComponent implements OnInit {
       return null;
     }
 
-    if (typeof value === "string") {
-      value = value.toUpperCase();
-    }
+    // filtrado por tipo de contrato seleccionado
+    let contrato = this.FormJob.value.contrato;
+    let filter = cargos.filter((cargo) => cargo.contrato === contrato);
 
-    let element = "";
-    if (data) {
-      element = data._id;
-    }
-    let exists = cargos.some(
+    // búsqueda del número de registro introducido en el input registro, el resultado retorna un valor booleano (true, false)
+    let exists = filter.some(
       (cargo) =>
-        cargo[field] &&
-        cargo[field].toString() === value &&
-        cargo._id !== element
+        cargo[campo] && cargo[campo].toString() === value && cargo._id !== id
     );
 
-    return exists ? { [`${field}Exists`]: { value } } : null;
+    return exists ? { [`${campo}Exists`]: { value } } : null;
   }
 
   private convertToUpperCase(fieldName: string): void {
@@ -502,17 +489,6 @@ export class DialogCargoComponent implements OnInit {
     //eliminando el elemento de control del campo del formulario
     delete this.FormJob.value.disableCargoControl;
 
-    // if (this.data && this.FormJob.value.estado === false) {
-    //   this.organigramaService.updateOrganigram(this.data, "").subscribe(
-    //     (response) => {
-    //       this.dialogRef.close(response);
-    //     },
-    //     (error) => {
-    //       console.error("Error al deshabilitar el cargo:", error);
-    //     }
-    //   );
-    // }
-
     if (
       this.FormJob.value.estado === false &&
       this.FormJob.value.id_cargo_superior
@@ -528,12 +504,14 @@ export class DialogCargoComponent implements OnInit {
     this.convertToUpperCase("objetivo");
     this.convertToNumber("registro");
     this.convertToNumber("duracion_contrato");
-    this.guardar();
+
+    //this.guardar();
   }
 
   guardar() {
+    console.log(this.FormJob.value);
     if (this.data) {
-      this.cargoService.updateCargo(this.data, this.FormJob.value).subscribe(
+      this.cargoService.updateCargo(this.data.id, this.FormJob.value).subscribe(
         (response) => {
           this.dialogRef.close(response);
         },
