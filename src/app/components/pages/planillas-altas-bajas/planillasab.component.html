@@ -1,13 +1,12 @@
 <div class="container-fluid">
     <div class="drop">
+
         <div class="drop-add">
             <mat-toolbar>
                 <span>PLANILLAS A/B</span>
-                <button (click)="add()" mat-icon-button>
-                    <mat-icon>add</mat-icon>
-                </button>
             </mat-toolbar>
         </div>
+
         <div class="drop-filter">
             <mat-form-field class="form-filter">
                 <mat-label>Buscar Nombre/CI/Cargo</mat-label>
@@ -16,7 +15,18 @@
                     <mat-icon>clear</mat-icon>
                 </button>
             </mat-form-field>
-        </div>                 
+        </div>
+        
+            <mat-form-field class="first">
+                <mat-label>Tipo de Contrato</mat-label>
+                <mat-select (selectionChange)="tipoContratoSeleccion($event)" [(ngModel)]="filtrarTipoContrato"
+                    [disabled]="searchTipoContrato">
+                    <mat-option value="none">Todos</mat-option>
+                    <mat-option value="ITEM">ITEM</mat-option>
+                    <mat-option value="EVENTUAL">EVENTUAL</mat-option>
+                    <mat-option value="REMANENTE">REMANENTE</mat-option>
+                </mat-select>
+            </mat-form-field>
 
             <mat-form-field class="first">
                 <mat-label>Estado</mat-label>
@@ -36,7 +46,7 @@
 
                 <ng-container matColumnDef="nombre">
                     <th mat-header-cell *matHeaderCellDef> Nombre </th>
-                    <td mat-cell *matCellDef="let element"> {{element.paterno}} {{element.materno}} {{element.nombre}} 
+                    <td mat-cell *matCellDef="let element"> {{element.paterno || ""}} {{element.materno || ""}} {{element.nombre || ""}} 
                     </td>
                 </ng-container>
 
@@ -46,11 +56,14 @@
                         "- " + element.ext: ""}}</td>
                 </ng-container>
 
+                <ng-container matColumnDef="contrato">
+                    <th mat-header-cell *matHeaderCellDef> Tipo </th>
+                    <td mat-cell *matCellDef="let element"> {{element.cargo?.contrato || "Sin Contrato" }}</td>
+                </ng-container>
+
                 <ng-container matColumnDef="cargo">
                     <th mat-header-cell *matHeaderCellDef> Cargo </th>
-                    <td mat-cell *matCellDef="let element"> {{ element.registros && element.registros.length > 0 &&
-                        element.registros[0].id_cargo ?
-                        element.registros[0].id_cargo.nombre : 'Sin cargo.' }}
+                    <td mat-cell *matCellDef="let element"> {{ element.cargo?.nombre || "" }}
                     </td>
                 </ng-container>
 
@@ -61,22 +74,21 @@
 
                 <ng-container matColumnDef="fecha_ingreso">
                     <th mat-header-cell *matHeaderCellDef> Fecha Ingreso </th>
-                    <td mat-cell *matCellDef="let element"> {{ element.registros && element.registros.length > 0 &&
-                        element.registros[0] ? (element.registros[0].fecha_ingreso | date: "dd/MM/yyy") : '' }} </td>
+                    <td mat-cell *matCellDef="let element"> {{ element.registro?.fecha_ingreso? (element.registro?.fecha_ingreso |date: "dd/MM/yyy") : '' }} </td>
                 </ng-container>
 
-                <ng-container matColumnDef="fechaConclusion">
+                <ng-container matColumnDef="fecha_conclusion">
                     <th mat-header-cell *matHeaderCellDef> Fecha Conclusión </th>
-                    <td mat-cell *matCellDef="let element"> {{element.fecha_ingreso}} </td>
+                    <td mat-cell *matCellDef="let element"> {{element.registro?.fecha_conclusion? (element.registro?.fecha_conclusion |date: "dd/MM/yyy") : '' }} </td>
                 </ng-container>        
 
                 <ng-container matColumnDef="estado">
                     <th mat-header-cell *matHeaderCellDef> Estado </th>
                     <td mat-cell *matCellDef="let element">
-                        <span *ngIf="element?.estado !== false ">
+                        <span *ngIf="element.estado !== false ">
                             <span class="badge bg-success">Alta</span>
                         </span>
-                        <span *ngIf="element?.estado === false">
+                        <span *ngIf="element.estado === false">
                             <span class="badge bg-danger">Baja</span>
                         </span>
                     </td>
@@ -93,7 +105,7 @@
                                 <mat-icon style="color: royalblue;">edit</mat-icon>
                                 <span>Editar</span>
                             </button>
-                            <button mat-menu-item (click)="delete(element)">
+                            <button mat-menu-item (click)="edit(element)">
                                 <mat-icon style="color: royalblue;">delete</mat-icon>
                                 <span>Eliminar</span>
                             </button>

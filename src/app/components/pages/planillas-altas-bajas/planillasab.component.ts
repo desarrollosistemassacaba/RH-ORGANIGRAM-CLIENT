@@ -30,8 +30,11 @@ cargos: any[] = [];
 text: string = "";
 
 searchEstado: boolean = false;
+searchTipoContrato: boolean = false;
 filtrarEstado: string = "none";
+filtrarTipoContrato: string = "none";
 displayedColumns: string[];
+
 dataSource = new MatTableDataSource<any>([]);
 
 @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -39,44 +42,49 @@ constructor(
 private cargosService: CargosService,
 private funcionariosService: FuncionariosService,
 private registrosService: RegistrosService,
-//private dependenciasService: DependenciasService,
 private cdr: ChangeDetectorRef,
 private dialog: MatDialog
 ) {
 this.displayedColumns = [
     "nombre",
     "ci",
-    "cargo",
+    "contrato",
+    "cargo",    
     "fecha_ingreso",
-    "fechaConclusion",
+    "fecha_conclusion",
     "estado",
     "options",
 ];
 }
 
 ngAfterViewInit(): void {
-this.load();
+    this.load();
 }
 
 load() {
-if (this.filtrarEstado !== "none") {
-    console.log("loading por filtro....");
-    this.estadoByFilter(this.filtrarEstado);
-} else {
-    this.loadFuncionariosAndRegistros();
-    console.log("loading funcionarios....");
-}
+
+    if (this.filtrarEstado !== "none") {
+        console.log("cargando por estado....");
+        this.estadoByFilter(this.filtrarEstado);
+    } else if(this.filtrarTipoContrato !== "none"){
+        console.log("cargando filtro por tipo de contrato...");
+        this.contratoByFilter(this.filtrarTipoContrato);        
+    } 
+    else {
+        this.loadFuncionariosAndRegistros();
+    }
 }
 
 loadFuncionariosAndRegistros() {
-forkJoin({
+forkJoin({    
+    //funcionarios: this.funcionariosService.getFiltroCampos("estado", "true"),    
     funcionarios: this.funcionariosService.getFuncionarios(),
     registros: this.registrosService.getRegistros(),
-    //dependencias: this.dependenciasService.getDependencias(),
+    cargos: this.cargosService.getFiltroCampos("estado", "true")
     })
     .pipe(
-    map(({ funcionarios, registros }) => {
-        return this.combineData(funcionarios, registros);
+    map(({ funcionarios, registros, cargos}) => {
+        return this.combineFuncionariosData(funcionarios, registros, cargos);
     })
     )
     .subscribe(
@@ -89,93 +97,112 @@ forkJoin({
     );
 }
 
-private combineData(
-funcionarios: any[],
-registros: any[]
+private combineFuncionariosData(    
+    funcionarios: any[],    
+    registros: any[],
+    cargos: any[],
 ): any[] {
-const filteredRegistros = this.filterRegistros(registros);
 
 return funcionarios.map((funcionario: any) => {
-    const registrosFuncionario = filteredRegistros.filter(
-    (registro: any) => registro.id_funcionario._id === funcionario._id
+
+    const registroFuncionario = registros.find(
+        (registro: any) => (registro.id_funcionario?._id === funcionario._id)
     );
+
+
+    if (!registroFuncionario) {        
+        return {
+          ...funcionario,           
+          registro: [],
+          cargo: []       
+        };
+    }
     
-    //console.log(registrosFuncionario);
+    const cargoRegistro = cargos.find(
+        (cargo: any) => cargo._id === registroFuncionario.id_cargo?._id
+    );
+
+     
+    if (!cargoRegistro) {
+        return {
+          ...funcionario,          
+          registro: registroFuncionario,
+          cargo: []                 
+        };
+    }
 
     return {
-    ...funcionario,
-    registros: registrosFuncionario,
+        ...funcionario,
+        registro: registroFuncionario,
+        cargo:  cargoRegistro        
     };
 });
 }
 
-private filterRegistros(registros: any[]): any[] {
-return registros.filter((r: any) => r.estado === true);
-}
 
 private setupDataSource(data: any[]): void {
 
-this.dataSource = new MatTableDataSource(data);
-this.dataSource.paginator = this.paginator;
+    console.log("setup datasource");
+    console.log(data);
+    this.dataSource = new MatTableDataSource(data);
+    this.dataSource.paginator = this.paginator;
 
-this.dataSource.filterPredicate = (data: any, filter: string) => {
-    const textToSearch = (
-    data.nombre +
-    " " +
-    data.paterno +
-    " " +
-    data.materno +
-    " " +
-    data.ci
-    ).toLowerCase();
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+        const textToSearch = (
+        data.nombre +
+        " " +
+        data.paterno +
+        " " +
+        data.materno +
+        " " +
+        data.ci
+        ).toLowerCase();
 
-    const cargoToSearch =
-    data.registros &&
-    data.registros.length > 0 &&
-    data.registros[0].id_cargo
-        ? data.registros[0].id_cargo.nombre.toLowerCase()
-        : "";
+        const cargoToSearch =
+        data.cargo &&       
+        data.cargo._id
+            ? data.cargo.nombre.toLowerCase()
+            : "";
 
-    const contratoToSearch =
-    data.registros &&
-    data.registros.length > 0 &&
-    data.registros[0].id_cargo
-        ? data.registros[0].id_cargo.contrato.toLowerCase()
-        : "";
-    //const dependenciaToSearch = data.sigla ? data.sigla.toLowerCase() : "";
-
-    return (
-    textToSearch.includes(filter) ||
-    cargoToSearch.includes(filter) ||
-    contratoToSearch.includes(filter)
-    );
-};
+        return (
+            textToSearch.includes(filter) ||
+            cargoToSearch.includes(filter) /*||
+            contratoToSearch.includes(filter) ||
+            cargoContratoToSearch.includes(filter)*/
+        );
+    };
 }
 
 loadCargos() {
 this.cargosService.getCargos().subscribe(
     (data) => {        
-    this.dataSource = new MatTableDataSource(data);
-    this.dataSource.paginator = this.paginator;
-    this.cdr.detectChanges();
+        this.dataSource = new MatTableDataSource(data);
+        this.dataSource.paginator = this.paginator;
+        this.cdr.detectChanges();
     },
     (error) => {
-    console.error("Error al obtener los cargos:", error);
+     console.error("Error al obtener los cargos:", error);
     }
 );
 }
 
+//Filtro de estados: Baja, Alta
+//El estado se basa en el estado del funcionario donde estado=false
+//equivale a baja, es posible que no se encuentre un cargo relacionado
 estadoByFilter(valor: string) {
+
 const campo = "estado";
+
 this.funcionariosService
     .getFiltroCampos(campo, valor)
     .pipe(
     switchMap((funcionarios) => {
         return forkJoin({
-        registros: this.registrosService.getRegistros()
+            registros: this.registrosService.getRegistros(),
+            cargos: this.cargosService.getCargos()
         }).pipe(
-        map(({ registros }) => {
-            return this.combineData(funcionarios, registros);
+        map(({ registros, cargos }) => {
+            return this.combineFuncionariosData(funcionarios, registros, cargos);
         })
         );
     })
@@ -190,8 +217,78 @@ this.funcionariosService
     );
 }
 
+
+contratoByFilter(valor: string) {
+
+    const campo = "contrato";
+ 
+    this.funcionariosService
+        .getFiltroCampos("estado", "true")
+        .pipe(
+            switchMap((funcionarios) => {
+                return forkJoin({
+                    registros: this.registrosService.getRegistros(),
+                    cargos: this.cargosService.getFiltroCampos(campo, valor)               
+                }).pipe(
+                    map(({registros, cargos }) => {
+                        return this.combineFuncionariosData(funcionarios, registros, cargos);
+                })
+                );
+            })
+        )
+        .subscribe(
+            (combinedData) => {
+                //Remover filas que no tienen cargo
+                //debido a que el filtro aplica al tipo de Contrato especificamente
+                var filteredData = combinedData.filter((row: any) => row.cargo.length !== 0 );                
+                this.setupDataSource(filteredData);
+            },
+            (error) => {
+                console.error("Error al obtener los datos:", error);
+            }
+        );
+    }
+
+/*
+tipoContratoByFilter(valor: string) {
+    let campo = "contrato";
+    console.log("filtering by contrato...");
+
+    this.cargosService.getFiltroCampos(campo, valor).subscribe(
+      (data) => {
+        this.dataSource = new MatTableDataSource(data);
+        this.dataSource.paginator = this.paginator;
+      },
+      (error) => {
+        console.error("Error al obtener los cargos:", error);
+      }
+    );
+
+
+  }*/
+
 estadoSeleccion(event: any) {
     this.filtrarEstado = event.value;
+
+    if(this.filtrarEstado === "none"){
+        this.searchTipoContrato = false;
+    } else{
+        this.searchTipoContrato = true;
+    }
+
+    this.load();
+}
+
+tipoContratoSeleccion(event: any){
+    
+    this.filtrarTipoContrato = event.value;
+
+    if(this.filtrarTipoContrato === "none"){
+        this.searchEstado = false;
+    } else {
+        this.searchEstado = true;
+    }    
+
     this.load();
 }
 
@@ -221,40 +318,6 @@ edit(cargo: any) {
     */
 }
 
-add() {
-    /*
-    const dialogRef = this.dialog.open(DialogFuncionarioComponent, {
-      width: "600px",
-    });
-    dialogRef.afterClosed().subscribe((result: any) => {
-      this.load();
-      //   if (result) {
-      //     this.dataSource = new MatTableDataSource([
-      //       result,
-      //       ...this.dataSource.data,
-      //     ]);
-      //     this.dataSource.paginator = this.paginator;
-      //   }
-    });
-    */
-}
-
-delete(element: any): void {
-    const confirmar = confirm(
-      "¿Estás seguro de que deseas eliminar esta dependencia?"
-    );
-
-    if (confirmar) {
-      this.cargosService.deleteCargo(element._id).subscribe(
-        () => {
-          this.load();
-        },
-        (error) => {
-          //console.error('Error al eliminar la dependencia:', error);
-        }
-      );
-    }
-}
 
 rotation(edit: string) {}
 
