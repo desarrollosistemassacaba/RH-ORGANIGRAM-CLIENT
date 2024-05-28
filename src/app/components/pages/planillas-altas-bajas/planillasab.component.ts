@@ -63,11 +63,9 @@ ngAfterViewInit(): void {
 
 load() {
 
-    if (this.filtrarEstado !== "none") {
-        console.log("cargando por estado....");
+    if (this.filtrarEstado !== "none") {       
         this.estadoByFilter(this.filtrarEstado);
-    } else if(this.filtrarTipoContrato !== "none"){
-        console.log("cargando filtro por tipo de contrato...");
+    } else if(this.filtrarTipoContrato !== "none"){        
         this.contratoByFilter(this.filtrarTipoContrato);        
     } 
     else {
@@ -142,8 +140,6 @@ return funcionarios.map((funcionario: any) => {
 
 private setupDataSource(data: any[]): void {
 
-    console.log("setup datasource");
-    console.log(data);
     this.dataSource = new MatTableDataSource(data);
     this.dataSource.paginator = this.paginator;
 
@@ -166,9 +162,7 @@ private setupDataSource(data: any[]): void {
 
         return (
             textToSearch.includes(filter) ||
-            cargoToSearch.includes(filter) /*||
-            contratoToSearch.includes(filter) ||
-            cargoContratoToSearch.includes(filter)*/
+            cargoToSearch.includes(filter) 
         );
     };
 }
