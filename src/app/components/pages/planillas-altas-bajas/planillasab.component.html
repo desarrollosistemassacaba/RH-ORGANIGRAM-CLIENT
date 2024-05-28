@@ -37,7 +37,13 @@
                     <mat-option value="false">Baja</mat-option>
                 </mat-select>
             </mat-form-field>
+            
+                <button mat-flat-button color="primary" [disabled]="habilitarBotonExportar" (click)="generateExcel()">Exportar</button>
+            
         </div>
+   
+            
+       
     </div>
 
     <div>

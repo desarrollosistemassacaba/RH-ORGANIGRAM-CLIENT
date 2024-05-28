@@ -9,6 +9,7 @@ import {
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
+import { MatButtonModule } from '@angular/material/button';
 
 import { switchMap, map } from "rxjs/operators";
 import { forkJoin } from "rxjs";
@@ -19,6 +20,7 @@ import { forkJoin } from "rxjs";
 import { FuncionariosService } from "../../../services/funcionarios.service";
 import { RegistrosService } from "../../../services/registros.service";
 import { CargosService } from "../../../services/cargos.service";
+import { ExcelService } from "../../../services/excel.service";
 
 @Component({
 selector: "app-planillasab",
@@ -34,6 +36,7 @@ searchTipoContrato: boolean = false;
 filtrarEstado: string = "none";
 filtrarTipoContrato: string = "none";
 displayedColumns: string[];
+habilitarBotonExportar: boolean = true;
 
 dataSource = new MatTableDataSource<any>([]);
 
@@ -43,7 +46,8 @@ private cargosService: CargosService,
 private funcionariosService: FuncionariosService,
 private registrosService: RegistrosService,
 private cdr: ChangeDetectorRef,
-private dialog: MatDialog
+private dialog: MatDialog,
+private excelService: ExcelService
 ) {
 this.displayedColumns = [
     "nombre",
@@ -75,7 +79,7 @@ load() {
 
 loadFuncionariosAndRegistros() {
 forkJoin({    
-    //funcionarios: this.funcionariosService.getFiltroCampos("estado", "true"),    
+    //funcionarios: this.funcionariosService.getFiltroCampos("estado", "true"),   
     funcionarios: this.funcionariosService.getFuncionarios(),
     registros: this.registrosService.getRegistros(),
     cargos: this.cargosService.getFiltroCampos("estado", "true")
@@ -279,8 +283,10 @@ tipoContratoSeleccion(event: any){
 
     if(this.filtrarTipoContrato === "none"){
         this.searchEstado = false;
+        this.habilitarBotonExportar = true;
     } else {
         this.searchEstado = true;
+        this.habilitarBotonExportar = false;
     }    
 
     this.load();
@@ -313,7 +319,13 @@ edit(cargo: any) {
 }
 
 
-rotation(edit: string) {}
+rotation(edit: string) {
+
+}
+
+generateExcel() {
+    this.excelService.generateExcel();
+  }
 
 }
 

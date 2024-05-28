@@ -4,6 +4,8 @@ import {
   BrowserModule,
   provideClientHydration,
 } from "@angular/platform-browser";
+import { DatePipe } from '@angular/common';
+
 import { MaterialModule } from "./shared/material/material.module";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { SharedModule } from "./shared/shared.module";
@@ -66,7 +68,7 @@ import { DialogOrganigramaComponent } from "./components/pages/organigrama/dialo
     AsyncPipe,
     SharedModule,
   ],
-  providers: [AuthService, provideClientHydration(), provideAnimationsAsync()],
+  providers: [AuthService, provideClientHydration(), provideAnimationsAsync(), DatePipe],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
