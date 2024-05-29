@@ -324,7 +324,20 @@ rotation(edit: string) {
 }
 
 generateExcel() {
-    this.excelService.generateExcel();
+
+    if(!this.habilitarBotonExportar && this.filtrarTipoContrato !== "none"){
+        
+        var tipoSeleccionado = this.filtrarTipoContrato;
+
+        //this.excelService.setTipoContrato(tipoSeleccionado);        
+        this.excelService.generarExcel(this.dataSource.data, tipoSeleccionado);
+        
+        
+    }
+
+    console.log("Actual DataSource:");
+    console.log(this.dataSource.data);
+    //this.excelService.generateExcel();
   }
 
 }
