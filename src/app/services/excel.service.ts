@@ -5,6 +5,7 @@ import * as fs from 'file-saver';
 
 import { DatePipe } from '@angular/common';
 import { style } from '@angular/animations';
+import { EntidadAltaBaja } from './Utils/EntidadAltaBaja';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,8 +15,9 @@ export class ExcelService {
     //Propiedades
     private TipoContrato: string;
     private MesLiteral: string;
-    private GestionNumeral: string; 
-
+    private GestionNumeral: string;
+    private MesNumeral: number;    
+    
     constructor(private datePipe: DatePipe) {
 
     }
@@ -24,18 +26,22 @@ export class ExcelService {
         this.TipoContrato = tipo;
     }
 
-    async generarExcel(data: any[], tipoContrato: string){
+    async generarExcel(data: any[], tipoContrato: string, mes: any, year: any){
 
         this.TipoContrato = tipoContrato;
+        this.MesNumeral = mes;
+        this.MesLiteral = this.mesNumeralToLiteral(mes);
+        this.GestionNumeral = year;
 
+        console.log("YEAR: " + this.GestionNumeral + " , MONTH: " + this.MesNumeral + ", MONTH NAME: " + this.MesLiteral);
         if(this.TipoContrato === "ITEM"){
             this.generarExcelItem(data);
         }
     }
 
     private async generarExcelItem(data: any[]){
-        this.GestionNumeral = "2024";
-        this.MesLiteral = "abril";
+        //this.GestionNumeral = "2024";
+        //this.MesLiteral = "abril";
 
         // Excel titulo, Encabezado
         const titulo = `PLANILLA DE PERSONAL PERMANENTE ALTAS-BAJAS Y CAMBIOS`;
@@ -55,9 +61,9 @@ export class ExcelService {
 
         // Agregar filas del Titulo y formato       
         var valoresFila = [];
-        valoresFila[1] = '';
-        valoresFila[2] = '';
-        valoresFila[3] = titulo;
+        valoresFila[1] = '';//vacio en col A
+        valoresFila[2] = '';//vacio en col B
+        valoresFila[3] = titulo; //empieza en col C
 
         //const formatoFuente = { name: 'Arial', family: 4, size: 14, underline: 'none', bold: true };
 
@@ -96,20 +102,26 @@ export class ExcelService {
             cell.alignment = {horizontal: 'center',vertical:'middle', wrapText: true};            
         });
 
-
-
         //Cargar los datos y aplicar estilos en funcion a ciertos valores
         console.log("Data inside ExcelEngine: ");
         console.log(data);
 
         /*
-        const encabezados = ['B/A', 'No Item', 'Cargo', 'Contrato', 'C.I.', 'NOMBRE COMPLETO', 
-                            'FECHA DE NACIMIENTO', 'FECHA DE INGRESO', 'FECHA DE CONCLUSION',
-                            'Nivel', 'Sueldo [Bs/Mes]', 'DIAS TRABAJADOS'];
+        encabezados = ['B/A', 'No Item', 'Cargo', 'Contrato', 'C.I.', 'NOMBRE COMPLETO', 
+                        'FECHA DE NACIMIENTO', 'FECHA DE INGRESO', 'FECHA DE CONCLUSION',
+                        'Nivel', 'Sueldo [Bs/Mes]', 'DIAS TRABAJADOS'];
         */ 
 
-        data.forEach(d => {
-            const funcionario_cargo = ['B',
+        data.sort((a, b) => a.cargo.registro - b.cargo.registro).forEach(d => {
+
+            //Determinar si se efectuo una Alta o Baja en el presente periodo
+            //para establecer las etiquetas [A, B, A/B]
+            //y para resaltar la fila si es que hubo uno de esos eventos
+            //tambien se define el nro de dias trabajados si hubo cambios            
+            let objAltaBaja = new EntidadAltaBaja();
+            objAltaBaja.procesarEvento(d, this.MesNumeral, this.GestionNumeral);           
+
+            const funcionario_cargo = [objAltaBaja.etiquetaAltaBaja,
                                     d.cargo.registro,
                                     d.cargo.nombre,
                                     d.cargo.contrato, 
@@ -118,9 +130,9 @@ export class ExcelService {
                                     d.fecha_nacimiento? this.formatearFecha(d.fecha_nacimiento):'' ,
                                     d.registro.fecha_ingreso? this.formatearFecha(d.registro.fecha_ingreso):'' ,
                                     d.registro.fecha_conclusion? this.formatearFecha(d.registro.fecha_conclusion):'',
-                                    d.cargo.nivel, 
-                                     '3020.00',
-                                    30];
+                                    d.cargo.nivel,
+                                    this.formatearMonto(d.cargo.id_nivel_salarial.haber_basico),
+                                    objAltaBaja.diasTrabajados];           
 
             var row = worksheet.addRow(funcionario_cargo);
 
@@ -134,6 +146,16 @@ export class ExcelService {
 
             row.eachCell((cell, id) => {             
                 cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                
+                if(objAltaBaja.modificacion){
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'ff949494' },
+                        bgColor: { argb: 'ff949494' }
+                        };
+                }
+                
                 
                 if(centeredCells.find((element) => element === id )){
                     cell.alignment = {horizontal: 'center', vertical: 'middle'};
@@ -154,9 +176,7 @@ export class ExcelService {
                     cell.font = { name: 'Arial', family: 4, size: 7, underline: 'none', bold: true };
                 }
                 
-            });           
-
-            //console.log(d);
+            });
             }
         );
 
@@ -183,9 +203,6 @@ export class ExcelService {
         fs.saveAs(blob, 'PlanillaAltasBajas_Abril_2024.xlsx');
       });
 
-        
-
-
     }
 
     //Utils
@@ -193,4 +210,27 @@ export class ExcelService {
         return formatDate(fecha, "dd/MM/yyyy", 'en-US');
     }
 
+    private formatearMonto(monto: any) : any {
+
+        const formateador = new Intl.NumberFormat('es-ES', {
+            style: 'decimal',
+            // currency: 'BOB',
+            useGrouping: true ,            
+            minimumFractionDigits: 2,                              
+        }
+        );
+
+        return formateador.format(monto);
+    }
+
+    private mesNumeralToLiteral(mes: any): string{
+
+        var monthNames = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+                            "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"
+                            ];
+        return monthNames[parseInt(mes)-1];
+    }
+
 }
+
+

@@ -37,8 +37,41 @@
                     <mat-option value="false">Baja</mat-option>
                 </mat-select>
             </mat-form-field>
+
+            <mat-form-field class="first">
+                <mat-label>Mes</mat-label>
+                <mat-select (selectionChange)="mesSeleccion($event)" [(ngModel)]="filtrarMes"
+                    [disabled]="searchMes">
+                    <mat-option value="0">Actual</mat-option>
+                    <mat-option value="1">Enero</mat-option>
+                    <mat-option value="2">Febrero</mat-option>
+                    <mat-option value="3">Marzo</mat-option>
+                    <mat-option value="4">Abril</mat-option>
+                    <mat-option value="5">Mayo</mat-option>
+                    <mat-option value="6">Junio</mat-option>
+                    <mat-option value="7">Julio</mat-option>
+                    <mat-option value="8">Agosto</mat-option>
+                    <mat-option value="9">Septiembre</mat-option>
+                    <mat-option value="10">Octubre</mat-option>
+                    <mat-option value="11">Noviembre</mat-option>
+                    <mat-option value="12">Diciembre</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="first">
+                <mat-label>Año</mat-label>
+                <mat-select (selectionChange)="yearSeleccion($event)" [(ngModel)]="filtrarYear"
+                    [disabled]="searchYear">
+                    <mat-option value="0">Actual</mat-option>
+                    <mat-option value="2023">2023</mat-option>
+                    <mat-option value="2024">2024</mat-option>
+                    <mat-option value="2025">2024</mat-option>
+                    <mat-option value="2026">2024</mat-option>
+                    <mat-option value="2027">2024</mat-option>
+                    
+                </mat-select>
+            </mat-form-field>
             
-                <button mat-flat-button color="primary" [disabled]="habilitarBotonExportar" (click)="generateExcel()">Exportar</button>
+            <button mat-flat-button color="primary" [disabled]="habilitarBotonExportar" (click)="generateExcel()">Exportar</button>
             
         </div>
    

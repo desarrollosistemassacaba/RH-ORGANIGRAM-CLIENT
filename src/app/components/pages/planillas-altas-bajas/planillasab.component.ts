@@ -33,10 +33,19 @@ text: string = "";
 
 searchEstado: boolean = false;
 searchTipoContrato: boolean = false;
+searchYear: boolean = false;
+searchMes: boolean = false;
+
 filtrarEstado: string = "none";
 filtrarTipoContrato: string = "none";
+filtrarMes: string = "0";
+filtrarYear: string = "0";
 displayedColumns: string[];
 habilitarBotonExportar: boolean = true;
+
+mesPeriodo: string;
+yearPeriodo: string;
+
 
 dataSource = new MatTableDataSource<any>([]);
 
@@ -194,16 +203,16 @@ const campo = "estado";
 this.funcionariosService
     .getFiltroCampos(campo, valor)
     .pipe(
-    switchMap((funcionarios) => {
-        return forkJoin({
-            registros: this.registrosService.getRegistros(),
-            cargos: this.cargosService.getCargos()
-        }).pipe(
-        map(({ registros, cargos }) => {
-            return this.combineFuncionariosData(funcionarios, registros, cargos);
+        switchMap((funcionarios) => {
+            return forkJoin({
+                registros: this.registrosService.getRegistros(),
+                cargos: this.cargosService.getCargos()
+            }).pipe(
+            map(({ registros, cargos }) => {
+                return this.combineFuncionariosData(funcionarios, registros, cargos);
+            })
+            );
         })
-        );
-    })
     )
     .subscribe(
     (combinedData) => {
@@ -247,31 +256,18 @@ contratoByFilter(valor: string) {
         );
     }
 
-/*
-tipoContratoByFilter(valor: string) {
-    let campo = "contrato";
-    console.log("filtering by contrato...");
-
-    this.cargosService.getFiltroCampos(campo, valor).subscribe(
-      (data) => {
-        this.dataSource = new MatTableDataSource(data);
-        this.dataSource.paginator = this.paginator;
-      },
-      (error) => {
-        console.error("Error al obtener los cargos:", error);
-      }
-    );
-
-
-  }*/
 
 estadoSeleccion(event: any) {
     this.filtrarEstado = event.value;
 
     if(this.filtrarEstado === "none"){
         this.searchTipoContrato = false;
+        this.searchMes = false;
+        this.searchYear = false;
     } else{
         this.searchTipoContrato = true;
+        this.searchMes = true;
+        this.searchYear = true;
     }
 
     this.load();
@@ -283,13 +279,26 @@ tipoContratoSeleccion(event: any){
 
     if(this.filtrarTipoContrato === "none"){
         this.searchEstado = false;
+        this.searchMes = false;
+        this.searchYear = false;
         this.habilitarBotonExportar = true;
     } else {
         this.searchEstado = true;
+        this.searchMes = false;
+        this.searchYear = false;
         this.habilitarBotonExportar = false;
     }    
 
     this.load();
+}
+
+mesSeleccion(event: any){
+    this.filtrarMes = event.value;    
+}
+
+yearSeleccion(event: any){
+    this.filtrarYear = event.value;
+
 }
 
 applyFilter(event: Event) {
@@ -326,13 +335,31 @@ rotation(edit: string) {
 generateExcel() {
 
     if(!this.habilitarBotonExportar && this.filtrarTipoContrato !== "none"){
-        
+
+               
         var tipoSeleccionado = this.filtrarTipoContrato;
 
         //this.excelService.setTipoContrato(tipoSeleccionado);        
-        this.excelService.generarExcel(this.dataSource.data, tipoSeleccionado);
-        
-        
+        let mesReporte = 0;
+        let yearReporte = 0;
+
+        if(this.filtrarMes !== '0'){
+            mesReporte = parseInt(this.filtrarMes);
+        }
+        else{
+            mesReporte = new Date().getMonth() + 1;
+        }
+
+        if(this.filtrarYear !== '0'){
+            yearReporte = parseInt(this.filtrarYear);
+        }
+        else{
+            yearReporte = new Date().getFullYear();
+        }
+
+        console.log("yearReporte: " + yearReporte + " , mesReporte: " + mesReporte + ", MONTH NAME: " + mesReporte);
+
+        this.excelService.generarExcel(this.dataSource.data, tipoSeleccionado, mesReporte, yearReporte);        
     }
 
     console.log("Actual DataSource:");
