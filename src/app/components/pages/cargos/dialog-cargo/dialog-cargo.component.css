@@ -10,7 +10,7 @@
   padding-left: 5%;
   display: flex;
   width: 100%;
-  min-height: 45vh;
+  overflow-y: hidden;
 }
 
 .form-hidden {

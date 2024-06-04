@@ -1,1 +1,457 @@
-<p>dialog-funcionario works!</p>
+<div class="form-container">
+    <mat-tab-group>
+        <form [formGroup]="FormJob">
+            <mat-tab label="Datos">
+                <div class="row form">
+
+                    <div [style.width.%]="100">
+                        <mat-form-field [style.width.%]="32">
+                            <mat-label>Nombre</mat-label>
+                            <input formControlName="nombre" matInput #nombre maxlength="20" minlength="2" placeholder=""
+                                onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{nombre.value.length}}/20</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('nombre')?.invalid && (FormJob.get('nombre')?.dirty || FormJob.get('nombre')?.touched)">
+                                <ng-container *ngIf="FormJob.get('nombre')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('nombre')?.hasError('pattern') && !FormJob.get('nombre')?.hasError('minlength')">
+                                    Solo letras.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="32" class="form-select-space">
+                            <mat-label>Ap. Paterno</mat-label>
+                            <input formControlName="paterno" matInput #paterno maxlength="20" minlength="2"
+                                placeholder="" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{paterno.value.length}}/20</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('paterno')?.invalid && (FormJob.get('paterno')?.dirty || FormJob.get('paterno')?.touched)">
+                                <ng-container *ngIf="FormJob.get('paterno')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('paterno')?.hasError('pattern') && !FormJob.get('paterno')?.hasError('minlength')">
+                                    Solo letras.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="32" class="form-select-space">
+                            <mat-label>Ap. Materno</mat-label>
+                            <input formControlName="materno" matInput #materno maxlength="20" minlength="2"
+                                placeholder="" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{materno.value.length}}/20</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('materno')?.invalid && (FormJob.get('materno')?.dirty || FormJob.get('materno')?.touched)">
+                                <ng-container *ngIf="FormJob.get('materno')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('materno')?.hasError('pattern') && !FormJob.get('materno')?.hasError('minlength')">
+                                    Solo letras.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="center">
+                        <div class="form-select-group">
+
+                            <mat-form-field [style.width.%]="23">
+                                <mat-label>C.I.</mat-label>
+                                <input formControlName="ci" matInput #ci maxlength="10" minlength="5" placeholder="">
+                                <mat-hint align="end">{{ci.value.length}}/10</mat-hint>
+                                <mat-error
+                                    *ngIf="FormJob.get('ci')?.invalid && (FormJob.get('ci')?.dirty || FormJob.get('ci')?.touched)">
+                                    <ng-container *ngIf="FormJob.get('ci')?.hasError('minlength')">
+                                        Mínimo 5 dígitos.
+                                    </ng-container>
+                                    <ng-container
+                                        *ngIf="FormJob.get('ci')?.hasError('pattern') && !FormJob.get('ci')?.hasError('minlength')">
+                                        Solo números.
+                                    </ng-container>
+                                    <ng-container *ngIf="FormJob.get('ci')?.hasError('ciExists')">
+                                        C.I duplicado
+                                    </ng-container>
+                                </mat-error>
+                            </mat-form-field>
+
+                            <mat-form-field [style.width.%]="22">
+                                <mat-label>Extensión</mat-label>
+                                <input formControlName="ext" matInput #ext maxlength="2" minlength="1" placeholder=""
+                                    onkeyup="this.value = this.value.toUpperCase();">
+                                <mat-hint align="end">{{ext.value.length}}/2</mat-hint>
+                                <mat-error
+                                    *ngIf="FormJob.get('ext')?.invalid && (FormJob.get('ext')?.dirty || FormJob.get('ext')?.touched)">
+                                    <ng-container *ngIf="FormJob.get('ext')?.hasError('minlength')">
+                                        Mínimo 1 caracter.
+                                    </ng-container>
+                                    <ng-container
+                                        *ngIf="FormJob.get('ext')?.hasError('pattern') && !FormJob.get('ext')?.hasError('minlength')">
+                                        letra/número
+                                    </ng-container>
+                                </mat-error>
+                            </mat-form-field>
+
+                            <mat-form-field class="" [style.width.%]="27">
+                                <mat-label>Expedido</mat-label>
+                                <mat-select formControlName='expedido'>
+                                    <mat-option value="BN">Beni</mat-option>
+                                    <mat-option value="CB">Cochabamba</mat-option>
+                                    <mat-option value="CH">Chuquisaca</mat-option>
+                                    <mat-option value="LP">La Paz</mat-option>
+                                    <mat-option value="OR">Oruro</mat-option>
+                                    <mat-option value="PA">Pando</mat-option>
+                                    <mat-option value="PT">Potosí</mat-option>
+                                    <mat-option value="SC">Santa Cruz</mat-option>
+                                    <mat-option value="TJ">Tarija</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <mat-form-field class="" [style.width.%]="23">
+                                <mat-label>Genero</mat-label>
+                                <mat-select formControlName='genero'>
+                                    <mat-option value="F">Femenino</mat-option>
+                                    <mat-option value="M">Masculino</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                        </div>
+                    </div>
+
+                    <div class="form-select-group" [style.height.px]="75">
+
+                        <mat-form-field [style.width.%]="51">
+                            <input matInput [matDatepicker]="fecha_nac" formControlName="fecha_nacimiento"
+                                placeholder="Fecha de Nacimiento">
+                            <mat-datepicker-toggle matSuffix [for]="fecha_nac"></mat-datepicker-toggle>
+                            <mat-datepicker #fecha_nac></mat-datepicker>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="25">
+                            <mat-label>Teléfono</mat-label>
+                            <input formControlName="telefono" matInput #telefono maxlength="9" minlength="7"
+                                placeholder="">
+                            <mat-hint align="end">{{telefono.value.length}}/9</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('telefono')?.invalid && (FormJob.get('telefono')?.dirty || FormJob.get('telefono')?.touched)">
+                                <ng-container *ngIf="FormJob.get('telefono')?.hasError('minlength')">
+                                    Mínimo 7 dígitos.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('telefono')?.hasError('pattern') && !FormJob.get('telefono')?.hasError('minlength')">
+                                    Solo números.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- <mat-form-field [style.width.%]="51">
+                            <mat-label>Correo electrónico</mat-label>
+                            <input formControlName="correo" matInput #correo maxlength="35" minlength="10"
+                                placeholder="" onkeyup="this.value = this.value.toLowerCase();">
+                            <mat-hint align="end">{{correo.value.length}}/35</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('correo')?.invalid && (FormJob.get('correo')?.dirty || FormJob.get('correo')?.touched)">
+                                <ng-container *ngIf="FormJob.get('correo')?.hasError('minlength')">
+                                    Mínimo 10 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('correo')?.hasError('pattern') && !FormJob.get('correo')?.hasError('minlength')">
+                                    Solo letras, números y . - _
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field> -->
+
+                        <div *ngIf="this.data && this.data.estado === false" class="box  form-select-space"
+                            [style.width.%]="20">
+                            <mat-checkbox formControlName="estado"
+                                matTooltip="Alta/Baja a funcionario">Habilitar</mat-checkbox>
+                        </div>
+                    </div>
+                </div>
+            </mat-tab>
+
+            <mat-tab label="Datos Domicilio">
+                <div class="row form-hidden">
+
+                    <mat-form-field class="" [style.width.%]="100">
+                        <mat-label>Distrito</mat-label>
+                        <mat-select formControlName='distrito'>
+                            <mat-option value="D1">DISTRITO 1</mat-option>
+                            <mat-option value="D2">DISTRITO 2 QUINTANILLA</mat-option>
+                            <mat-option value="D3">DISTRITO 3 PACATA</mat-option>
+                            <mat-option value="D4">DISTRITO 4 HUAYLLANI</mat-option>
+                            <mat-option value="D6">DISTRITO 6 El ABRA</mat-option>
+                            <mat-option value="D7">DISTRITO 7 VILLA OBRAJES</mat-option>
+                            <mat-option value="D5">DISTRITO RURAL 5</mat-option>
+                            <mat-option value="DP">DISTRITO RURAL DE PALCA</mat-option>
+                            <mat-option value="DL">DISTRITO RURAL DE LAVA LAVA</mat-option>
+                            <mat-option value="DA">DISTRITO RURAL DE AGUIRRE</mat-option>
+                            <mat-option value="DU">DISTRITO RURAL DE UCUCHI</mat-option>
+                            <mat-option value="DC">DISTRITO RURAL DE CHIÑATA</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <div class="form-select-group" [style.width.%]="100">
+
+                        <mat-form-field hintLabel="Máximo 50 caracteres." [style.width.%]="65">
+                            <mat-label>Zona</mat-label>
+                            <input formControlName="zona" matInput #zona maxlength="50" minlength="2" placeholder=""
+                                onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{zona.value.length}}/50</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('zona')?.invalid && (FormJob.get('zona')?.dirty || FormJob.get('zona')?.touched)">
+                                <ng-container *ngIf="FormJob.get('zona')?.hasError('minlength')">
+                                    Debe introducir al menos 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('zona')?.hasError('pattern') && !FormJob.get('zona')?.hasError('minlength')">
+                                    Solo se admite letras, números, (.), (,) y (-).
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="33">
+                            <mat-label>Pasaje</mat-label>
+                            <input formControlName="pasaje" matInput #pasaje maxlength="50" minlength="2" placeholder=""
+                                onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{pasaje.value.length}}/50</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('pasaje')?.invalid && (FormJob.get('pasaje')?.dirty || FormJob.get('pasaje')?.touched)">
+                                <ng-container *ngIf="FormJob.get('pasaje')?.hasError('minlength')">
+                                    Debe introducir al menos 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('pasaje')?.hasError('pattern') && !FormJob.get('pasaje')?.hasError('minlength')">
+                                    Solo se admite letras, números, (.), (,) y (-).
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="form-select-group" [style.width.%]="100">
+
+                        <mat-form-field hintLabel="Máximo 50 caracteres." [style.width.%]="65">
+                            <mat-label>Calle</mat-label>
+                            <input formControlName="calle" matInput #calle maxlength="50" minlength="2" placeholder=""
+                                onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{calle.value.length}}/50</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('calle')?.invalid && (FormJob.get('calle')?.dirty || FormJob.get('calle')?.touched)">
+                                <ng-container *ngIf="FormJob.get('calle')?.hasError('minlength')">
+                                    Debe introducir al menos 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('calle')?.hasError('pattern') && !FormJob.get('calle')?.hasError('minlength')">
+                                    Solo se admite letras, números, (.), (,) y (-).
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="33">
+                            <mat-label>N° Casa</mat-label>
+                            <input formControlName="numero_casa" matInput #numero_casa maxlength="5" minlength="1"
+                                placeholder="">
+                            <mat-hint align="end">{{numero_casa.value.length}}/5</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('numero_casa')?.invalid && (FormJob.get('numero_casa')?.dirty || FormJob.get('numero_casa')?.touched)">
+                                <ng-container *ngIf="FormJob.get('numero_casa')?.hasError('minlength')">
+                                    Debe tener al menos 1 dígito.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('numero_casa')?.hasError('pattern') && !FormJob.get('numero_casa')?.hasError('minlength')">
+                                    Solo se admite números.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-tab>
+
+            <mat-tab label="Detalles del cargo" *ngIf="this.data && this.data.estado === true">
+                <div class="row form">
+                    <!-- <div>
+                        <mat-form-field class="form-select-1 form-select-space" [style.width.%]="30">
+                            <mat-label>Contrato</mat-label>
+                            <mat-select formControlName="contrato" (selectionChange)="fillRegistro()">
+                                <mat-option value="ITEM">Item</mat-option>
+                                <mat-option value="EVENTUAL">Eventual</mat-option>
+                                <mat-option value="REMANENTE">Remanente</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div> -->
+
+                    <div>
+                        <mat-form-field appearance="fill" [style.width.%]="100">
+                            <mat-label>Buscar cargo</mat-label>
+                            <input type="text" matInput #input [matAutocomplete]="auto" [formControl]="idCargoControl"
+                                placeholder="Ej. AUXILIAR II">
+                            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+                                <mat-option *ngFor="let cargo of filteredCharges | async" [value]="cargo">
+                                    {{ cargo.nombre }} - {{ cargo.contrato}} ( {{cargo.registro}} )
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="row form">
+                        <mat-form-field [style.width.%]="50">
+                            <input matInput [matDatepicker]="start" formControlName="fecha_ingreso"
+                                placeholder="Fecha Ingreso">
+                            <mat-datepicker-toggle matSuffix [for]="start"></mat-datepicker-toggle>
+                            <mat-datepicker #start></mat-datepicker>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="50">
+                            <input matInput [matDatepicker]="final" formControlName="fecha_conclusion"
+                                placeholder="Fecha Conclusión">
+                            <mat-datepicker-toggle matSuffix [for]="final"></mat-datepicker-toggle>
+                            <mat-datepicker #final></mat-datepicker>
+                        </mat-form-field>
+
+                    </div>
+
+                    <div>
+                        <mat-form-field class="form-select-1" [style.width.%]="35">
+                            <mat-label>Detalle Baja</mat-label>
+                            <mat-select formControlName="tipo">
+                                <mat-option value="RENUNCIA">Renuncia</mat-option>
+                                <mat-option value="RESOLUCION"
+                                    *ngIf="this.contrato === 'EVENTUAL' || this.contrato === 'REMANENTE'">Resolución</mat-option>
+                                <mat-option value="ASCENSO" *ngIf="this.contrato === 'ITEM'">Ascenso</mat-option>
+                                <mat-option value="REASIGNACION"
+                                    *ngIf="this.contrato === 'ITEM'">Reasignación</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="48" class="form-select-space">
+                            <mat-label>Detalle</mat-label>
+                            <input formControlName="descripcion" matInput #descripcion maxlength="100" minlength="5"
+                                placeholder="" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{descripcion.value.length}}/100</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('descripcion')?.invalid && (FormJob.get('descripcion')?.dirty || FormJob.get('descripcion')?.touched)">
+                                <ng-container *ngIf="FormJob.get('descripcion')?.hasError('minlength')">
+                                    Mínimo 5 caracteres.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-checkbox formControlName="disableCargoControl" [style.width.%]="20"
+                            class="form-select-space">Dar de
+                            baja</mat-checkbox>
+                    </div>
+                </div>
+            </mat-tab>
+
+
+            <mat-tab label="Detalles del Contrato" *ngIf="selectedContrato === 'ITEM'">
+                <div class="row form">
+
+                    <div>
+                        <mat-form-field [style.width.%]="100">
+                            <mat-label>Contratante</mat-label>
+                            <input formControlName="contratante" matInput #contratante maxlength="60" minlength="2"
+                                placeholder="" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{contratante.value.length}}/60</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('contratante')?.invalid && (FormJob.get('contratante')?.dirty || FormJob.get('contratante')?.touched)">
+                                <ng-container *ngIf="FormJob.get('contratante')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('contratante')?.hasError('pattern') && !FormJob.get('contratante')?.hasError('minlength')">
+                                    Solo letras.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <mat-form-field [style.width.%]="100">
+                            <mat-label>Cargo Contratante</mat-label>
+                            <input formControlName="cargo_contratante" matInput #cargo_contratante maxlength="60"
+                                minlength="2" placeholder="" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{cargo_contratante.value.length}}/60</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('cargo_contratante')?.invalid && (FormJob.get('cargo_contratante')?.dirty || FormJob.get('cargo_contratante')?.touched)">
+                                <ng-container *ngIf="FormJob.get('cargo_contratante')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('cargo_contratante')?.hasError('pattern') && !FormJob.get('cargo_contratante')?.hasError('minlength')">
+                                    Solo letras.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="row form">
+                        <mat-form-field [style.width.%]="50">
+                            <input matInput [matDatepicker]="start" formControlName="fecha_contrato"
+                                placeholder="Fecha Contrato">
+                            <mat-datepicker-toggle matSuffix [for]="start"></mat-datepicker-toggle>
+                            <mat-datepicker #start></mat-datepicker>
+                        </mat-form-field>
+
+                        <mat-form-field class="form-select-1" [style.width.%]="35">
+                            <mat-label>Tipo Contrato</mat-label>
+                            <mat-select formControlName="tipo_contrato">
+                                <mat-option value="MD">Designacion</mat-option>
+                                <mat-option value="MR">Reasignación</mat-option>
+                                <mat-option value="MA">Ascenso</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-tab>
+
+            <mat-tab label="Detalles del Contrato"
+                *ngIf="selectedContrato === 'REMANENTE' || selectedContrato === 'EVENTUAL'">
+                <div class="row form">
+
+                    <div>
+                        <mat-form-field [style.width.%]="100">
+                            <mat-label>Contrato Primera.- (De las partes). Representado por </mat-label>
+                            <input formControlName="detalle_contrato" matInput #detalle_contrato maxlength="150"
+                                minlength="2" placeholder="">
+                            <span>, con domicilio legal en pasaje consistorial NS-002...</span>
+                            <mat-hint align="end">{{detalle_contrato.value.length}}/150</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('detalle_contrato')?.invalid && (FormJob.get('detalle_contrato')?.dirty || FormJob.get('detalle_contrato')?.touched)">
+                                <ng-container *ngIf="FormJob.get('detalle_contrato')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="row form">
+                        <mat-form-field [style.width.%]="50">
+                            <input matInput [matDatepicker]="start" formControlName="fecha_contrato"
+                                placeholder="Fecha Contrato">
+                            <mat-datepicker-toggle matSuffix [for]="start"></mat-datepicker-toggle>
+                            <mat-datepicker #start></mat-datepicker>
+                        </mat-form-field>
+
+                        <mat-form-field class="form-select-1" [style.width.%]="35">
+                            <mat-label>Tipo Contrato</mat-label>
+                            <mat-select formControlName="tipo_contrato">
+                                <mat-option value="CONTRATO">Contrato</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-tab>
+        </form>
+    </mat-tab-group>
+
+    <mat-dialog-actions align="end" class="form-button">
+        <button mat-flat-button color="warn" mat-dialog-close class="button-send">Cancelar</button>
+        <button mat-flat-button color="primary" class="button-send" [disabled]="!FormJob.valid"
+            (click)="validar()">Aceptar</button>
+    </mat-dialog-actions>
+</div>

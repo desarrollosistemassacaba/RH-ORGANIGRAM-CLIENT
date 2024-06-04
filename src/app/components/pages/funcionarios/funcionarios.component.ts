@@ -17,6 +17,7 @@ import { switchMap, map } from "rxjs/operators";
 import { forkJoin } from "rxjs";
 
 import { DialogFuncionarioComponent } from "./dialog-funcionario/dialog-funcionario.component";
+import { ViewFuncionarioComponent } from "./view-funcionario/view-funcionario.component";
 import { FuncionariosService } from "../../../services/funcionarios.service";
 import { RegistrosService } from "../../../services/registros.service";
 import { DependenciasService } from "src/app/services/dependencias.service";
@@ -29,6 +30,7 @@ import { CargosService } from "../../../services/cargos.service";
 })
 export class FuncionariosComponent implements AfterViewInit {
   cargos: any[] = [];
+  funcionarios: any[] = [];
   text: string = "";
 
   searchEstado: boolean = false;
@@ -81,10 +83,11 @@ export class FuncionariosComponent implements AfterViewInit {
       )
       .subscribe(
         (combinedData) => {
+          this.funcionarios = combinedData;
           this.setupDataSource(combinedData);
         },
         (error) => {
-          console.error("Error al obtener los datos:", error);
+          //console.error("Error al obtener los datos:", error);
         }
       );
   }
@@ -163,7 +166,7 @@ export class FuncionariosComponent implements AfterViewInit {
         this.cdr.detectChanges();
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -189,7 +192,7 @@ export class FuncionariosComponent implements AfterViewInit {
           this.setupDataSource(combinedData);
         },
         (error) => {
-          console.error("Error al obtener los datos:", error);
+          //console.error("Error al obtener los datos:", error);
         }
       );
   }
@@ -209,10 +212,11 @@ export class FuncionariosComponent implements AfterViewInit {
     this.load();
   }
 
-  edit(cargo: any) {
+  edit(funcionario: any) {
+    //console.log(funcionario);
     const dialogRef = this.dialog.open(DialogFuncionarioComponent, {
       width: "600px",
-      data: cargo._id, // Pasar los datos del cargo al componente de edición
+      data: funcionario, // Pasar los datos del cargo al componente de edición
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -222,6 +226,21 @@ export class FuncionariosComponent implements AfterViewInit {
       this.load();
     });
   }
+
+  view(funcionario: any) {
+    //console.log(funcionario);
+    const dialogRef = this.dialog.open(ViewFuncionarioComponent, {
+      data: funcionario, // Pasar los datos del cargo al componente de edición
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      // Aquí puedes manejar la respuesta del diálogo de edición
+      //   console.log("El diálogo de edición se cerró");
+      //   console.log("Resultado:", result);
+      this.load();
+    });
+  }
+
   add() {
     const dialogRef = this.dialog.open(DialogFuncionarioComponent, {
       width: "600px",
@@ -244,7 +263,7 @@ export class FuncionariosComponent implements AfterViewInit {
     );
 
     if (confirmar) {
-      this.cargosService.deleteCargo(element._id).subscribe(
+      this.funcionariosService.deleteFuncionario(element._id).subscribe(
         () => {
           this.load();
         },

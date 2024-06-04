@@ -505,11 +505,11 @@ export class DialogCargoComponent implements OnInit {
     this.convertToNumber("registro");
     this.convertToNumber("duracion_contrato");
 
-    //this.guardar();
+    this.guardar();
   }
 
   guardar() {
-    console.log(this.FormJob.value);
+    //console.log(this.FormJob.value);
     if (this.data) {
       this.cargoService.updateCargo(this.data.id, this.FormJob.value).subscribe(
         (response) => {

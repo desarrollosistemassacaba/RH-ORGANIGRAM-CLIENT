@@ -34,6 +34,7 @@ export class FuncionariosService {
   }
 
   addFuncionario(funcionario: any) {
+    console.log(funcionario);
     return this.http.post<any>(`${base_url}`, funcionario);
   }
 

@@ -102,20 +102,20 @@ export class DialogPartidaComponent {
     this.convertToNumber("codigo");
 
     if (this.data) {
-      console.log(this.FormPartida.value);
-      const valueN = this.FormPartida.value;
-      console.log(valueN);
+      //console.log(this.FormPartida.value);
+      //const valueN = this.FormPartida.value;
+      //console.log(valueN);
       this.partidaService
         .updatePartida(this.data._id, this.FormPartida.value)
         .subscribe(
           (response) => {
             // Manejo de la respuesta del servicio si es necesario
             this.dialogRef.close(response);
-            console.log("Respuesta del servicio:", response);
+            //console.log("Respuesta del servicio:", response);
           },
           (error) => {
             // Manejo de errores si ocurre alguno al llamar al servicio
-            console.error("Error al llamar al servicio:", error);
+            //console.error("Error al llamar al servicio:", error);
           }
         );
       //   this.usuariosService
@@ -124,17 +124,17 @@ export class DialogPartidaComponent {
       //       this.dialogRef.close(dependences);
       //     });
     } else {
-      console.log(this.FormPartida.value);
+      //console.log(this.FormPartida.value);
 
       this.partidaService.addPartida(this.FormPartida.value).subscribe(
         (response) => {
           // Manejo de la respuesta del servicio si es necesario
           this.dialogRef.close(response);
-          console.log("Respuesta del servicio:", response);
+          //console.log("Respuesta del servicio:", response);
         },
         (error) => {
           // Manejo de errores si ocurre alguno al llamar al servicio
-          console.error("Error al llamar al servicio:", error);
+          //console.error("Error al llamar al servicio:", error);
         }
       );
     }
@@ -187,7 +187,7 @@ export class DialogPartidaComponent {
     if (!value) {
       return null;
     }
-    console.log(value);
+    //console.log(value);
     if (typeof value === "string") {
       value = value.toUpperCase();
     }
@@ -200,8 +200,8 @@ export class DialogPartidaComponent {
     if (data) {
       element = data._id;
     }
-    console.log(element);
-    console.log(typeof value);
+    // console.log(element);
+    // console.log(typeof value);
     let exists = partidas.some(
       (partida) =>
         partida[field].toString() === value && partida._id !== element
