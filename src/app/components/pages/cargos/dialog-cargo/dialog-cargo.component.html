@@ -26,7 +26,7 @@
 
                     <div class="center">
                         <div class="form-select-group">
-                            <mat-form-field class="" [style.width.%]="32.5">
+                            <mat-form-field class="" [style.width.%]="29">
                                 <mat-label>Dependencia</mat-label>
                                 <mat-select (selectionChange)="agregarDependencia($event)"
                                     formControlName='id_dependencia'>
@@ -36,15 +36,15 @@
                                 </mat-select>
                             </mat-form-field>
 
-                            <mat-form-field class="" [style.width.%]="32.5">
+                            <!-- <mat-form-field class="" [style.width.%]="32.5">
                                 <mat-label>Unidad</mat-label>
                                 <mat-select formControlName="id_unidad">
                                     <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad
                                         }}</mat-option>
                                 </mat-select>
-                            </mat-form-field>
+                            </mat-form-field> -->
 
-                            <mat-form-field class="" [style.width.%]="32.5">
+                            <mat-form-field class="" [style.width.%]="24">
                                 <mat-label>Categoria</mat-label>
                                 <mat-select formControlName='categoria'>
                                     <mat-option value="SUPERIOR">SUPERIOR</mat-option>
@@ -52,6 +52,20 @@
                                     <mat-option value="OPERATIVO">OPERATIVO</mat-option>
                                 </mat-select>
                             </mat-form-field>
+
+                            <mat-form-field appearance="fill" [style.width.%]="45">
+                                <mat-label>Buscar unidad</mat-label>
+                                <input type="text" matInput [matAutocomplete]="auto" [formControl]="idUnidadControl"
+                                    placeholder="Ej. UNIDAD DE SISTEMAS">
+                                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete"
+                                    [displayWith]="displayFn">
+                                    <mat-option *ngFor="let option of filteredUnits | async" [value]="option">
+                                        {{ option.nombre }}
+                                    </mat-option>
+                                </mat-autocomplete>
+                            </mat-form-field>
+
+
                         </div>
                     </div>
 
@@ -82,21 +96,21 @@
                                 *ngIf="FormJob.get('registro')?.invalid &&  (FormJob.get('registro')?.dirty || FormJob.get('registro')?.touched)">
 
                                 <ng-container *ngIf="FormJob.get('registro')?.hasError('min')">
-                                    El valor debe ser mayor o igual a 1.
+                                    El número debe ser mayor a 0.
                                 </ng-container>
                                 <ng-container *ngIf="FormJob.get('registro')?.hasError('max')">
-                                    El valor debe ser menor o igual a 2000.
+                                    El número debe ser menor o igual a 2000.
                                 </ng-container>
                                 <ng-container *ngIf="FormJob.get('registro')?.hasError('pattern')">
                                     Ingrese un número válido.
                                 </ng-container>
                                 <ng-container *ngIf="FormJob.get('registro')?.hasError('registroExists')">
-                                    El registro ya existe en la base de datos.
+                                    El número no está disponible.
                                 </ng-container>
                             </mat-error>
                         </mat-form-field>
 
-                        <div class="box  form-select-space">
+                        <div class="box  form-select-space" [style.width.%]="20">
                             <mat-checkbox formControlName="cargo_principal"
                                 matTooltip="Crear una nueva secretaria">Superior</mat-checkbox>
                             <mat-checkbox formControlName="estado"

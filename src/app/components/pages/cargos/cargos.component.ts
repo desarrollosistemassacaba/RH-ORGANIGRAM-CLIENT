@@ -218,9 +218,10 @@ export class CargosComponent implements AfterViewInit {
   }
 
   edit(cargo: any) {
+    const asignacion = cargo.personal === "SIN ASIGNACION" ? true : false;
     const dialogRef = this.dialog.open(DialogCargoComponent, {
       width: "600px",
-      data: cargo._id, // Pasar los datos del cargo al componente de edición
+      data: { id: cargo._id, asignacion: asignacion }, // Pasar los datos del cargo al componente de edición
     });
 
     dialogRef.afterClosed().subscribe((result) => {
