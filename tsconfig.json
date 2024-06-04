@@ -22,8 +22,18 @@
     "lib": [
       "ES2022",
       "dom"
-    ],
+    ],    
     "strictPropertyInitialization": false,
+    "paths": {
+      "exceljs": [
+        "node_modules/exceljs/dist/exceljs.min"
+      ]
+    },
+    "types": [
+      "node",
+      "file-saver",
+      "events"
+    ],
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
