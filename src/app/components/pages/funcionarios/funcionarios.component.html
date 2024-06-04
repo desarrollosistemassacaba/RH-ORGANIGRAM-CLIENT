@@ -90,6 +90,13 @@
                                 <mat-icon style="color: royalblue;">edit</mat-icon>
                                 <span>Editar</span>
                             </button>
+                            <div
+                                *ngIf="element.registros && element.registros.length > 0 && element.registros[0].id_cargo">
+                                <button mat-menu-item (click)="view(element)">
+                                    <mat-icon style="color: royalblue;">visibility_on</mat-icon>
+                                    <span>Detalle</span>
+                                </button>
+                            </div>
                             <button mat-menu-item (click)="delete(element)">
                                 <mat-icon style="color: royalblue;">delete</mat-icon>
                                 <span>Eliminar</span>

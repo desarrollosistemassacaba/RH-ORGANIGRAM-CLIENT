@@ -1,0 +1,45 @@
+<mat-card class="example-card">
+    <mat-card-header class="card-header">
+        <div mat-card-avatar><mat-icon class="example-header-image">account_circle</mat-icon>
+        </div>
+        <mat-card-title class="card-name">{{this.funcionario}}</mat-card-title>
+        <mat-card-subtitle class="card-title">{{this.titulo}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+
+        <div class="card-content-body">
+            <div style=" text-align: center;">{{this.cargo}}</div>
+            <div>{{this.dependencia}}</div>
+            <div class="card-content-body-content">
+                <ul>
+                    <li>{{this.contrato !== "Sin Registro"? "Tipo de contrato " + "'" + this.contrato.toLowerCase()+
+                        "'": this.contrato}}.
+                    </li>
+                    <li>{{this.nivel !== "Sin Registro"? "Nivel salarial "+ this.nivel +": Percibe el haber básico de "
+                        +
+                        this.salario +
+                        " Bs": this.nivel}}.</li>
+                    <li>{{this.fecha_ingreso !== "Sin Registro"? "Ingresó al cargo el "+this.fecha_ingreso:
+                        this.fecha_ingreso}}.</li>
+                    <li class="card-content-footer">{{this.fecha_nac !== "Sin Registro" ? "Nacido el " + this.fecha_nac:
+                        this.fecha_nac}}.
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <!-- <div *ngIf="this.contrato !== undefined && this.registro && this.fecha_conclusion && this.fecha_contrato && this.ci"
+    class="card-content-header"> -->
+        <div *ngIf="(this.contrato !== undefined && this.registro && this.registro !== 'Sin Registro' && this.fecha_conclusion && this.fecha_conclusion !== 'Sin Registro') || (this.contrato !== undefined && this.contrato === 'ITEM' && this.registro !== 'Sin Registro' && this.fecha_contrato && this.fecha_contrato !== 'Sin Registro' && this.tipo_contrato && this.tipo_contrato !== 'Sin Registro')"
+            class=" card-content-header">
+            <div class="card-document">{{this.codigo}}<span>
+                    <button mat-button (click)="downloadPDF()">
+                        <mat-icon style="color: red;">download</mat-icon></button></span>
+            </div>
+        </div>
+    </mat-card-content>
+    <!-- <mat-card-actions>
+        <button mat-button>LIKE</button>
+        <button mat-button>SHARE</button>
+    </mat-card-actions> -->
+</mat-card>

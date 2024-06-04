@@ -19,6 +19,9 @@ export class NivelesService {
     return this.http.get<any>(`${base_url}/filtro/${campo}/${valor}`);
   }
 
+  getNivelesById(id: string): Observable<any> {
+    return this.http.get<any>(`${base_url}/${id}`);
+  }
   addNivel(nivel: any) {
     return this.http.post<any>(`${base_url}`, nivel);
   }

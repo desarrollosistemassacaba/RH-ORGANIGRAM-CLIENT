@@ -8,6 +8,7 @@ import { NivelesComponent } from "./niveles/niveles.component";
 import { PartidasComponent } from "./partidas/partidas.component";
 //import { DescuentosComponent } from './descuentos/descuentos.component';
 import { OrganigramaComponent } from "./organigrama/organigrama.component";
+import { ViewFuncionarioComponent } from "./funcionarios/view-funcionario/view-funcionario.component";
 
 const routes: Routes = [
   { path: "", component: FuncionariosComponent },
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: "partidas", component: PartidasComponent },
   //{ path: 'descuentos', component: DescuentosComponent },
   { path: "organigrama", component: OrganigramaComponent },
+  { path: "dialog", component: ViewFuncionarioComponent },
 ];
 
 @NgModule({
