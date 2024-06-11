@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    tools {nodejs "nodejs"} 
+    environment {
+        //para el docker del vm-agent dev        
+        GIT_SSH_KEY = credentials('mydevgit-3')  // ID of the SSH key added in Jenkins credentials
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+
+                sh 'echo Deleting destination folder to enable a new copy...'               
+                
+                sh 'rm -rf /var/jenkins_home/workspace/c-oargani-gams/ || :'
+                sh 'rm -rf c-oargani-gams/ || :'    
+
+                checkout scmGit(branches: [[name: '*/master']], 
+                                extensions: [], 
+                                userRemoteConfigs: [[credentialsId: 'mydevgit-3', 
+                                                    url: 'git@github.com:pablovillazon/c-oargani-gams.git']])
+                                
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'npm install'
+
+                sh 'npm run build'
+
+                sh 'echo Getting the app version...'
+                sh "chmod +x -R ${env.WORKSPACE}"             
+                sh './build-version.sh'
+            }
+        }
+        stage('Packaging'){
+            steps{
+                //Pack and copy to binaries folder                
+                sh "tar -zcvf dist_${env.BUILD_ID}_${env.BUILD_NUMBER}.tar.gz dist"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'ls'
+                //copy to server
+
+            }
+        }
+    }
+}
