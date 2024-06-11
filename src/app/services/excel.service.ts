@@ -117,7 +117,7 @@ export class ExcelService {
         var nombreUnidadActual = "Inicial";
         var montoTotal = 0; 
         var controlPrimera = {isFirst:true};        
-        const nroFilasPrimeraHoja = 21;
+        const nroFilasPrimeraHoja = 22;
         const nroFilasRestoHojas = 23;
 
         data.sort((a, b) => a.cargo.registro - b.cargo.registro).forEach(d => {            
