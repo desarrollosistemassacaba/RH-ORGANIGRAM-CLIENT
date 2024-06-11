@@ -12,13 +12,13 @@ pipeline {
 
                 sh 'echo Deleting destination folder to enable a new copy...'               
                 
-                sh 'rm -rf /var/jenkins_home/workspace/c-oargani-gams/ || :'
-                sh 'rm -rf c-oargani-gams/ || :'    
+                sh 'rm -rf /var/jenkins_home/workspace/RH-ORGANIGRAM-CLIENT/ || :'
+                sh 'rm -rf RH-ORGANIGRAM-CLIENT/ || :'    
 
                 checkout scmGit(branches: [[name: '*/master']], 
                                 extensions: [], 
                                 userRemoteConfigs: [[credentialsId: 'mydevgit-3', 
-                                                    url: 'git@github.com:pablovillazon/c-oargani-gams.git']])
+                                                    url: 'git@github.com:desarrollosistemassacaba/RH-ORGANIGRAM-CLIENT.git']])
                                 
             }
         }
