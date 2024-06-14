@@ -335,11 +335,9 @@ rotation(edit: string) {
 generateExcel() {
 
     if(!this.habilitarBotonExportar && this.filtrarTipoContrato !== "none"){
-
                
         var tipoSeleccionado = this.filtrarTipoContrato;
-
-        //this.excelService.setTipoContrato(tipoSeleccionado);        
+        
         let mesReporte = 0;
         let yearReporte = 0;
 
@@ -357,14 +355,11 @@ generateExcel() {
             yearReporte = new Date().getFullYear();
         }
 
-        console.log("yearReporte: " + yearReporte + " , mesReporte: " + mesReporte + ", MONTH NAME: " + mesReporte);
-
         this.excelService.generarExcel(this.dataSource.data, tipoSeleccionado, mesReporte, yearReporte);        
     }
 
     console.log("Actual DataSource:");
     console.log(this.dataSource.data);
-    //this.excelService.generateExcel();
   }
 
 }
