@@ -1,11 +1,13 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Component, Inject, OnInit, ChangeDetectorRef } from "@angular/core";
+import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 
 import { DependenciasService } from "../../../../services/dependencias.service";
 import { NivelesService } from "../../../../services/niveles.service";
 import { PartidasService } from "../../../../services/partidas.service";
 import { UnidadesService } from "../../../../services/unidades.service";
 import { CargosService } from "../../../../services/cargos.service";
+import { UtilsService } from "src/app/services/utils.service";
 
 import { Observable } from "rxjs";
 import { map, startWith } from "rxjs/operators";
@@ -25,6 +27,8 @@ import {
 })
 export class DialogCargoComponent implements OnInit {
   level: any[] = [];
+  dependenciaId: any;
+  nivelId: any;
   dependence: any[] = [];
   unidades: any[] = [];
   partida: any[] = [];
@@ -37,10 +41,13 @@ export class DialogCargoComponent implements OnInit {
     Validators.required
   );
   idCargoControl = new FormControl();
+  idCargoDependiente = new FormControl();
 
-  jobs: any[] = [];
+  cargoFiltrado: any[] = [];
   noJob: boolean = false;
-  dependentJobs: any[] = [];
+  dependientes: any[] = [];
+
+  isDisabling = false;
 
   FormJob: FormGroup = this.fb.group({
     nombre: [
@@ -61,7 +68,7 @@ export class DialogCargoComponent implements OnInit {
         Validators.required,
         Validators.minLength(1),
         Validators.pattern("^[0-9]+$"),
-        this.registroExistsValidator.bind(this),
+        this.validarRegistro.bind(this),
       ],
     ],
     cargo_principal: [false],
@@ -79,10 +86,12 @@ export class DialogCargoComponent implements OnInit {
   filteredOptions!: Observable<any[]>;
   filteredCharges!: Observable<any[]>;
   filteredUnits!: Observable<any[]>;
+  filteredDependents!: Observable<any[]>;
 
   constructor(
-    private fb: FormBuilder,
     public dialogRef: MatDialogRef<DialogCargoComponent>,
+    public utilsService: UtilsService,
+    private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private dependenciaService: DependenciasService,
     private unidadService: UnidadesService,
@@ -96,31 +105,23 @@ export class DialogCargoComponent implements OnInit {
     this.load();
   }
 
-  load() {
+  async load() {
     this.loadPartidas();
-    this.loadCargos();
-    this.filters();
+    await this.loadCargos();
+    this.filtros();
     this.loadDependencias();
     this.loadUnidades();
     this.loadNiveles();
-    const contratoControl = this.FormJob.get("contrato");
-    if (contratoControl) {
-      contratoControl.valueChanges.subscribe((value) => {
-        if (value === "EVENTUAL" || value === "REMANENTE") {
-          this.setValidarDatosOcultos(true);
-        } else {
-          this.setValidarDatosOcultos(false);
-        }
-      });
-    }
-    this.removeCargoSuperior();
+    this.habilitarCampos();
+    this.removerDependienteSuperior();
     this.formDatos();
-
     this.cdr.detectChanges();
   }
 
   formDatos() {
     if (this.data) {
+      //console.log(this.data);
+
       this.cargoService.getCargosById(this.data.id).subscribe((element) => {
         this.FormJob.patchValue({
           nombre: element.nombre || "",
@@ -143,7 +144,8 @@ export class DialogCargoComponent implements OnInit {
         this.idUnidadControl.setValue(element.id_unidad);
         this.idCargoControl.setValue(element.id_cargo_superior);
         this.fillRegistro();
-        this.toggleFields(this.data.asignacion);
+        this.fieldsEstatico(this.data.asignacion);
+        this.cargarDependientes();
 
         // Cuando el cargo se encuentra deshabilitado, al habilitarlo el numero de registro no pasar por una verificacion y puede generar duplicidad, asi que se establecio quitar el valor del registro para validar la informacion y no generar duplicidad de registro.
         if (element.estado === false) {
@@ -153,7 +155,34 @@ export class DialogCargoComponent implements OnInit {
     }
   }
 
-  toggleFields(enable: boolean) {
+  habilitarCampos() {
+    //habilitar campos segun tipo de contrato
+    const contratoControl = this.FormJob.get("contrato");
+    if (contratoControl) {
+      contratoControl.valueChanges.subscribe((value) => {
+        if (value === "EVENTUAL" || value === "REMANENTE") {
+          this.fieldsDinamicoCargo(true);
+        } else {
+          this.fieldsDinamicoCargo(false);
+        }
+      });
+    }
+    //habilitar campos segun cargos dependientes
+    this.FormJob.get("id_dependencia")?.valueChanges.subscribe((value) => {
+      if (!this.isDisabling) {
+        this.dependenciaId = value;
+        this.handleValueChanges();
+      }
+    });
+    this.FormJob.get("id_nivel_salarial")?.valueChanges.subscribe((value) => {
+      if (!this.isDisabling) {
+        this.nivelId = value;
+        this.handleValueChanges();
+      }
+    });
+  }
+
+  fieldsEstatico(enable: boolean) {
     const controls = this.FormJob.controls;
     for (let controlName in controls) {
       if (enable) {
@@ -174,13 +203,121 @@ export class DialogCargoComponent implements OnInit {
       this.idUnidadControl.disable({ emitEvent: false });
       this.FormJob.get("categoria")?.disable({ emitEvent: false });
     }
+
+    //habilitar campos segun cargos dependientes, evita configurar el cambio de cargo de item a remanente o eventual, dado que tienen campos distintos
+    if (this.FormJob.value.contrato !== "") {
+      this.FormJob.get("contrato")?.disable();
+    } else {
+      this.FormJob.get("contrato")?.enable();
+    }
+  }
+
+  fieldsDinamicoCargo(applyValidators: boolean): void {
+    const hiddenFields = [
+      "id_partida",
+      "denominacion",
+      "duracion_contrato",
+      "objetivo",
+    ]; // Agrega más campos ocultos si es necesario
+    hiddenFields.forEach((fieldName) => {
+      const control = this.FormJob.get(fieldName);
+      if (control) {
+        // Verifica si control no es nulo
+        if (applyValidators) {
+          control.setValidators([Validators.required]);
+        } else {
+          control.clearValidators();
+        }
+        control.updateValueAndValidity();
+      }
+    });
+  }
+
+  fieldsDinamico() {
+    /* evita asignar cargos dependientes de distintas secretarias evitando incoherencia y error de datos en diagrama. Por ejemplo, el usuario puede asignar DESPACHO y seleccionar los cargos correspondientes, pero puede cambiar la secretaria y seleccionar SMFA y tambien seleccionar los cargos correspondientes, por ello se evita con esta funcionalidad. */
+    this.isDisabling = true;
+    if (this.dependientes && this.dependientes.length > 0) {
+      this.FormJob.get("id_nivel_salarial")?.disable();
+      this.FormJob.get("id_dependencia")?.disable();
+    } else {
+      this.FormJob.get("id_nivel_salarial")?.enable();
+      this.FormJob.get("id_dependencia")?.enable();
+    }
+    this.isDisabling = false;
   }
 
   displayFn(option: any): string {
     return option ? option.nombre : "";
   }
 
-  filters() {
+  updateCargosByDependencia(dependenciaId: string, nivelId: string) {
+    this.idCargoControl.setValue("");
+
+    const filteredNivel = this.level.filter(
+      (level: any) => level._id === nivelId
+    );
+    let filteredCargos;
+    if (this.data && this.data.id) {
+      filteredCargos = this.cargos.filter(
+        (data) =>
+          ((data.id_cargo_superior !== undefined &&
+            data.id_cargo_superior !== null) ||
+            data.cargo_principal === true) &&
+          data.id_dependencia?._id === dependenciaId &&
+          data.nivel < filteredNivel[0]?.nombre &&
+          data._id !== this.data.id
+      );
+    } else {
+      filteredCargos = this.cargos.filter(
+        (data) =>
+          ((data.id_cargo_superior !== undefined &&
+            data.id_cargo_superior !== null) ||
+            data.cargo_principal === true) &&
+          data.id_dependencia?._id === dependenciaId &&
+          data.nivel < filteredNivel[0]?.nombre
+      );
+    }
+    this.filteredCharges = this.filtroTexto(
+      this.idCargoControl,
+      filteredCargos
+    );
+  }
+
+  updateCargosByDependientes(dependenciaId: string, nivelId: string) {
+    this.idCargoDependiente.setValue("");
+
+    const filteredNivel = this.level.filter(
+      (level: any) => level._id === nivelId
+    );
+    let filteredCargos;
+    if (this.data && this.data.id) {
+      filteredCargos = this.cargos.filter(
+        (data) =>
+          (data.id_cargo_superior === undefined ||
+            data.id_cargo_superior === null) &&
+          data.cargo_principal === false &&
+          data.id_dependencia?._id === dependenciaId &&
+          data.nivel > filteredNivel[0]?.nombre &&
+          data._id !== this.data.id
+      );
+    } else {
+      filteredCargos = this.cargos.filter(
+        (data) =>
+          (data.id_cargo_superior === undefined ||
+            data.id_cargo_superior === null) &&
+          data.cargo_principal === false &&
+          data.id_dependencia?._id === dependenciaId &&
+          data.nivel > filteredNivel[0]?.nombre
+      );
+    }
+
+    this.filteredDependents = this.filtroTexto(
+      this.idCargoDependiente,
+      filteredCargos
+    );
+  }
+
+  filtros() {
     this.filteredOptions = this.idPartidaControl.valueChanges.pipe(
       startWith(""),
       map((value) => this._filter(value || ""))
@@ -191,10 +328,35 @@ export class DialogCargoComponent implements OnInit {
       map((value) => this._filterCharge(value || ""))
     );
 
+    this.filteredDependents = this.idCargoDependiente.valueChanges.pipe(
+      startWith(""),
+      map((value) => this._filterCharge(value || ""))
+    );
+
     this.filteredUnits = this.idUnidadControl.valueChanges.pipe(
       startWith(""),
       map((value) => this._filterUnit(value || ""))
     );
+  }
+
+  filtroTexto(control: FormControl, filteredCargos: any[]): Observable<any[]> {
+    return control.valueChanges.pipe(
+      startWith(""),
+      map((value) => {
+        const filterValue = (value || "").toString().toUpperCase();
+        return filteredCargos.filter((cargo) =>
+          (cargo.nombre || "").toString().toUpperCase().includes(filterValue)
+        );
+      })
+    );
+  }
+
+  handleValueChanges() {
+    if (this.dependenciaId !== "" && this.nivelId !== "") {
+      this.updateCargosByDependencia(this.dependenciaId, this.nivelId);
+      this.updateCargosByDependientes(this.dependenciaId, this.nivelId);
+      this.fieldsDinamico();
+    }
   }
 
   private _filter(value: string): any[] {
@@ -211,11 +373,19 @@ export class DialogCargoComponent implements OnInit {
 
   private _filterCharge(value: string): any[] {
     // Si el valor no es una cadena, no filtramos nada
-    if (typeof value !== "string") {
-      return this.cargos;
+    let valueDependencia = this.FormJob.get("id_dependencia")?.value;
+    let valueNivel = this.FormJob.get("id_nivel_salarial")?.value;
+    if (
+      typeof value !== "string" ||
+      value === "" ||
+      valueDependencia === "" ||
+      valueNivel === ""
+    ) {
+      return [];
     }
 
     let filterValue = value.toUpperCase();
+
     return this.cargos.filter((cargo) =>
       cargo.nombre.toUpperCase().includes(filterValue)
     );
@@ -271,14 +441,10 @@ export class DialogCargoComponent implements OnInit {
     });
   }
 
-  loadCargos() {
-    this.cargoService.getFiltroCampos("estado", "true").subscribe((items) => {
-      this.cargos = items;
-    });
-  }
-
-  agregarPartida(partida: any) {
-    this.FormJob.get("idPartidaControl")?.setValue(partida);
+  async loadCargos() {
+    this.cargos = await this.cargoService
+      .getFiltroCampos("estado", "true")
+      .toPromise();
   }
 
   agregarNivel(nivel: any) {
@@ -287,14 +453,6 @@ export class DialogCargoComponent implements OnInit {
 
   agregarDependencia(dependencia: any) {
     this.FormJob.get("id_dependencia")?.setValue(dependencia.value);
-  }
-
-  agregarCargo(cargo: any) {
-    this.FormJob.get("id_dependencia")?.setValue(cargo.value);
-  }
-
-  selectJob(job: any) {
-    this.FormJob.get("superior")?.setValue(job._id);
   }
 
   fillRegistro() {
@@ -342,42 +500,98 @@ export class DialogCargoComponent implements OnInit {
     }
   }
 
-  searchDependents(text: string) {
+  /*Funcionalidades para cargos Dependientes*/
+  cargarDependientes() {
+    if (
+      this.cargos.some((element) => element.id_cargo_superior === this.data.id)
+    ) {
+      this.dependientes = this.cargos.filter(
+        (element) => element.id_cargo_superior === this.data.id
+      );
+    }
+    this.fieldsDinamico();
+  }
+
+  buscarDependientes(text: string) {
+    const dependencia = this.FormJob.get("id_dependencia")?.value;
     //filtramos todos los elementos que coincidan con las condiciones
-    const fil = this.cargos.filter(
+    this.cargoFiltrado = this.cargos.filter(
       (data) =>
         (data.id_cargo_superior === undefined ||
           data.id_cargo_superior === null) &&
         data.cargo_principal === false &&
-        data.estado === true
+        data.id_dependencia?._id === dependencia
     );
-    //obtenemos el valor del form para realizar un nuevo filtrado
-    const dependencia = this.FormJob.get("id_dependencia")?.value;
-    //filtramos todos los elementos que no coincidan con dependencia, para ello agregamos el return
-    this.jobs = fil.filter((element) => {
-      return element.id_dependencia?._id === dependencia;
+    this.fieldsDinamico();
+  }
+
+  seleccionarDependientes(event: MatAutocompleteSelectedEvent): void {
+    const cargo = event.option.value;
+    if (this.dependientes.some((element) => element._id === cargo._id)) return;
+    this.dependientes.unshift(cargo);
+    this.idCargoDependiente.setValue("");
+    this.fieldsDinamico();
+  }
+
+  agregarDependientes() {
+    this.dependientes.map((elements) => {
+      ///console.log(elements._id);
+      this.cargoService.getCargosById(elements._id).subscribe(
+        (element) => {
+          let campo = {
+            nombre: element.nombre,
+            contrato: element.contrato,
+            registro: element.registro,
+            id_nivel_salarial: element.id_nivel_salarial._id,
+            id_dependencia: element.id_dependencia._id,
+            cargo_principal: element.cargo_principal,
+            id_cargo_superior: this.data.id,
+          };
+          //console.log(campo);
+          this.cargoService.updateCargo(elements._id, campo).subscribe(
+            (response) => {
+              this.dialogRef.close(response);
+            },
+            (error) => {
+              //console.error("Error al llamar al servicio:", error);
+            }
+          );
+        },
+        (error) => {
+          //console.error("Error al llamar al servicio:", error);
+        }
+      );
     });
   }
 
-  selectDependents(value: any) {
-    const job = value;
-    if (this.dependentJobs.some((element) => element._id === job._id)) return;
-    this.dependentJobs.unshift(job);
-    this.jobs = [];
-  }
-
-  removeDependentJob(position: number) {
+  removerDependientes(position: number) {
     if (this.data) {
-      //   const dependent = this.dependentJobs[position];
-      //   this.cargoService
-      //     .removeDependent(dependent._id)
-      //     .subscribe((_) => this.dependentJobs.splice(position, 1));
+      const dependiente = this.dependientes[position];
+      let campo = {
+        nombre: dependiente.nombre,
+        contrato: dependiente.contrato,
+        registro: dependiente.registro,
+        id_nivel_salarial: dependiente.id_nivel_salarial._id,
+        id_dependencia: dependiente.id_dependencia._id,
+        cargo_principal: dependiente.cargo_principal,
+      };
+
+      this.cargoService.updateCargo(dependiente._id, campo).subscribe(
+        (response) => {
+          this.dependientes.splice(position, 1);
+          this.fieldsDinamico();
+        },
+        (error) => {
+          //console.error("Error al llamar al servicio:", error);
+        }
+      );
     } else {
-      this.dependentJobs.splice(position, 1);
+      this.dependientes.splice(position, 1);
+      this.fieldsDinamico();
     }
   }
 
-  removeCargoSuperior() {
+  removerDependienteSuperior() {
     this.FormJob.get("disableCargoControl")?.valueChanges.subscribe(
       (checked) => {
         if (checked) {
@@ -389,30 +603,7 @@ export class DialogCargoComponent implements OnInit {
     );
   }
 
-  setValidarDatosOcultos(applyValidators: boolean): void {
-    const hiddenFields = [
-      "id_partida",
-      "denominacion",
-      "duracion_contrato",
-      "objetivo",
-    ]; // Agrega más campos ocultos si es necesario
-    hiddenFields.forEach((fieldName) => {
-      const control = this.FormJob.get(fieldName);
-      if (control) {
-        // Verifica si control no es nulo
-        if (applyValidators) {
-          control.setValidators([Validators.required]);
-        } else {
-          control.clearValidators();
-        }
-        control.updateValueAndValidity();
-      }
-    });
-  }
-
-  registroExistsValidator(
-    control: AbstractControl
-  ): { [key: string]: any } | null {
+  validarRegistro(control: AbstractControl): { [key: string]: any } | null {
     let id;
     if (this.data) {
       id = this.data.id;
@@ -433,7 +624,15 @@ export class DialogCargoComponent implements OnInit {
 
     // filtrado por tipo de contrato seleccionado
     let contrato = this.FormJob.value.contrato;
-    let filter = cargos.filter((cargo) => cargo.contrato === contrato);
+    let filter;
+    if (contrato === "REMANENTE" || contrato == "EVENTUAL") {
+      filter = cargos.filter(
+        (cargo) =>
+          cargo.contrato === "REMANENTE" || cargo.contrato === "EVENTUAL"
+      );
+    } else {
+      filter = cargos.filter((cargo) => cargo.contrato === contrato);
+    }
 
     // búsqueda del número de registro introducido en el input registro, el resultado retorna un valor booleano (true, false)
     let exists = filter.some(
@@ -444,28 +643,7 @@ export class DialogCargoComponent implements OnInit {
     return exists ? { [`${campo}Exists`]: { value } } : null;
   }
 
-  private convertToUpperCase(fieldName: string): void {
-    if (
-      this.FormJob.value[fieldName] &&
-      this.FormJob.value[fieldName] !== null &&
-      this.FormJob.value[fieldName] !== undefined
-    ) {
-      this.FormJob.value[fieldName] =
-        this.FormJob.value[fieldName].toUpperCase();
-    }
-  }
-
-  private convertToNumber(fieldName: string): void {
-    if (
-      this.FormJob.value[fieldName] &&
-      this.FormJob.value[fieldName] !== null &&
-      this.FormJob.value[fieldName] !== undefined
-    ) {
-      this.FormJob.value[fieldName] = parseInt(this.FormJob.value[fieldName]);
-    }
-  }
-
-  private clearCampos() {
+  private limpiarCampos() {
     Object.keys(this.FormJob.value).forEach((key) => {
       const value = this.FormJob.value[key];
       // Verifica si el valor del campo es null o undefined
@@ -483,12 +661,102 @@ export class DialogCargoComponent implements OnInit {
     });
   }
 
-  private clearCargos() {}
+  verificar() {
+    //restaurar valores de nivel y dependencia al guardar, tambien tomar en cuenta que habilitara todos los campos this.isDisabling en el modo edicion, por tanto, una vez finalizado el if se reestableceran los campos y sus valores. IMPORTANT!
+    this.isDisabling = true;
+    this.FormJob.get("id_nivel_salarial")?.enable();
+    this.FormJob.get("id_dependencia")?.enable();
+    this.FormJob.get("contrato")?.enable();
+
+    if (this.FormJob.value.contrato === "ITEM") {
+      let state_unidad = false;
+      let state_cargo = false;
+
+      if (this.FormJob.value.id_unidad && this.FormJob.value.id_unidad._id) {
+        state_unidad = this.unidades.some(
+          (unidad) => unidad._id === this.FormJob.value.id_unidad._id
+        );
+      }
+
+      if (
+        this.FormJob.value.id_cargo_superior &&
+        this.FormJob.value.id_cargo_superior._id
+      ) {
+        state_cargo = this.cargos.some(
+          (cargo) =>
+            this.FormJob.value.id_cargo_superior._id !== undefined &&
+            cargo._id === this.FormJob.value.id_cargo_superior._id
+        );
+      } else {
+        if (!this.FormJob.value.id_cargo_superior) {
+          state_cargo = true;
+        }
+      }
+
+      if (state_unidad && state_cargo) {
+        this.validar();
+      } else {
+        if (!state_unidad) {
+          this.idUnidadControl.setValue("");
+        }
+        if (!state_cargo) {
+          this.idCargoControl.setValue("");
+        }
+        this.isDisabling = false;
+        this.fieldsDinamico();
+      }
+    }
+
+    if (
+      this.FormJob.value.contrato === "EVENTUAL" ||
+      this.FormJob.value.contrato === "REMANENTE"
+    ) {
+      let state_partida = false;
+      let state_cargo = false;
+
+      if (this.FormJob.value.id_partida && this.FormJob.value.id_partida._id) {
+        state_partida = this.options.some(
+          (partida) => partida._id === this.FormJob.value.id_partida._id
+        );
+      }
+
+      if (
+        this.FormJob.value.id_cargo_superior &&
+        this.FormJob.value.id_cargo_superior._id
+      ) {
+        state_cargo = this.cargos.some(
+          (cargo) =>
+            this.FormJob.value.id_cargo_superior._id !== undefined &&
+            cargo._id === this.FormJob.value.id_cargo_superior._id
+        );
+      } else {
+        if (!this.FormJob.value.id_cargo_superior) {
+          state_cargo = true;
+        }
+      }
+
+      if (state_partida && state_cargo) {
+        this.validar();
+      } else {
+        if (!state_partida) {
+          this.idPartidaControl.setValue("");
+        }
+        if (!state_cargo) {
+          this.idCargoControl.setValue("");
+        }
+        this.isDisabling = false;
+        this.fieldsDinamico();
+      }
+    }
+  }
 
   validar() {
     //eliminando el elemento de control del campo del formulario
     delete this.FormJob.value.disableCargoControl;
 
+    //console.log(this.FormJob.value);
+
+    //eliminando campo de cargo superior dependiente al deshabilitar el cargo
     if (
       this.FormJob.value.estado === false &&
       this.FormJob.value.id_cargo_superior
@@ -496,16 +764,36 @@ export class DialogCargoComponent implements OnInit {
       delete this.FormJob.value.id_cargo_superior;
     }
 
-    this.clearCampos();
-    this.convertToUpperCase("nombre");
-    this.convertToUpperCase("categoria");
-    this.convertToUpperCase("contrato");
-    this.convertToUpperCase("denominacion");
-    this.convertToUpperCase("objetivo");
-    this.convertToNumber("registro");
-    this.convertToNumber("duracion_contrato");
+    //eliminando campos no correspondientes a item
+    if (this.FormJob.value.contrato === "ITEM") {
+      delete this.FormJob.value.id_partida;
+      delete this.FormJob.value.denominacion;
+      delete this.FormJob.value.duracion_contrato;
+      delete this.FormJob.value.objetivo;
+    }
+
+    //eliminando campos no correspondientes a eventual o remanente
+    if (
+      this.FormJob.value.contrato === "EVENTUAL" ||
+      this.FormJob.value.contrato === "REMANENTE"
+    ) {
+      delete this.FormJob.value.categoria;
+      delete this.FormJob.value.id_unidad;
+    }
+
+    this.limpiarCampos();
+    this.utilsService.convertToUpperCase(this.FormJob, "nombre");
+    this.utilsService.convertToUpperCase(this.FormJob, "categoria");
+    this.utilsService.convertToUpperCase(this.FormJob, "contrato");
+    this.utilsService.convertToUpperCase(this.FormJob, "denominacion");
+    this.utilsService.convertToUpperCase(this.FormJob, "objetivo");
+    this.utilsService.convertToNumber(this.FormJob, "registro");
+    this.utilsService.convertToNumber(this.FormJob, "duracion_contrato");
 
     this.guardar();
+    if (this.dependientes.length > 0) {
+      this.agregarDependientes();
+    }
   }
 
   guardar() {

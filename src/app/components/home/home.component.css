@@ -46,14 +46,26 @@ mat-sidenav {
 }
 
 /*cambiar color hover menu*/
-/* a:hover * {
-  color: green;
-} */
+a:hover * {
+  transition: 1.5ms;
+  font-size: 17px;
+  color: white;
+}
 
 /*cambiar color fondo menu*/
-/* mat-sidenav {
-  background-color: red;
-} */
+mat-sidenav {
+  background-image: linear-gradient(to right, #434343 0%, #242424 100%);
+  background-color: black;
+  border-right: 1px solid rgba(251, 32, 86, 1);
+}
+
+.example-toolbar {
+  background-image: radial-gradient(
+    circle farthest-corner at 50.4% 50.5%,
+    rgba(251, 32, 86, 1) 0%,
+    rgba(135, 2, 35, 1) 90%
+  );
+}
 
 .title-navbar {
   width: 100%;

@@ -1,27 +1,17 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Component, Inject, OnInit, ChangeDetectorRef } from "@angular/core";
 
-import { CargosService } from "../../../../services/cargos.service";
-import { FuncionariosService } from "src/app/services/funcionarios.service";
-import { RegistrosService } from "src/app/services/registros.service";
 import { DependenciasService } from "src/app/services/dependencias.service";
 import { NivelesService } from "src/app/services/niveles.service";
+import { UnidadesService } from "src/app/services/unidades.service";
+import { UtilsService } from "src/app/services/utils.service";
 
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-import { Observable } from "rxjs";
-import { map, startWith } from "rxjs/operators";
-
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  FormControl,
-  AbstractControl,
-} from "@angular/forms";
+import { FormBuilder } from "@angular/forms";
 
 @Component({
   selector: "app-view-funcionario",
@@ -46,25 +36,28 @@ export class ViewFuncionarioComponent implements OnInit {
   codigo: string;
   contrato: string;
   cargo: string;
+  unidad: string;
   salario: string;
   nivel: string;
   year: string;
   sigla: string;
   dependencia: string;
+  abreviatura: string;
   contratante: string;
   cargo_contratante: string;
+  numero_contrato: string;
   detalle_contrato: string;
   tipo_contrato: string;
+  habilitado: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ViewFuncionarioComponent>,
     private cdr: ChangeDetectorRef,
-    private cargoService: CargosService,
     private nivelService: NivelesService,
-    private funcionarioService: FuncionariosService,
-    private registroService: RegistrosService,
+    private unidadService: UnidadesService,
     private dependenciaService: DependenciasService,
+    private util: UtilsService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
@@ -73,6 +66,7 @@ export class ViewFuncionarioComponent implements OnInit {
   }
 
   load() {
+    console.log(this.data);
     if (this.data) {
       const value = "Sin Registro";
       this.nombre = this.data.nombre || "";
@@ -86,16 +80,19 @@ export class ViewFuncionarioComponent implements OnInit {
       this.fecha_conclusion = this.data.registros[0]?.fecha_conclusion || value;
       this.fecha_nac = this.data.fecha_nacimiento || value;
       this.registro = this.data.registros[0]?.id_cargo.registro || value;
+      this.unidad = this.data.registros[0]?.id_cargo.id_unidad || value;
       this.funcionario = this.nombre + " " + this.paterno + " " + this.materno;
+      this.abreviatura = this.data.registros[0]?.abreviatura || value;
       this.contratante = this.data.registros[0]?.contratante || value;
       this.cargo_contratante =
         this.data.registros[0]?.cargo_contratante || value;
       this.fecha_contrato = this.data.registros[0]?.fecha_contrato || value;
       this.tipo_contrato = this.data.registros[0]?.tipo_contrato || value;
+      this.numero_contrato = this.data.registros[0]?.numero_contrato || value;
       this.detalle_contrato = this.data.registros[0]?.detalle_contrato || value;
 
       if (this.fecha_ingreso !== value) {
-        this.fecha_ingreso = this.convertirFecha(this.fecha_ingreso);
+        this.fecha_ingreso = this.util.convertirFecha(this.fecha_ingreso);
         if (this.contrato === "ITEM") {
           this.year = this.fecha_ingreso.slice(-4);
         } else {
@@ -104,15 +101,33 @@ export class ViewFuncionarioComponent implements OnInit {
       }
 
       if (this.fecha_conclusion !== value) {
-        this.fecha_conclusion_text = this.convertirFecha(this.fecha_conclusion);
+        this.fecha_conclusion_text = this.util.convertirFecha(
+          this.fecha_conclusion
+        );
+      }
+
+      if (this.unidad !== value) {
+        this.unidadService
+          .getFiltroCampos("estado", "true")
+          .subscribe((element) => {
+            const values = element.filter(
+              (data: any) => data._id === this.unidad
+            );
+            if (values.length > 0) {
+              console.log(values);
+              this.unidad = this.util.ordenPalabras(values[0].nombre);
+            }
+          });
       }
 
       if (this.fecha_contrato !== value) {
-        this.fecha_contrato_text = this.convertirFecha(this.fecha_contrato);
+        this.fecha_contrato_text = this.util.convertirFecha(
+          this.fecha_contrato
+        );
       }
 
       if (this.fecha_nac !== value) {
-        this.fecha_nac = this.convertirFecha(this.fecha_nac);
+        this.fecha_nac = this.util.convertirFecha(this.fecha_nac);
       }
       if (this.registro !== value) {
         if (
@@ -128,7 +143,7 @@ export class ViewFuncionarioComponent implements OnInit {
         .subscribe((element) => {
           const campo = element[0]?.nombre || value;
           this.dependencia =
-            campo !== value ? this.ordenPalabras(campo) : campo;
+            campo !== value ? this.util.ordenPalabras(campo) : campo;
         });
 
       if (this.data.registros[0]?.id_cargo) {
@@ -153,12 +168,41 @@ export class ViewFuncionarioComponent implements OnInit {
           "/DRH/" +
           this.tipo_contrato +
           "/" +
-          this.registro +
+          this.numero_contrato +
           "/" +
           this.year;
       } else {
         this.codigo =
-          "GAMS-" + this.sigla + "/CAPE/" + this.registro + "/" + this.year;
+          "GAMS-" +
+          this.sigla +
+          "/CAPE/" +
+          this.numero_contrato +
+          "/" +
+          this.year;
+      }
+    }
+    //control de estados para permitir descargar contratos
+    if (
+      this.contrato !== undefined &&
+      this.contrato &&
+      this.registro &&
+      this.registro !== "Sin Registro" &&
+      this.fecha_contrato &&
+      this.fecha_contrato !== "Sin Registro" &&
+      this.contratante &&
+      this.contratante !== "Sin Registro" &&
+      this.cargo_contratante &&
+      this.cargo_contratante !== "Sin Registro" &&
+      this.numero_contrato !== "Sin Registro"
+    ) {
+      if (this.contrato === "ITEM") {
+        this.habilitado = true;
+      }
+      if (
+        (this.contrato === "REMANENTE" || this.contrato === "EVENTUAL") &&
+        this.abreviatura !== "Sin Registro"
+      ) {
+        this.habilitado = true;
       }
     }
 
@@ -166,53 +210,25 @@ export class ViewFuncionarioComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  ordenPalabras(str: string): string {
-    return str
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
-
-  convertirFecha(dateString: string): string {
-    const months = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre",
-    ];
-
-    const date = new Date(dateString);
-
-    if (isNaN(date.getTime())) {
-      throw new Error("Invalid date format!");
-    }
-
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day} de ${month} de ${year}`;
-  }
-
   downloadPDF() {
-    const alcalde = this.detalle_contrato;
-    const nameAlcalde = this.contratante;
-    const cargoAlcalde = this.cargo_contratante;
+    const detalle =
+      this.detalle_contrato && this.detalle_contrato !== "Sin Registro"
+        ? ", " + this.detalle_contrato
+        : "";
+    const contratante = this.util.ordenPalabras(this.contratante);
+    const contratante_cargo = this.cargo_contratante;
 
     this.fecha_contrato = this.fecha_contrato_text;
     // Bfecha_conclusion: string = "31 de diciembre de 2024";
 
     const ci_ext = this.ext ? this.ci + " - " + this.ext : this.ci;
-    const salarioText = this.numerosALetras(parseFloat(this.salario));
+    const salarioText = this.util.numerosALetras(parseFloat(this.salario));
+    let abreviatura;
+    if (this.abreviatura === "SR.") {
+      abreviatura = "el " + this.util.ordenPalabras(this.abreviatura);
+    } else {
+      abreviatura = "la " + this.util.ordenPalabras(this.abreviatura);
+    }
 
     const abreviatura_1 = "GVB";
     const abreviatura_2 = "pav";
@@ -262,7 +278,7 @@ export class ViewFuncionarioComponent implements OnInit {
                 text: ", representado por ",
               },
               {
-                text: alcalde,
+                text: `${abreviatura} ${contratante} ${contratante_cargo} ${detalle}`,
                 style: "negrita",
               },
               {
@@ -826,7 +842,7 @@ export class ViewFuncionarioComponent implements OnInit {
                 text: ", representado por ",
               },
               {
-                text: alcalde,
+                text: `${abreviatura} ${contratante} ${contratante_cargo} ${detalle}`,
                 style: "negrita",
               },
               {
@@ -1429,7 +1445,7 @@ export class ViewFuncionarioComponent implements OnInit {
                 text: ", representado por ",
               },
               {
-                text: alcalde,
+                text: `${abreviatura} ${contratante} ${contratante_cargo} ${detalle}`,
                 style: "negrita",
               },
               {
@@ -2007,11 +2023,11 @@ export class ViewFuncionarioComponent implements OnInit {
       { text: this.codigo, style: ["normal1", "negrita", "centrado"] },
       { text: "\n" },
       {
-        text: [{ text: "De         :       " }, { text: nameAlcalde }],
+        text: [{ text: "De         :       " }, { text: contratante }],
         style: "normal1",
       },
       {
-        text: { text: cargoAlcalde },
+        text: { text: contratante_cargo },
         style: ["margen", "negrita"],
       },
       { text: "\n" },
@@ -2046,7 +2062,7 @@ export class ViewFuncionarioComponent implements OnInit {
           },
           { text: ", con el " },
           {
-            text: `ITEM Nº ${this.registro} dependiente de la Dirección Jurídica`,
+            text: `ITEM Nº ${this.registro} dependiente de ${this.unidad}`,
             style: "negrita",
           },
           {
@@ -2097,11 +2113,11 @@ export class ViewFuncionarioComponent implements OnInit {
       { text: this.codigo, style: ["normal1", "negrita", "centrado"] },
       { text: "\n" },
       {
-        text: [{ text: "De         :       " }, { text: nameAlcalde }],
+        text: [{ text: "De         :       " }, { text: contratante }],
         style: "normal1",
       },
       {
-        text: { text: cargoAlcalde },
+        text: { text: contratante_cargo },
         style: ["margen", "negrita"],
       },
       { text: "\n" },
@@ -2187,11 +2203,11 @@ export class ViewFuncionarioComponent implements OnInit {
       { text: this.codigo, style: ["normal1", "negrita", "centrado"] },
       { text: "\n" },
       {
-        text: [{ text: "De         :       " }, { text: nameAlcalde }],
+        text: [{ text: "De         :       " }, { text: contratante }],
         style: "normal1",
       },
       {
-        text: { text: cargoAlcalde },
+        text: { text: contratante_cargo },
         style: ["margen", "negrita"],
       },
       { text: "\n" },
@@ -2362,87 +2378,5 @@ export class ViewFuncionarioComponent implements OnInit {
     };
 
     pdfMake.createPdf(docDefinition).download("document.pdf");
-  }
-
-  numerosALetras(num: number): string {
-    const units = [
-      "cero",
-      "uno",
-      "dos",
-      "tres",
-      "cuatro",
-      "cinco",
-      "seis",
-      "siete",
-      "ocho",
-      "nueve",
-    ];
-    const tens = [
-      "",
-      "",
-      "veinte",
-      "treinta",
-      "cuarenta",
-      "cincuenta",
-      "sesenta",
-      "setenta",
-      "ochenta",
-      "noventa",
-    ];
-    const teens = [
-      "diez",
-      "once",
-      "doce",
-      "trece",
-      "catorce",
-      "quince",
-      "dieciséis",
-      "diecisiete",
-      "dieciocho",
-      "diecinueve",
-    ];
-    const hundreds = [
-      "",
-      "ciento",
-      "doscientos",
-      "trescientos",
-      "cuatrocientos",
-      "quinientos",
-      "seiscientos",
-      "setecientos",
-      "ochocientos",
-      "novecientos",
-    ];
-
-    if (num === 0) return units[0];
-
-    let words = "";
-
-    if (num >= 1000) {
-      let thousands = Math.floor(num / 1000);
-      words += (thousands === 1 ? "mil" : units[thousands] + " mil") + " ";
-      num %= 1000;
-    }
-
-    if (num >= 100) {
-      let hundred = Math.floor(num / 100);
-      words += hundreds[hundred] + " ";
-      num %= 100;
-    }
-
-    if (num >= 20) {
-      let ten = Math.floor(num / 10);
-      words += tens[ten] + (num % 10 === 0 ? "" : " y ") + " ";
-      num %= 10;
-    } else if (num >= 10) {
-      words += teens[num - 10] + " ";
-      num = 0;
-    }
-
-    if (num > 0 && num < 10) {
-      words += units[num] + " ";
-    }
-
-    return words.trim();
   }
 }
