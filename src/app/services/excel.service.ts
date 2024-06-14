@@ -117,7 +117,7 @@ export class ExcelService {
         var nombreUnidadActual = "Inicial";
         var montoTotal = 0; 
         var controlPrimera = {isFirst:true};        
-        const nroFilasPrimeraHoja = 22;
+        const nroFilasPrimeraHoja = 21;
         const nroFilasRestoHojas = 23;
 
         data.sort((a, b) => a.cargo.registro - b.cargo.registro).forEach(d => {            
@@ -150,13 +150,17 @@ export class ExcelService {
                                     montoSalario,
                                     objAltaBaja.diasTrabajados];
             
+            //console.log("Agregando subTotalUnidades : ",nroRegistros,  ", ", d.cargo.id_dependencia?.nombre);
             //Comprobar si hay una nueva unidad para imprimir el Nombre de la seccion
             if(d.cargo.id_dependencia?.nombre !== nombreUnidadActual){
 
                 const titulo_seccion_unidad = ['**', '', d.cargo.id_dependencia?.nombre, '', '', '', '', '', '', '', '', ''];
 
+                
+
                 var filaTituloDependencia = worksheet.addRow(titulo_seccion_unidad);
                 this.formatearFilaDatosItem(filaTituloDependencia, objAltaBaja.modificacion, true);
+                //nroRegistros += 1;
                
                 nombreUnidadActual = d.cargo.id_dependencia?.nombre;
 
@@ -166,6 +170,7 @@ export class ExcelService {
 
             var row = worksheet.addRow(funcionario_cargo);
             this.formatearFilaDatosItem(row, objAltaBaja.modificacion, false);
+            //nroRegistros += 1;
             
             nroRegistros = this.verificarImprimirEncabezados(encabezados, nroRegistros, controlPrimera,
                 nroFilasPrimeraHoja, nroFilasRestoHojas, worksheet);
@@ -318,7 +323,7 @@ export class ExcelService {
                 //Imprimir SubTotales antes de imprimir el nombre de la nueva seccion
                 //Si es la primera unidad, no se imprime subtotales
                 if(contadorUnidades > 0){
-                    console.log("Agregando subTotalUnidades : ",nroRegistros, contadorUnidades, ", ", totalParcialMonto, ", ", d.cargo.id_dependencia?.nombre);
+                    //console.log("Agregando subTotalUnidades : ",nroRegistros, contadorUnidades, ", ", totalParcialMonto, ", ", d.cargo.id_dependencia?.nombre);
                     let montoFormateado = this.formatearMonto(totalParcialMonto);
                     const contenidoFilaSubtotales = ['','*Sub-Total','','','','','','','','', montoFormateado, totalParcialMonto,''];
 
@@ -406,7 +411,8 @@ export class ExcelService {
         worksheet: Worksheet): number {
                 
         //Agregar nueva fila de encabezados (nueva pagina para impresion)       
-        if(nroRegistros === nroFilasPrimera && controlPrimera.isFirst){           
+        if(nroRegistros === nroFilasPrimera && controlPrimera.isFirst){    
+            this.agregarFilaEncabezados(encabezados, worksheet,false);       
             controlPrimera.isFirst = false;           
             return 1;
 
@@ -417,7 +423,7 @@ export class ExcelService {
         }
         
         //No se agrego nada, solo incrementar
-        return nroRegistros+=1;
+        return nroRegistros=nroRegistros+1;
     }
 
     private mesNumeralToLiteral(mes: any): string{
