@@ -30,8 +30,7 @@
         </div>
         <!-- <div *ngIf="this.contrato !== undefined && this.registro && this.fecha_conclusion && this.fecha_contrato && this.ci"
     class="card-content-header"> -->
-        <div *ngIf="(this.contrato !== undefined && this.registro && this.registro !== 'Sin Registro' && this.fecha_conclusion && this.fecha_conclusion !== 'Sin Registro') || (this.contrato !== undefined && this.contrato === 'ITEM' && this.registro !== 'Sin Registro' && this.fecha_contrato && this.fecha_contrato !== 'Sin Registro' && this.tipo_contrato && this.tipo_contrato !== 'Sin Registro')"
-            class=" card-content-header">
+        <div *ngIf="habilitado" class=" card-content-header">
             <div class="card-document">{{this.codigo}}<span>
                     <button mat-button (click)="downloadPDF()">
                         <mat-icon style="color: red;">download</mat-icon></button></span>

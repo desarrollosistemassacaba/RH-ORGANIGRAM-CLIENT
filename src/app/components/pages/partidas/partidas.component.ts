@@ -9,6 +9,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
 import { DialogPartidaComponent } from "./dialog-partida/dialog-partida.component";
+import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { PartidasService } from "../../../services/partidas.service";
 
 @Component({
@@ -66,7 +67,7 @@ export class PartidasComponent implements AfterViewInit {
           this.cdr.detectChanges();
         },
         (error) => {
-          console.error("Error al obtener los cargos:", error);
+          //console.error("Error al obtener los cargos:", error);
         }
       );
     }
@@ -80,7 +81,7 @@ export class PartidasComponent implements AfterViewInit {
         this.dataSource.paginator = this.paginator;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -93,7 +94,7 @@ export class PartidasComponent implements AfterViewInit {
         this.dataSource.paginator = this.paginator;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -105,7 +106,7 @@ export class PartidasComponent implements AfterViewInit {
         this.dataSource.paginator = this.paginator;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -150,7 +151,7 @@ export class PartidasComponent implements AfterViewInit {
         this.cdr.detectChanges();
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -166,7 +167,7 @@ export class PartidasComponent implements AfterViewInit {
         this.cdr.detectChanges();
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -227,19 +228,26 @@ export class PartidasComponent implements AfterViewInit {
   }
 
   delete(element: any): void {
-    const confirmar = confirm(
-      "¿Estás seguro de que deseas eliminar esta dependencia?"
-    );
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: "450px",
+      data: {
+        message: "¿Estás seguro de eliminar la partida presupuestaria?",
+      },
+    });
 
-    if (confirmar) {
-      this.partidaService.deleteElemento(element._id).subscribe(
-        () => {
-          this.load();
-        },
-        (error) => {
-          //console.error('Error al eliminar la dependencia:', error);
-        }
-      );
-    }
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.partidaService.deleteElemento(element._id).subscribe(
+          () => {
+            this.load();
+          },
+          (error) => {
+            //console.error("Error al eliminar la dependencia:", error);
+          }
+        );
+      } else {
+        //console.log("La eliminación ha sido cancelada.");
+      }
+    });
   }
 }

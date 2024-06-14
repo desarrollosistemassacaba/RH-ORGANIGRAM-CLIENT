@@ -4,6 +4,7 @@ import { Component, Inject, OnInit, ChangeDetectorRef } from "@angular/core";
 import { CargosService } from "../../../../services/cargos.service";
 import { FuncionariosService } from "src/app/services/funcionarios.service";
 import { RegistrosService } from "src/app/services/registros.service";
+import { UtilsService } from "src/app/services/utils.service";
 
 import { Observable } from "rxjs";
 import { map, startWith } from "rxjs/operators";
@@ -26,7 +27,10 @@ export class DialogFuncionarioComponent implements OnInit {
   registros: any[] = [];
   cargos: any[] = [];
   contrato: string;
+  numero_contrato: string;
   selectedContrato: string;
+  selectedRegistro: string;
+  selectedCargoId: string;
 
   idCargoControl = new FormControl();
 
@@ -139,8 +143,12 @@ export class DialogFuncionarioComponent implements OnInit {
     ],
     cargo_contratante: [
       "",
-      [Validators.minLength(2), Validators.pattern("[a-zA-Z\\s\\ñ\\Ñ]*")],
+      [
+        Validators.minLength(2),
+        Validators.pattern("^[a-zA-ZÀ-ÿ\\s\\u00f1\\u00d1]*$"),
+      ],
     ],
+    abreviatura: [""],
     tipo_contrato: [""],
     detalle_contrato: [""],
     fecha_contrato: [""],
@@ -155,6 +163,7 @@ export class DialogFuncionarioComponent implements OnInit {
     private cargoService: CargosService,
     private funcionarioService: FuncionariosService,
     private registroService: RegistrosService,
+    private utils: UtilsService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
@@ -174,7 +183,7 @@ export class DialogFuncionarioComponent implements OnInit {
 
   formDatos() {
     if (this.data) {
-      console.log(this.data);
+      //console.log(this.data);
       this.FormJob.patchValue({
         nombre: this.data.nombre || "",
         paterno: this.data.paterno || "",
@@ -194,6 +203,7 @@ export class DialogFuncionarioComponent implements OnInit {
         id_cargo: this.data.registros[0]?.id_cargo || "",
         fecha_ingreso: this.data.registros[0]?.fecha_ingreso || "",
         fecha_conclusion: this.data.registros[0]?.fecha_conclusion || "",
+        abreviatura: this.data.registros[0]?.abreviatura || "",
         contratante: this.data.registros[0]?.contratante || "",
         cargo_contratante: this.data.registros[0]?.cargo_contratante || "",
         fecha_contrato: this.data.registros[0]?.fecha_contrato || "",
@@ -201,7 +211,9 @@ export class DialogFuncionarioComponent implements OnInit {
         detalle_contrato: this.data.registros[0]?.detalle_contrato || "",
       });
 
-      this.contrato = this.data.registros[0]?.id_cargo.contrato || "";
+      this.numero_contrato = this.data.registros[0]?.numero_contrato || "";
+
+      //console.log(this.numero_contrato);
 
       this.idCargoControl.setValue(this.data.registros[0]?.id_cargo);
       if (this.data && this.data.registros[0]?.id_cargo) {
@@ -221,6 +233,7 @@ export class DialogFuncionarioComponent implements OnInit {
     const hiddenFields = [
       "fecha_ingreso",
       "fecha_conclusion",
+      "fecha_contrato",
       "id_cargo",
       "tipo",
     ]; // Agrega más campos ocultos si es necesario
@@ -253,6 +266,18 @@ export class DialogFuncionarioComponent implements OnInit {
         this.selectedContrato = selectedCargo.contrato;
       } else {
         this.selectedContrato = "";
+      }
+
+      if (selectedCargo && selectedCargo.registro) {
+        this.selectedRegistro = selectedCargo.registro;
+      } else {
+        this.selectedRegistro = "";
+      }
+
+      if (selectedCargo && selectedCargo._id) {
+        this.selectedCargoId = selectedCargo._id;
+      } else {
+        this.selectedRegistro = "";
       }
     });
   }
@@ -346,27 +371,6 @@ export class DialogFuncionarioComponent implements OnInit {
     return exists ? { [`${campo}Exists`]: { value } } : null;
   }
 
-  private convertToUpperCase(fieldName: string): void {
-    if (
-      this.FormJob.value[fieldName] &&
-      this.FormJob.value[fieldName] !== null &&
-      this.FormJob.value[fieldName] !== undefined
-    ) {
-      this.FormJob.value[fieldName] =
-        this.FormJob.value[fieldName].toUpperCase();
-    }
-  }
-
-  private convertToNumber(fieldName: string): void {
-    if (
-      this.FormJob.value[fieldName] &&
-      this.FormJob.value[fieldName] !== null &&
-      this.FormJob.value[fieldName] !== undefined
-    ) {
-      this.FormJob.value[fieldName] = parseInt(this.FormJob.value[fieldName]);
-    }
-  }
-
   private clearCampos() {
     Object.keys(this.FormJob.value).forEach((key) => {
       const value = this.FormJob.value[key];
@@ -385,72 +389,66 @@ export class DialogFuncionarioComponent implements OnInit {
     });
   }
 
-  getCurrentISODateTime(): string {
-    return new Date().toISOString();
-  }
+  async assignementRegistro() {
+    const elements = await this.registroService
+      .getFiltroCampos("id_cargo", this.selectedCargoId)
+      .toPromise();
+    //console.log(elements);
 
-  convertToISO8601(dateString: string): string {
-    // Intentar crear el objeto Date directamente
-    let date = new Date(dateString);
+    const year = new Date(this.FormJob.value.fecha_ingreso).getFullYear();
 
-    // Verificar si la fecha es inválida
-    if (isNaN(date.getTime())) {
-      // Limpiar la cadena de fecha para eliminar la parte de la zona horaria localizada y otros posibles formatos
-      const cleanedDateString = dateString
-        .replace(/\sGMT[^)]*\([^)]*\)/, "")
-        .replace(/\s+/g, " ");
+    // Filtrar elementos por año de ingreso
+    const elementosFiltradosPorAno = elements.filter((element: any) => {
+      const fechaIngreso = new Date(element.fecha_ingreso);
+      return fechaIngreso.getFullYear() === year;
+    });
 
-      // Intentar crear el objeto Date nuevamente con la cadena limpiada
-      date = new Date(cleanedDateString);
+    const list = [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+    ];
 
-      // Verificar si la fecha sigue siendo inválida
-      if (isNaN(date.getTime())) {
-        throw new Error("Formato invalido!");
-      }
+    if (elementosFiltradosPorAno.length === 0) {
+      //console.log("es primer registro");
+    } else if (elementosFiltradosPorAno.length <= list.length) {
+      this.selectedRegistro =
+        this.selectedRegistro + "-" + list[elementosFiltradosPorAno.length - 1];
     }
 
-    // Obtener año, mes y día
-    const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const day = ("0" + date.getDate()).slice(-2);
-
-    // Formatear la fecha en ISO 8601 (YYYY-MM-DD)
-    return `${year}-${month}-${day}`;
+    //console.log(elementosFiltradosPorAno.length);
+    this.cdr.detectChanges();
   }
 
-  convertFromISO8601(isoDateString: string): Date {
-    const date = new Date(isoDateString);
-
-    if (isNaN(date.getTime())) {
-      throw new Error("Formato invalido ISO 8601");
-    }
-
-    return date;
-  }
-
-  validar() {
-    let date_start;
-    let date_final;
-    if (this.data && this.data.estado === true) {
-      date_start = this.convertToISO8601(this.FormJob.value.fecha_ingreso);
-      date_final = this.convertToISO8601(this.FormJob.value.fecha_conclusion);
-
-      this.FormJob.removeControl("fecha_ingreso");
-      this.FormJob.removeControl("fecha_conclusion");
-
-      this.FormJob.addControl("fecha_ingreso", this.fb.control(date_start));
-      this.FormJob.addControl("fecha_conclusion", this.fb.control(date_final));
-    }
-
-    let fecha_nac = this.convertToISO8601(this.FormJob.value.fecha_nacimiento);
-    this.FormJob.removeControl("fecha_nacimiento");
-    this.FormJob.addControl("fecha_nacimiento", this.fb.control(fecha_nac));
-
-    this.convertToUpperCase("distrito");
-    this.convertToUpperCase("zona");
-    this.convertToUpperCase("pasaje");
-    this.convertToUpperCase("calle");
-    this.convertToNumber("numero_casa");
+  async validar() {
+    this.utils.convertToUpperCase(this.FormJob, "distrito");
+    this.utils.convertToUpperCase(this.FormJob, "zona");
+    this.utils.convertToUpperCase(this.FormJob, "pasaje");
+    this.utils.convertToUpperCase(this.FormJob, "calle");
+    this.utils.convertToNumber(this.FormJob, "numero_casa");
 
     let domicilio = {
       distrito: this.FormJob.value.distrito,
@@ -465,6 +463,30 @@ export class DialogFuncionarioComponent implements OnInit {
       Object.entries(domicilio).filter(([key, value]) => value !== "")
     );
 
+    if (
+      this.selectedContrato === "EVENTUAL" ||
+      this.selectedContrato === "REMANENTE"
+    ) {
+      this.FormJob.value.tipo_contrato = "CO";
+    }
+
+    if (
+      this.selectedCargoId &&
+      this.selectedCargoId !== undefined &&
+      this.numero_contrato === ""
+    ) {
+      //solo los de contrato ITEM no requiere un valor alfabetico en el contrato
+      if (this.selectedContrato !== "ITEM") {
+        await this.assignementRegistro();
+      }
+      this.FormJob.addControl(
+        "numero_contrato",
+        this.fb.control(this.selectedRegistro)
+      );
+    }
+
+    console.log(this.FormJob.value);
+
     // Verificar si domicilioFiltrado tiene algún elemento
     if (Object.keys(domicilioFiltrado).length > 0) {
       // Agregar un nuevo campo 'nuevoCampo' con valor 'valorInicial' y sin validadores
@@ -478,35 +500,38 @@ export class DialogFuncionarioComponent implements OnInit {
     }
 
     this.clearCampos();
-    this.convertToUpperCase("nombre");
-    this.convertToUpperCase("paterno");
-    this.convertToUpperCase("materno");
-    this.convertToUpperCase("ext");
-    this.convertToUpperCase("expedido");
-    this.convertToUpperCase("genero");
-    this.convertToUpperCase("descripcion");
+    this.utils.convertToUpperCase(this.FormJob, "nombre");
+    this.utils.convertToUpperCase(this.FormJob, "paterno");
+    this.utils.convertToUpperCase(this.FormJob, "materno");
+    this.utils.convertToUpperCase(this.FormJob, "ext");
+    this.utils.convertToUpperCase(this.FormJob, "expedido");
+    this.utils.convertToUpperCase(this.FormJob, "genero");
+    this.utils.convertToUpperCase(this.FormJob, "descripcion");
 
-    this.convertToUpperCase("contratante");
-    this.convertToUpperCase("cargo_contratante");
-    this.convertToUpperCase("tipo_contrato");
+    this.utils.convertToUpperCase(this.FormJob, "contratante");
+    this.utils.convertToUpperCase(this.FormJob, "cargo_contratante");
+    this.utils.convertToUpperCase(this.FormJob, "tipo_contrato");
+    this.utils.convertToUpperCase(this.FormJob, "abreviatura");
     //this.convertToUpperCase("correo");
 
-    this.convertToNumber("ci");
-    this.convertToNumber("telefono");
+    this.utils.convertToNumber(this.FormJob, "ci");
+    this.utils.convertToNumber(this.FormJob, "telefono");
 
     if (this.data && this.data.estado === true) {
       let FormRegister = {
         id_cargo: this.FormJob.value.id_cargo,
         fecha_ingreso: this.FormJob.value.fecha_ingreso,
         fecha_conclusion: this.FormJob.value.fecha_conclusion,
+        abreviatura: this.FormJob.value.abreviatura,
         contratante: this.FormJob.value.contratante,
         cargo_contratante: this.FormJob.value.cargo_contratante,
         tipo_contrato: this.FormJob.value.tipo_contrato,
+        numero_contrato: this.FormJob.value.numero_contrato,
         fecha_contrato: this.FormJob.value.fecha_contrato,
         detalle_contrato: this.FormJob.value.detalle_contrato,
         fecha_baja:
           !this.FormJob.value.disableCargoControl === false
-            ? this.getCurrentISODateTime()
+            ? this.utils.getCurrentISODateTime()
             : "",
         tipo: this.FormJob.value.tipo,
         descripcion: this.FormJob.value.descripcion,
@@ -533,7 +558,7 @@ export class DialogFuncionarioComponent implements OnInit {
     const register = this.registros.filter(
       (element) => element.id_funcionario === this.data?._id
     );
-    //console.log(register);
+    //console.log(form);
     if (Object.keys(register).length > 0) {
       this.registroService.updateRegistro(register[0]._id, form).subscribe(
         (response) => {

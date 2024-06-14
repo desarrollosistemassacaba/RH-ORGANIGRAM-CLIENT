@@ -1,25 +1,25 @@
-// cargos.component.ts
-
 import {
   Component,
   ViewChild,
   AfterViewInit,
   ChangeDetectorRef,
 } from "@angular/core";
-// import { FormControl } from '@angular/forms';
+
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
-//import { Observable } from 'rxjs';
-//import { map, startWith } from 'rxjs/operators';
 import { map } from "rxjs/operators";
 import { forkJoin } from "rxjs";
 
 import { DialogCargoComponent } from "./dialog-cargo/dialog-cargo.component";
+import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
+
 import { CargosService } from "../../../services/cargos.service";
 import { RegistrosService } from "../../../services/registros.service";
 import { FuncionariosService } from "../../../services/funcionarios.service";
 import { NivelesService } from "../../../services/niveles.service";
+import { ExcelService } from "../../../services/excel.service";
 
 @Component({
   selector: "app-cargos",
@@ -43,6 +43,7 @@ export class CargosComponent implements AfterViewInit {
     private registrosService: RegistrosService,
     private funcionariosService: FuncionariosService,
     private nivelesService: NivelesService,
+    private excelService: ExcelService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog
   ) {
@@ -119,7 +120,7 @@ export class CargosComponent implements AfterViewInit {
           this.cdr.detectChanges();
         },
         (error) => {
-          console.error("Error al obtener los datos:", error);
+          //console.error("Error al obtener los datos:", error);
         }
       );
   }
@@ -168,7 +169,7 @@ export class CargosComponent implements AfterViewInit {
         this.cdr.detectChanges();
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -217,6 +218,12 @@ export class CargosComponent implements AfterViewInit {
     this.load();
   }
 
+  // Función para generar el Excel
+  filtradoExcel(): void {
+    const filteredData = this.dataSource.filteredData;
+    this.excelService.exportCargoToExcel(filteredData, "cargos.xlsx");
+  }
+
   edit(cargo: any) {
     const asignacion = cargo.personal === "SIN ASIGNACION" ? true : false;
     const dialogRef = this.dialog.open(DialogCargoComponent, {
@@ -240,19 +247,83 @@ export class CargosComponent implements AfterViewInit {
   }
 
   delete(element: any): void {
-    const confirmar = confirm(
-      "¿Estás seguro de que deseas eliminar esta dependencia?"
-    );
+    if (element && element._id) {
+      this.registrosService
+        .getFiltroCampos("estado", "true")
+        .subscribe((data) => {
+          const active = data.some(
+            (item: any) => item.id_cargo === element._id
+          );
 
-    if (confirmar) {
-      this.cargosService.deleteCargo(element._id).subscribe(
-        () => {
-          this.load();
+          if (!active) {
+            const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+              width: "450px",
+              data: {
+                message: "¿Estás seguro de eliminar el cargo?",
+              },
+            });
+            dialogRef.afterClosed().subscribe((result) => {
+              if (result) {
+                this.cargosService
+                  .getFiltroCampos("id_cargo_superior", element._id)
+                  .subscribe((element) => {
+                    element.map((data: any) => {
+                      let campo = {
+                        nombre: data.nombre,
+                        contrato: data.contrato,
+                        registro: data.registro,
+                        id_nivel_salarial: data.id_nivel_salarial._id,
+                        id_dependencia: data.id_dependencia._id,
+                        cargo_principal: data.cargo_principal,
+                      };
+                      this.cargosService
+                        .updateCargo(data._id, campo)
+                        .subscribe((result) => {
+                          this.load();
+                        });
+                    });
+                  });
+                this.cargosService.deleteCargo(element._id).subscribe(
+                  () => {
+                    this.load();
+                  },
+                  (error) => {
+                    //console.error("Error al eliminar la dependencia:", error);
+                  }
+                );
+              }
+            });
+          } else {
+            const dialogRef = this.dialog.open(MessageDialogComponent, {
+              width: "450px",
+              data: {
+                message: "El cargo se encuentra asignado a un funcionario!!!",
+              },
+            });
+          }
+        });
+
+      /*
+              const dependiente = this.dependientes[position];
+      let campo = {
+        nombre: dependiente.nombre,
+        contrato: dependiente.contrato,
+        registro: dependiente.registro,
+        id_nivel_salarial: dependiente.id_nivel_salarial._id,
+        id_dependencia: dependiente.id_dependencia._id,
+        cargo_principal: dependiente.cargo_principal,
+      };
+
+      this.cargoService.updateCargo(dependiente._id, campo).subscribe(
+        (response) => {
+          this.dependientes.splice(position, 1);
+          this.fieldsDinamico();
         },
         (error) => {
-          //console.error('Error al eliminar la dependencia:', error);
+          //console.error("Error al llamar al servicio:", error);
         }
       );
+         */
     }
   }
 
