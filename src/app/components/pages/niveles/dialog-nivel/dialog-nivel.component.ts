@@ -7,6 +7,7 @@ import {
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { NivelesService } from "src/app/services/niveles.service";
 import { Component, Inject } from "@angular/core";
+import { UtilsService } from "src/app/services/utils.service";
 
 @Component({
   selector: "app-dialog-nivel",
@@ -73,6 +74,7 @@ export class DialogNivelComponent {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<DialogNivelComponent>,
     private nivelesService: NivelesService,
+    private utils: UtilsService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
@@ -89,47 +91,9 @@ export class DialogNivelComponent {
         this.niveles = data;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
-  }
-
-  guardar() {
-    this.clearCampos();
-    this.convertToDecimal("nombre");
-    this.convertToDecimal("haber_basico");
-    this.convertToDecimal("cns");
-    this.convertToDecimal("solidario");
-    this.convertToDecimal("provivienda");
-    this.convertToDecimal("profesional");
-
-    if (this.data) {
-      this.nivelesService
-        .updateNivel(this.data._id, this.FormNivel.value)
-        .subscribe(
-          (response) => {
-            // Manejo de la respuesta del servicio si es necesario
-            this.dialogRef.close(response);
-            console.log("Respuesta del servicio:", response);
-          },
-          (error) => {
-            // Manejo de errores si ocurre alguno al llamar al servicio
-            console.error("Error al llamar al servicio:", error);
-          }
-        );
-    } else {
-      this.nivelesService.addNivel(this.FormNivel.value).subscribe(
-        (response) => {
-          // Manejo de la respuesta del servicio si es necesario
-          this.dialogRef.close(response);
-          console.log("Respuesta del servicio:", response);
-        },
-        (error) => {
-          // Manejo de errores si ocurre alguno al llamar al servicio
-          console.error("Error al llamar al servicio:", error);
-        }
-      );
-    }
   }
 
   private clearCampos() {
@@ -144,18 +108,6 @@ export class DialogNivelComponent {
         delete this.FormNivel.value[key];
       }
     });
-  }
-
-  private convertToDecimal(fieldName: string): void {
-    if (
-      this.FormNivel.value[fieldName] &&
-      this.FormNivel.value[fieldName] !== null &&
-      this.FormNivel.value[fieldName] !== undefined
-    ) {
-      this.FormNivel.value[fieldName] = parseFloat(
-        this.FormNivel.value[fieldName]
-      );
-    }
   }
 
   existsValidator(
@@ -190,5 +142,43 @@ export class DialogNivelComponent {
     control: AbstractControl
   ): { [key: string]: any } | null {
     return this.existsValidator(control, "nombre", this.data, this.niveles);
+  }
+
+  guardar() {
+    this.clearCampos();
+    this.utils.convertToDecimal(this.FormNivel, "nombre");
+    this.utils.convertToDecimal(this.FormNivel, "haber_basico");
+    this.utils.convertToDecimal(this.FormNivel, "cns");
+    this.utils.convertToDecimal(this.FormNivel, "solidario");
+    this.utils.convertToDecimal(this.FormNivel, "provivienda");
+    this.utils.convertToDecimal(this.FormNivel, "profesional");
+
+    if (this.data) {
+      this.nivelesService
+        .updateNivel(this.data._id, this.FormNivel.value)
+        .subscribe(
+          (response) => {
+            // Manejo de la respuesta del servicio si es necesario
+            this.dialogRef.close(response);
+            //console.log("Respuesta del servicio:", response);
+          },
+          (error) => {
+            // Manejo de errores si ocurre alguno al llamar al servicio
+            //console.error("Error al llamar al servicio:", error);
+          }
+        );
+    } else {
+      this.nivelesService.addNivel(this.FormNivel.value).subscribe(
+        (response) => {
+          // Manejo de la respuesta del servicio si es necesario
+          this.dialogRef.close(response);
+          //console.log("Respuesta del servicio:", response);
+        },
+        (error) => {
+          // Manejo de errores si ocurre alguno al llamar al servicio
+          //console.error("Error al llamar al servicio:", error);
+        }
+      );
+    }
   }
 }

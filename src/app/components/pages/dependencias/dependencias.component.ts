@@ -10,6 +10,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
 
 import { DialogDependenciaComponent } from "./dialog-dependencia/dialog-dependencia.component";
+import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { DependenciasService } from "../../../services/dependencias.service";
 
 @Component({
@@ -55,7 +56,7 @@ export class DependenciasComponent implements AfterViewInit {
           this.cdr.detectChanges();
         },
         (error) => {
-          console.error("Error al obtener los cargos:", error);
+          //console.error("Error al obtener los cargos:", error);
         }
       );
     }
@@ -69,7 +70,7 @@ export class DependenciasComponent implements AfterViewInit {
         this.dataSource.paginator = this.paginator;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        // console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -106,24 +107,33 @@ export class DependenciasComponent implements AfterViewInit {
       data: dependencia,
     });
     dialogRef.afterClosed().subscribe((result) => {
-      this.load();
+      if (result) {
+        this.load();
+      }
     });
   }
 
   delete(element: any): void {
-    const confirmar = confirm(
-      "¿Estás seguro de que deseas eliminar esta dependencia?"
-    );
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: "450px",
+      data: {
+        message: "¿Estás seguro de eliminar la dependencia?",
+      },
+    });
 
-    if (confirmar) {
-      this.dependenciaService.deleteElemento(element._id).subscribe(
-        () => {
-          this.load();
-        },
-        (error) => {
-          //console.error('Error al eliminar la dependencia:', error);
-        }
-      );
-    }
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.dependenciaService.deleteElemento(element._id).subscribe(
+          () => {
+            this.load();
+          },
+          (error) => {
+            //console.error("Error al eliminar la dependencia:", error);
+          }
+        );
+      } else {
+        //console.log("La eliminación ha sido cancelada.");
+      }
+    });
   }
 }

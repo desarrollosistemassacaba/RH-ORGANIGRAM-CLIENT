@@ -1,6 +1,6 @@
 <div class="form-container">
-    <mat-tab-group>
-        <form [formGroup]="FormJob">
+    <mat-tab-group [backgroundColor]="'warn'">
+        <form [formGroup]=" FormJob">
             <mat-tab label="Datos">
                 <div class="row form">
 
@@ -271,7 +271,7 @@
                 </div>
             </mat-tab>
 
-            <mat-tab label="Detalles del cargo" *ngIf="this.data && this.data.estado === true">
+            <mat-tab label="Datos Cargo" *ngIf="this.data && this.data.estado === true">
                 <div class="row form">
                     <!-- <div>
                         <mat-form-field class="form-select-1 form-select-space" [style.width.%]="30">
@@ -297,21 +297,20 @@
                         </mat-form-field>
                     </div>
 
-                    <div class="row form">
-                        <mat-form-field [style.width.%]="50">
+                    <div [style.width.%]="100">
+                        <mat-form-field [style.width.%]="31">
                             <input matInput [matDatepicker]="start" formControlName="fecha_ingreso"
-                                placeholder="Fecha Ingreso">
+                                placeholder="Ingreso">
                             <mat-datepicker-toggle matSuffix [for]="start"></mat-datepicker-toggle>
                             <mat-datepicker #start></mat-datepicker>
                         </mat-form-field>
 
-                        <mat-form-field [style.width.%]="50">
+                        <mat-form-field [style.width.%]="32" class="form-select-space">
                             <input matInput [matDatepicker]="final" formControlName="fecha_conclusion"
-                                placeholder="Fecha Conclusión">
+                                placeholder="Conclusión">
                             <mat-datepicker-toggle matSuffix [for]="final"></mat-datepicker-toggle>
                             <mat-datepicker #final></mat-datepicker>
                         </mat-form-field>
-
                     </div>
 
                     <div>
@@ -319,6 +318,7 @@
                             <mat-label>Detalle Baja</mat-label>
                             <mat-select formControlName="tipo">
                                 <mat-option value="RENUNCIA">Renuncia</mat-option>
+                                <mat-option value="AGRADECIMIENTO">Agradecimiento</mat-option>
                                 <mat-option value="RESOLUCION"
                                     *ngIf="this.contrato === 'EVENTUAL' || this.contrato === 'REMANENTE'">Resolución</mat-option>
                                 <mat-option value="ASCENSO" *ngIf="this.contrato === 'ITEM'">Ascenso</mat-option>
@@ -348,7 +348,7 @@
             </mat-tab>
 
 
-            <mat-tab label="Detalles del Contrato" *ngIf="selectedContrato === 'ITEM'">
+            <mat-tab label="Datos Contrato" *ngIf="selectedContrato === 'ITEM'">
                 <div class="row form">
 
                     <div>
@@ -390,13 +390,6 @@
                     </div>
 
                     <div class="row form">
-                        <mat-form-field [style.width.%]="50">
-                            <input matInput [matDatepicker]="start" formControlName="fecha_contrato"
-                                placeholder="Fecha Contrato">
-                            <mat-datepicker-toggle matSuffix [for]="start"></mat-datepicker-toggle>
-                            <mat-datepicker #start></mat-datepicker>
-                        </mat-form-field>
-
                         <mat-form-field class="form-select-1" [style.width.%]="35">
                             <mat-label>Tipo Contrato</mat-label>
                             <mat-select formControlName="tipo_contrato">
@@ -409,39 +402,67 @@
                 </div>
             </mat-tab>
 
-            <mat-tab label="Detalles del Contrato"
-                *ngIf="selectedContrato === 'REMANENTE' || selectedContrato === 'EVENTUAL'">
+            <mat-tab label="Datos Contrato" *ngIf="selectedContrato === 'REMANENTE' || selectedContrato === 'EVENTUAL'">
                 <div class="row form">
+                    <div>
+                        <mat-form-field [style.width.%]="15">
+                            <mat-label></mat-label>
+                            <mat-select formControlName="abreviatura">
+                                <mat-option value="SR.">Sr.</mat-option>
+                                <mat-option value="SRA.">Sra.</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field [style.width.%]="84" class="form-select-space">
+                            <mat-label>Contratante</mat-label>
+                            <input formControlName="contratante" matInput #contratante maxlength="100" minlength="2"
+                                placeholder="" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{contratante.value.length}}/100</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('contratante')?.invalid && (FormJob.get('contratante')?.dirty || FormJob.get('contratante')?.touched)">
+                                <ng-container *ngIf="FormJob.get('contratante')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('contratante')?.hasError('pattern') && !FormJob.get('contratante')?.hasError('minlength')">
+                                    Solo letras.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
 
                     <div>
                         <mat-form-field [style.width.%]="100">
-                            <mat-label>Contrato Primera.- (De las partes). Representado por </mat-label>
-                            <input formControlName="detalle_contrato" matInput #detalle_contrato maxlength="150"
+                            <mat-label>Cargo Contratante</mat-label>
+                            <input formControlName="cargo_contratante" matInput #cargo_contratante maxlength="100"
+                                minlength="2" placeholder="" onkeyup="this.value = this.value.toUpperCase();">
+                            <mat-hint align="end">{{cargo_contratante.value.length}}/100</mat-hint>
+                            <mat-error
+                                *ngIf="FormJob.get('cargo_contratante')?.invalid && (FormJob.get('cargo_contratante')?.dirty || FormJob.get('cargo_contratante')?.touched)">
+                                <ng-container *ngIf="FormJob.get('cargo_contratante')?.hasError('minlength')">
+                                    Mínimo 2 caracteres.
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="FormJob.get('cargo_contratante')?.hasError('pattern') && !FormJob.get('cargo_contratante')?.hasError('minlength')">
+                                    Solo letras.
+                                </ng-container>
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div>
+                        <mat-form-field [style.width.%]="100">
+                            <mat-label>Ej. designado por decreto Edil Nº
+                                021/2024</mat-label>
+                            <input formControlName="detalle_contrato" matInput #detalle_contrato maxlength="100"
                                 minlength="2" placeholder="">
-                            <span>, con domicilio legal en pasaje consistorial NS-002...</span>
-                            <mat-hint align="end">{{detalle_contrato.value.length}}/150</mat-hint>
+                            <mat-hint align="end">{{detalle_contrato.value.length}}/100</mat-hint>
                             <mat-error
                                 *ngIf="FormJob.get('detalle_contrato')?.invalid && (FormJob.get('detalle_contrato')?.dirty || FormJob.get('detalle_contrato')?.touched)">
                                 <ng-container *ngIf="FormJob.get('detalle_contrato')?.hasError('minlength')">
                                     Mínimo 2 caracteres.
                                 </ng-container>
                             </mat-error>
-                        </mat-form-field>
-                    </div>
-
-                    <div class="row form">
-                        <mat-form-field [style.width.%]="50">
-                            <input matInput [matDatepicker]="start" formControlName="fecha_contrato"
-                                placeholder="Fecha Contrato">
-                            <mat-datepicker-toggle matSuffix [for]="start"></mat-datepicker-toggle>
-                            <mat-datepicker #start></mat-datepicker>
-                        </mat-form-field>
-
-                        <mat-form-field class="form-select-1" [style.width.%]="35">
-                            <mat-label>Tipo Contrato</mat-label>
-                            <mat-select formControlName="tipo_contrato">
-                                <mat-option value="CONTRATO">Contrato</mat-option>
-                            </mat-select>
                         </mat-form-field>
                     </div>
                 </div>

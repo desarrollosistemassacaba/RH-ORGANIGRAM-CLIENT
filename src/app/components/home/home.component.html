@@ -1,6 +1,6 @@
 <div class="example-container" [class.example-is-mobile]="mobileQuery.matches">
 
-    <mat-toolbar color="primary" class="example-toolbar">
+    <mat-toolbar color="" class="example-toolbar">
 
 
         <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
@@ -65,11 +65,11 @@
                     </div>
                 </a>
 
-                <a mat-list-item routerLink="dialog">
+                <!-- <a mat-list-item routerLink="dialog">
                     <div class="icon">
                         <mat-icon>gamepad</mat-icon><span>View</span>
                     </div>
-                </a>
+                </a> -->
 
                 <a mat-list-item (click)="logout()">
                     <div class="icon">

@@ -10,6 +10,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
 
 import { DialogNivelComponent } from "./dialog-nivel/dialog-nivel.component";
+import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { NivelesService } from "src/app/services/niveles.service";
 
 @Component({
@@ -57,7 +58,7 @@ export class NivelesComponent implements AfterViewInit {
           this.cdr.detectChanges();
         },
         (error) => {
-          console.error("Error al obtener los niveles:", error);
+          //console.error("Error al obtener los niveles:", error);
         }
       );
     }
@@ -71,7 +72,7 @@ export class NivelesComponent implements AfterViewInit {
         this.dataSource.paginator = this.paginator;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        // console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -113,19 +114,26 @@ export class NivelesComponent implements AfterViewInit {
   }
 
   delete(element: any): void {
-    const confirmar = confirm(
-      "¿Estás seguro de que deseas eliminar esta dependencia?"
-    );
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: "450px",
+      data: {
+        message: "¿Estás seguro de eliminar el nivel?",
+      },
+    });
 
-    if (confirmar) {
-      this.nivelService.deleteNivel(element._id).subscribe(
-        () => {
-          this.load();
-        },
-        (error) => {
-          //console.error('Error al eliminar el nivel:', error);
-        }
-      );
-    }
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.nivelService.deleteNivel(element._id).subscribe(
+          () => {
+            this.load();
+          },
+          (error) => {
+            //console.error("Error al eliminar la dependencia:", error);
+          }
+        );
+      } else {
+        //console.log("La eliminación ha sido cancelada.");
+      }
+    });
   }
 }

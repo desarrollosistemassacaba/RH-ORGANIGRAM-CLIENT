@@ -9,6 +9,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { DependenciasService } from "../../../../services/dependencias.service";
 import { Component, Inject } from "@angular/core";
 
+import { UtilsService } from "src/app/services/utils.service";
+
 @Component({
   selector: "app-dialog-dependencia",
   templateUrl: "./dialog-dependencia.component.html",
@@ -46,6 +48,7 @@ export class DialogDependenciaComponent {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<DialogDependenciaComponent>,
     private dependenciaService: DependenciasService,
+    private utils: UtilsService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
@@ -62,49 +65,9 @@ export class DialogDependenciaComponent {
         this.dependences = data;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
-  }
-
-  guardar() {
-    this.FormDependence.value.id_dependencia =
-      this.FormDependence.value.id_dependencia?._id ||
-      this.FormDependence.value.id_dependencia;
-
-    this.clearCampos();
-    this.convertToUpperCase("nombre");
-    this.convertToUpperCase("sigla");
-
-    if (this.data) {
-      this.dependenciaService
-        .updateDependencia(this.data._id, this.FormDependence.value)
-        .subscribe(
-          (response) => {
-            // Manejo de la respuesta del servicio si es necesario
-            this.dialogRef.close(response);
-            //console.log("Respuesta del servicio:", response);
-          },
-          (error) => {
-            // Manejo de errores si ocurre alguno al llamar al servicio
-            console.error("Error al llamar al servicio:", error);
-          }
-        );
-    } else {
-      this.dependenciaService
-        .addDependencia(this.FormDependence.value)
-        .subscribe(
-          (response) => {
-            // Manejo de la respuesta del servicio si es necesario
-            this.dialogRef.close(response);
-            //console.log("Respuesta del servicio:", response);
-          },
-          (error) => {
-            // Manejo de errores si ocurre alguno al llamar al servicio
-            console.error("Error al llamar al servicio:", error);
-          }
-        );
-    }
   }
 
   private clearCampos() {
@@ -120,17 +83,6 @@ export class DialogDependenciaComponent {
     });
   }
 
-  private convertToUpperCase(fieldName: string): void {
-    if (
-      this.FormDependence.value[fieldName] &&
-      this.FormDependence.value[fieldName] !== null &&
-      this.FormDependence.value[fieldName] !== undefined
-    ) {
-      this.FormDependence.value[fieldName] =
-        this.FormDependence.value[fieldName].toUpperCase();
-    }
-  }
-
   searchDependence(value: any) {
     this.loadDependencias();
     this.dependenciaService.getFiltroCampos("estado", "true").subscribe(
@@ -138,7 +90,7 @@ export class DialogDependenciaComponent {
         this.availableDependences = data;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -194,5 +146,41 @@ export class DialogDependenciaComponent {
     control: AbstractControl
   ): { [key: string]: any } | null {
     return this.existsValidator(control, "sigla", this.data, this.dependences);
+  }
+
+  guardar() {
+    this.FormDependence.value.id_dependencia =
+      this.FormDependence.value.id_dependencia?._id ||
+      this.FormDependence.value.id_dependencia;
+
+    this.clearCampos();
+    this.utils.convertToUpperCase(this.FormDependence, "nombre");
+    this.utils.convertToUpperCase(this.FormDependence, "sigla");
+
+    if (this.data) {
+      this.dependenciaService
+        .updateDependencia(this.data._id, this.FormDependence.value)
+        .subscribe(
+          (response) => {
+            this.dialogRef.close(response);
+            //console.log("Respuesta del servicio:", response);
+          },
+          (error) => {
+            //console.error("Error al llamar al servicio:", error);
+          }
+        );
+    } else {
+      this.dependenciaService
+        .addDependencia(this.FormDependence.value)
+        .subscribe(
+          (response) => {
+            this.dialogRef.close(response);
+            //console.log("Respuesta del servicio:", response);
+          },
+          (error) => {
+            //console.error("Error al llamar al servicio:", error);
+          }
+        );
+    }
   }
 }

@@ -35,7 +35,7 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
 
-import { AuthService } from "./auth.service";
+import { AuthService } from "./services/auth.service";
 
 import { DialogFuncionarioComponent } from "./components/pages/funcionarios/dialog-funcionario/dialog-funcionario.component";
 import { DialogCargoComponent } from "./components/pages/cargos/dialog-cargo/dialog-cargo.component";
@@ -44,6 +44,8 @@ import { DialogPartidaComponent } from "./components/pages/partidas/dialog-parti
 import { DialogNivelComponent } from "./components/pages/niveles/dialog-nivel/dialog-nivel.component";
 import { DialogOrganigramaComponent } from "./components/pages/organigrama/dialog-organigrama/dialog-organigrama.component";
 import { ViewFuncionarioComponent } from "./components/pages/funcionarios/view-funcionario/view-funcionario.component";
+import { ConfirmDialogComponent } from "./shared/components/confirm-dialog/confirm-dialog.component";
+import { MessageDialogComponent } from "./shared/components/message-dialog/message-dialog.component";
 
 // Define los formatos de fecha
 export const MY_DATE_FORMATS = {
@@ -76,6 +78,8 @@ export const MY_DATE_FORMATS = {
     DialogNivelComponent,
     DialogOrganigramaComponent,
     ViewFuncionarioComponent,
+    ConfirmDialogComponent,
+    MessageDialogComponent,
   ],
   imports: [
     BrowserModule,
