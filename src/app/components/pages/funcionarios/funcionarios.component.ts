@@ -245,9 +245,13 @@ export class FuncionariosComponent implements AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+<<<<<<< HEAD
       if (result) {
         this.load();
       }
+=======
+      this.load();
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
     });
   }
 
@@ -257,9 +261,13 @@ export class FuncionariosComponent implements AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+<<<<<<< HEAD
       if (result) {
         this.load();
       }
+=======
+      this.load();
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
     });
   }
 
@@ -268,9 +276,13 @@ export class FuncionariosComponent implements AfterViewInit {
       width: "600px",
     });
     dialogRef.afterClosed().subscribe((result: any) => {
+<<<<<<< HEAD
       if (result) {
         this.load();
       }
+=======
+      this.load();
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
     });
   }
 

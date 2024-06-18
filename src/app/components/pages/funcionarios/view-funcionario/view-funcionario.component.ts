@@ -80,7 +80,10 @@ export class ViewFuncionarioComponent implements OnInit {
       this.registro = this.data.registros[0]?.id_cargo.registro || value;
       this.unidad = this.data.registros[0]?.id_cargo.id_unidad || value;
       this.funcionario = this.nombre + " " + this.paterno + " " + this.materno;
+<<<<<<< HEAD
       this.codigo = this.data.registros[0]?.numero_contrato || value;
+=======
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
       this.abreviatura = this.data.registros[0]?.abreviatura || value;
       this.contratante = this.data.registros[0]?.contratante || value;
       this.cargo_contratante =
@@ -90,13 +93,23 @@ export class ViewFuncionarioComponent implements OnInit {
       this.detalle_contrato = this.data.registros[0]?.detalle_contrato || value;
 
       if (this.fecha_ingreso !== value) {
+<<<<<<< HEAD
         this.fecha_ingreso_text = this.util.convertirFecha(this.fecha_ingreso);
+=======
+        this.fecha_ingreso = this.util.convertirFecha(this.fecha_ingreso);
+        if (this.contrato === "ITEM") {
+          this.year = this.fecha_ingreso.slice(-4);
+        } else {
+          this.year = this.fecha_ingreso.slice(-2);
+        }
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
       }
 
       if (this.fecha_conclusion !== value) {
         this.fecha_conclusion_text = this.util.convertirFecha(
           this.fecha_conclusion
         );
+<<<<<<< HEAD
       }
 
       if (this.unidad !== value) {
@@ -111,6 +124,28 @@ export class ViewFuncionarioComponent implements OnInit {
               this.unidad = this.util.ordenPalabras(values[0].nombre);
             }
           });
+=======
+      }
+
+      if (this.unidad !== value) {
+        this.unidadService
+          .getFiltroCampos("estado", "true")
+          .subscribe((element) => {
+            const values = element.filter(
+              (data: any) => data._id === this.unidad
+            );
+            if (values.length > 0) {
+              console.log(values);
+              this.unidad = this.util.ordenPalabras(values[0].nombre);
+            }
+          });
+      }
+
+      if (this.fecha_contrato !== value) {
+        this.fecha_contrato_text = this.util.convertirFecha(
+          this.fecha_contrato
+        );
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
       }
 
       if (this.fecha_nac !== value) {
@@ -158,6 +193,43 @@ export class ViewFuncionarioComponent implements OnInit {
       this.numero_contrato !== "Sin Registro"
     ) {
       if (this.contrato === "ITEM") {
+<<<<<<< HEAD
+=======
+        this.codigo =
+          "GAMS-" +
+          this.sigla +
+          "/DRH/" +
+          this.tipo_contrato +
+          "/" +
+          this.numero_contrato +
+          "/" +
+          this.year;
+      } else {
+        this.codigo =
+          "GAMS-" +
+          this.sigla +
+          "/CAPE/" +
+          this.numero_contrato +
+          "/" +
+          this.year;
+      }
+    }
+    //control de estados para permitir descargar contratos
+    if (
+      this.contrato !== undefined &&
+      this.contrato &&
+      this.registro &&
+      this.registro !== "Sin Registro" &&
+      this.fecha_contrato &&
+      this.fecha_contrato !== "Sin Registro" &&
+      this.contratante &&
+      this.contratante !== "Sin Registro" &&
+      this.cargo_contratante &&
+      this.cargo_contratante !== "Sin Registro" &&
+      this.numero_contrato !== "Sin Registro"
+    ) {
+      if (this.contrato === "ITEM") {
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
         this.habilitado = true;
       }
       if (
@@ -179,7 +251,12 @@ export class ViewFuncionarioComponent implements OnInit {
         : "";
     const contratante = this.util.ordenPalabras(this.contratante);
     const contratante_cargo = this.cargo_contratante;
+<<<<<<< HEAD
     const fecha_contrato = this.fecha_ingreso_text;
+=======
+
+    this.fecha_contrato = this.fecha_contrato_text;
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
     // Bfecha_conclusion: string = "31 de diciembre de 2024";
 
     const ci_ext = this.ext ? this.ci + " - " + this.ext : this.ci;

@@ -70,8 +70,16 @@ export const MY_DATE_FORMATS = {
     NivelesComponent,
     DependenciasComponent,
     PartidasComponent,
+<<<<<<< HEAD
     DialogFuncionarioComponent,
     PlanillasabComponent,
+=======
+
+    DialogFuncionarioComponent,
+
+    PlanillasabComponent,
+
+>>>>>>> 65942035a59955dff59a02d5a4fbf46342a22bec
     DialogCargoComponent,
     DialogDependenciaComponent,
     DialogPartidaComponent,

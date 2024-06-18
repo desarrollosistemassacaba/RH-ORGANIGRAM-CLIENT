@@ -27,13 +27,19 @@ export class DialogFuncionarioComponent implements OnInit {
   registros: any[] = [];
   cargos: any[] = [];
   contrato: string;
+<<<<<<< HEAD
   sigla: string;
+=======
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
   numero_contrato: string;
   selectedContrato: string;
   selectedRegistro: string;
   selectedCargoId: string;
+<<<<<<< HEAD
 
   cargo_seleccionado: any;
+=======
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
 
   idCargoControl = new FormControl();
 
@@ -265,6 +271,7 @@ export class DialogFuncionarioComponent implements OnInit {
     const hiddenFields = [
       "fecha_ingreso",
       "fecha_conclusion",
+      "fecha_contrato",
       "id_cargo",
       "tipo",
     ]; // Agrega más campos ocultos si es necesario
@@ -390,17 +397,29 @@ export class DialogFuncionarioComponent implements OnInit {
     });
   }
 
+<<<<<<< HEAD
   async assignementRegistro(years: string) {
     const elements = await this.registroService
       .getFiltroCampos("id_cargo", this.selectedCargoId)
       .toPromise();
+=======
+  async assignementRegistro() {
+    const elements = await this.registroService
+      .getFiltroCampos("id_cargo", this.selectedCargoId)
+      .toPromise();
+    //console.log(elements);
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
 
     const year = new Date(this.FormJob.value.fecha_ingreso).getFullYear();
 
     // Filtrar elementos por año de ingreso
     const elementosFiltradosPorAno = elements.filter((element: any) => {
       const fechaIngreso = new Date(element.fecha_ingreso);
+<<<<<<< HEAD
       return fechaIngreso.getFullYear() === year && element.numero_contrato;
+=======
+      return fechaIngreso.getFullYear() === year;
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
     });
 
     const list = [
@@ -431,7 +450,10 @@ export class DialogFuncionarioComponent implements OnInit {
       "Y",
       "Z",
     ];
+<<<<<<< HEAD
     //console.log(elementosFiltradosPorAno);
+=======
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
 
     if (elementosFiltradosPorAno.length === 0) {
       //console.log("es primer registro");
@@ -474,6 +496,7 @@ export class DialogFuncionarioComponent implements OnInit {
     if (
       this.selectedCargoId &&
       this.selectedCargoId !== undefined &&
+<<<<<<< HEAD
       this.FormJob.value.fecha_ingreso &&
       this.FormJob.value.fecha_ingreso !== undefined &&
       this.numero_contrato === ""
@@ -518,13 +541,25 @@ export class DialogFuncionarioComponent implements OnInit {
 
       //solo los de contrato ITEM no requiere un valor alfabetico en el contrato
       //console.log(this.selectedRegistro);
+=======
+      this.numero_contrato === ""
+    ) {
+      //solo los de contrato ITEM no requiere un valor alfabetico en el contrato
+      if (this.selectedContrato !== "ITEM") {
+        await this.assignementRegistro();
+      }
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
       this.FormJob.addControl(
         "numero_contrato",
         this.fb.control(this.selectedRegistro)
       );
     }
 
+<<<<<<< HEAD
     //console.log(this.FormJob.value);
+=======
+    console.log(this.FormJob.value);
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
 
     // Verificar si domicilioFiltrado tiene algún elemento
     if (Object.keys(domicilioFiltrado).length > 0) {
@@ -566,6 +601,10 @@ export class DialogFuncionarioComponent implements OnInit {
         cargo_contratante: this.FormJob.value.cargo_contratante,
         tipo_contrato: this.FormJob.value.tipo_contrato,
         numero_contrato: this.FormJob.value.numero_contrato,
+<<<<<<< HEAD
+=======
+        fecha_contrato: this.FormJob.value.fecha_contrato,
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
         detalle_contrato: this.FormJob.value.detalle_contrato,
         fecha_baja:
           !this.FormJob.value.disableCargoControl === false

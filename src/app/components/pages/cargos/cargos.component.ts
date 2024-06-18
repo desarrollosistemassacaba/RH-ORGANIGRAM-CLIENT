@@ -306,6 +306,31 @@ export class CargosComponent implements AfterViewInit {
             });
           }
         });
+<<<<<<< HEAD
+=======
+
+      /*
+              const dependiente = this.dependientes[position];
+      let campo = {
+        nombre: dependiente.nombre,
+        contrato: dependiente.contrato,
+        registro: dependiente.registro,
+        id_nivel_salarial: dependiente.id_nivel_salarial._id,
+        id_dependencia: dependiente.id_dependencia._id,
+        cargo_principal: dependiente.cargo_principal,
+      };
+
+      this.cargoService.updateCargo(dependiente._id, campo).subscribe(
+        (response) => {
+          this.dependientes.splice(position, 1);
+          this.fieldsDinamico();
+        },
+        (error) => {
+          //console.error("Error al llamar al servicio:", error);
+        }
+      );
+         */
+>>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
     }
   }
 
