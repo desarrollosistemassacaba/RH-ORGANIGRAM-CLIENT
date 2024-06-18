@@ -1,26 +1,21 @@
-import { Injectable } from "@angular/core";
-import { Anchor, Row, Workbook, Worksheet } from "exceljs";
-import { formatDate } from "@angular/common";
-import * as ej from "exceljs";
-import * as fs from "file-saver";
+import { Injectable } from '@angular/core';
+import { Anchor, Row, Workbook, Worksheet } from 'exceljs';
+import {formatDate} from '@angular/common';
+import * as fs from 'file-saver';
 
-import { DatePipe } from "@angular/common";
-import { style } from "@angular/animations";
-import { EntidadAltaBaja } from "./Utils/EntidadAltaBaja";
-import { totalmem } from "node:os";
+import { DatePipe } from '@angular/common';
+import { style } from '@angular/animations';
+import { EntidadAltaBaja } from './Utils/EntidadAltaBaja';
+import { totalmem } from 'node:os';
 
-<<<<<<< HEAD
-import { Logos } from "../shared/resources/Logos";
-import { range } from "rxjs";
-=======
+
 import { Logos } from '../shared/resources/Logos';
 import { range } from 'rxjs';
 import { ConstantPool } from '@angular/compiler';
 
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root'
 })
 export class ExcelService {
   //Propiedades
@@ -29,9 +24,6 @@ export class ExcelService {
   private GestionNumeral: string;
   private MesNumeral: number;
 
-<<<<<<< HEAD
-  constructor(private datePipe: DatePipe) {}
-=======
 export class ExcelService {
   //Propiedades
   private TipoContrato: string;
@@ -227,8 +219,9 @@ export class ExcelService {
       });
 
 
+
 export class ExcelService {    
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
   public setTipoContrato(tipo: string) {
     this.TipoContrato = tipo;
@@ -280,7 +273,7 @@ export class ExcelService {
       ["DIAS TRABAJADOS", 6],
     ];
 
-<<<<<<< HEAD
+
     const encabezados: any = [];
     const anchos: any = [];
 
@@ -295,7 +288,7 @@ export class ExcelService {
     const worksheet = workbook.addWorksheet("Altas-Bajas");
     worksheet.pageSetup = { paperSize: 5, orientation: "landscape" };
     worksheet.views = [{ showGridLines: false }];
-=======
+
         console.log("YEAR: " + this.GestionNumeral + " , MONTH: " + this.MesNumeral + ", MONTH NAME: " + this.MesLiteral);
         if(this.TipoContrato === "ITEM"){
             this.generarExcelItem(data);
@@ -310,7 +303,7 @@ export class ExcelService {
         const titulo = `PLANILLA DE PERSONAL PERMANENTE ALTAS-BAJAS Y CAMBIOS`;
         const subtituloPeriodo = `CORRESPONDIENTE AL MES DE ${this.MesLiteral.toUpperCase()} de ${this.GestionNumeral}`;
         const subtituloExpresado = "(EXPRESADO EN BOLIVIANOS)";
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
     // Agregar filas del Titulo y formato
     var valoresFila = [];
@@ -329,10 +322,10 @@ export class ExcelService {
     //Agregar las imagenes del encabezado
     this.agregarLogos(workbook, worksheet);
 
-<<<<<<< HEAD
+
     // Agregar fila de Encabezados
     this.agregarFilaEncabezadosItem(encabezados, worksheet);
-=======
+
         valoresFila[3] = subtituloExpresado;
         this.agregarFilaTitulos(3, valoresFila, worksheet);
        
@@ -357,9 +350,9 @@ export class ExcelService {
         var nombreUnidadActual = "Inicial";
         var montoTotal = 0; 
         var controlPrimera = {isFirst:true};        
-        const nroFilasPrimeraHoja = 22;
+        const nroFilasPrimeraHoja = 21;
         const nroFilasRestoHojas = 23;
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
     //Cargar los datos y aplicar estilos en funcion a ciertos valores
     console.log("Data inside ExcelEngine: ");
@@ -391,54 +384,34 @@ export class ExcelService {
                 'Nivel', 'Sueldo [Bs/Mes]', 'DIAS TRABAJADOS']
             */
 
-        const funcionario_cargo = [
-          objAltaBaja.etiquetaAltaBaja,
-          d.cargo.registro,
-          d.cargo.nombre,
-          d.cargo.contrato,
-          d.ci,
-          d.paterno + " " + d.materno + " " + d.nombre,
-          d.fecha_nacimiento ? this.formatearFecha(d.fecha_nacimiento) : "",
-          d.registro.fecha_ingreso
-            ? this.formatearFecha(d.registro.fecha_ingreso)
-            : "",
-          d.registro.fecha_conclusion
-            ? this.formatearFecha(d.registro.fecha_conclusion)
-            : "",
-          d.cargo.nivel,
-          montoSalario,
-          objAltaBaja.diasTrabajados,
-        ];
+            const funcionario_cargo = [objAltaBaja.etiquetaAltaBaja,
+                                    d.cargo.registro,
+                                    d.cargo.nombre,
+                                    d.cargo.contrato, 
+                                    d.ci,
+                                    d.paterno + ' ' + d.materno + ' ' + d.nombre,
+                                    d.fecha_nacimiento? this.formatearFecha(d.fecha_nacimiento):'' ,
+                                    d.registro.fecha_ingreso? this.formatearFecha(d.registro.fecha_ingreso):'' ,
+                                    d.registro.fecha_conclusion? this.formatearFecha(d.registro.fecha_conclusion):'',
+                                    d.cargo.nivel,
+                                    montoSalario,
+                                    objAltaBaja.diasTrabajados];
+            
+            //console.log("Agregando subTotalUnidades : ",nroRegistros,  ", ", d.cargo.id_dependencia?.nombre);
+            //Comprobar si hay una nueva unidad para imprimir el Nombre de la seccion
+            if(d.cargo.id_dependencia?.nombre !== nombreUnidadActual){
 
-<<<<<<< HEAD
+
+
         //Comprobar si hay una nueva unidad para imprimir el Nombre de la seccion
         if (d.cargo.id_dependencia?.nombre !== nombreUnidadActual) {
-          const titulo_seccion_unidad = [
-            "**",
-            "",
-            d.cargo.id_dependencia?.nombre,
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-          ];
-=======
+
                 const titulo_seccion_unidad = ['**', '', d.cargo.id_dependencia?.nombre, '', '', '', '', '', '', '', '', ''];
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
 
-          var filaTituloDependencia = worksheet.addRow(titulo_seccion_unidad);
-          this.formatearFilaDatosItem(
-            filaTituloDependencia,
-            objAltaBaja.modificacion,
-            true
-          );
-
-<<<<<<< HEAD
+                var filaTituloDependencia = worksheet.addRow(titulo_seccion_unidad);
+                this.formatearFilaDatosItem(filaTituloDependencia, objAltaBaja.modificacion, true);
+                //nroRegistros += 1;
+               
           nombreUnidadActual = d.cargo.id_dependencia?.nombre;
 
           nroRegistros += 1;
@@ -464,13 +437,14 @@ export class ExcelService {
           //Resetear contador de filas
           nroRegistros = 1;
         }
-=======
+
                 nroRegistros = this.verificarImprimirEncabezados(encabezados, nroRegistros, controlPrimera,
                      nroFilasPrimeraHoja, nroFilasRestoHojas, worksheet);
             }
 
             var row = worksheet.addRow(funcionario_cargo);
             this.formatearFilaDatosItem(row, objAltaBaja.modificacion, false);
+            //nroRegistros += 1;
             
             nroRegistros = this.verificarImprimirEncabezados(encabezados, nroRegistros, controlPrimera,
                 nroFilasPrimeraHoja, nroFilasRestoHojas, worksheet);
@@ -623,7 +597,7 @@ export class ExcelService {
                 //Imprimir SubTotales antes de imprimir el nombre de la nueva seccion
                 //Si es la primera unidad, no se imprime subtotales
                 if(contadorUnidades > 0){
-                    console.log("Agregando subTotalUnidades : ",nroRegistros, contadorUnidades, ", ", totalParcialMonto, ", ", d.cargo.id_dependencia?.nombre);
+                    //console.log("Agregando subTotalUnidades : ",nroRegistros, contadorUnidades, ", ", totalParcialMonto, ", ", d.cargo.id_dependencia?.nombre);
                     let montoFormateado = this.formatearMonto(totalParcialMonto);
                     const contenidoFilaSubtotales = ['','*Sub-Total','','','','','','','','', montoFormateado, totalParcialMonto,''];
 
@@ -685,41 +659,8 @@ export class ExcelService {
 
     private async generarExcelEventualSalud(data: any[]){
 
+    }
 
-    //Establecer ancho de columnas
-    this.establecerAnchoColumnas(anchos, worksheet);
-
-    //agregar fila de salario total acumulado
-    var filaTotal = worksheet.addRow([
-      "TOTAL",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      this.formatearMonto(montoTotal),
-      "",
-    ]);
-    this.formatearFilaDatosItem(filaTotal, false, false);
-
-    // Generar archivo Excel con el nombre
-    workbook.xlsx.writeBuffer().then((data: any) => {
-      const blob = new Blob([data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
-      });
-      fs.saveAs(
-        blob,
-        `PlanillaAltasBajas_${this.MesLiteral}_${this.GestionNumeral}.xlsx`
-      );
-    });
-  }
-
-<<<<<<< HEAD
     //Establecer ancho de columnas
     this.establecerAnchoColumnas(anchos, worksheet);
 
@@ -768,24 +709,7 @@ export class ExcelService {
     return formateador.format(monto);
   }
 
-=======
-  //Utils
-  private formatearFecha(fecha: string): string {
-    return formatDate(fecha, "dd/MM/yyyy", "en-US");
-  }
 
-  private formatearMonto(monto: any): any {
-    const formateador = new Intl.NumberFormat("es-ES", {
-      style: "decimal",
-      // currency: 'BOB',
-      useGrouping: true,
-      minimumFractionDigits: 2,
-    });
-
-    return formateador.format(monto);
-  }
-
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
   private mesNumeralToLiteral(mes: any): string {
     var monthNames = [
       "ENERO",
@@ -840,36 +764,23 @@ export class ExcelService {
         };
       }
 
-      if (centeredCells.find((element) => element === id)) {
-        cell.alignment = { horizontal: "center", vertical: "middle" };
-      }
+    //Utils
+    private formatearFecha(fecha: string):string{
+        return formatDate(fecha, "dd/MM/yyyy", 'en-US');
+    }
 
-      //Cargo: mostrar en doble linea si es necesario
-      if (id === 3) {
-        cell.alignment = {
-          horizontal: "left",
-          vertical: "middle",
-          wrapText: true,
-        };
 
-        if (esTituloDependencia) {
-          cell.font = {
-            name: "Arial",
-            family: 4,
-            size: 7,
-            underline: "none",
-            bold: true,
-          };
-          cell.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: "ff949494" },
-            bgColor: { argb: "ff949494" },
-          };
+    private formatearMonto(monto: any) : any {
+
+        const formateador = new Intl.NumberFormat('es-ES', {
+            style: 'decimal',
+            // currency: 'BOB',
+            useGrouping: true ,            
+            minimumFractionDigits: 2,                              
         }
-<<<<<<< HEAD
+
       }
-=======
+
 
       }
 
@@ -1080,15 +991,16 @@ export class ExcelService {
       fs.saveAs(blob, fileName);
     });
   }
+
         );
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
       //Fecha Conclusion
       if (id === 9) {
         cell.alignment = { horizontal: "right", vertical: "middle" };
       }
 
-<<<<<<< HEAD
+
       //Columna `Dias Trabajados` en negrita
       if (id === 12) {
         cell.font = {
@@ -1101,14 +1013,122 @@ export class ExcelService {
       }
     });
   }
-=======
+
+    exportFuncionarioToExcel(data: any[], fileName: string): void {
+        const workbook = new Workbook();
+        const worksheet = workbook.addWorksheet("Funcionarios");
+    
+        // Agregar encabezados
+        worksheet.columns = [
+          { header: "Nº", key: "numero", width: 7 },
+          { header: "Nombre", key: "nombre", width: 30 },
+          { header: "C.I.", key: "ci", width: 15 },
+          { header: "Cargo", key: "cargo", width: 30 },
+          { header: "Contrato", key: "contrato", width: 30 },
+          { header: "Dependencia", key: "dependencia", width: 30 },
+          { header: "Estado", key: "estado", width: 15 },
+        ];
+    
+        // Agregar filas con numeración
+        data.forEach((element, index) => {
+          worksheet.addRow({
+            numero: index + 1,
+            nombre: `${element.nombre} ${element.paterno} ${element.materno}`,
+            ci: element.ext
+              ? element.ci + "  " + element.ext
+              : element.ci || "Sin C.I.",
+            cargo:
+              element.registros &&
+              element.registros.length > 0 &&
+              element.registros[0].id_cargo
+                ? element.registros[0].id_cargo.nombre
+                : "Sin cargo.",
+            contrato:
+              element.registros &&
+              element.registros.length > 0 &&
+              element.registros[0].id_cargo
+                ? element.registros[0].id_cargo.contrato
+                : "Sin cargo.",
+            dependencia: element.sigla,
+            estado: element.estado !== false ? "Habilitado" : "Deshabilitado",
+          });
+        });
+    
+        // Aplicar estilos a los encabezados
+        worksheet.getRow(1).eachCell((cell) => {
+          cell.font = { bold: true };
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+        });
+    
+        // Ajustar el alto de las filas
+        worksheet.eachRow((row, rowNumber) => {
+          row.height = 20; // Puedes ajustar la altura según sea necesario
+        });
+    
+        workbook.xlsx.writeBuffer().then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          fs.saveAs(blob, fileName);
+        });
+      }
+    
+      exportCargoToExcel(data: any[], fileName: string): void {
+        const workbook = new Workbook();
+        const worksheet = workbook.addWorksheet("Cargos");
+    
+        // Agregar encabezados
+        worksheet.columns = [
+          { header: "Nº", key: "registro", width: 7 },
+          { header: "Cargo", key: "nombre", width: 30 },
+          { header: "Funcionario", key: "personal", width: 30 },
+          { header: "Contrato", key: "contrato", width: 30 },
+          { header: "Nivel", key: "nivel", width: 7 },
+          { header: "Dependencia", key: "dependencia", width: 7 },
+          { header: "Estado", key: "estado", width: 15 },
+        ];
+    
+        // Agregar filas con numeración
+        data.forEach((element, index) => {
+          worksheet.addRow({
+            registro: element.registro,
+            nombre: element.nombre,
+            personal: element.personal,
+            contrato: element.contrato,
+            nivel: element.nivel,
+            dependencia: element.sigla,
+            estado: element.estado !== false ? "Habilitado" : "Deshabilitado",
+          });
+        });
+    
+        // Aplicar estilos a los encabezados
+        worksheet.getRow(1).eachCell((cell) => {
+          cell.font = { bold: true };
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+        });
+    
+        // Ajustar el alto de las filas
+        worksheet.eachRow((row, rowNumber) => {
+          row.height = 20; // Puedes ajustar la altura según sea necesario
+        });
+    
+        workbook.xlsx.writeBuffer().then((buffer) => {
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          fs.saveAs(blob, fileName);
+        });
+    }
+
+
     private verificarImprimirEncabezados(encabezados: any, nroRegistros: number, controlPrimera: any,
         nroFilasPrimera: number,
         nroFilasOtras: number, 
         worksheet: Worksheet): number {
                 
         //Agregar nueva fila de encabezados (nueva pagina para impresion)       
-        if(nroRegistros === nroFilasPrimera && controlPrimera.isFirst){           
+        if(nroRegistros === nroFilasPrimera && controlPrimera.isFirst){    
+            this.agregarFilaEncabezados(encabezados, worksheet,false);       
             controlPrimera.isFirst = false;           
             return 1;
 
@@ -1119,11 +1139,11 @@ export class ExcelService {
         }
         
         //No se agrego nada, solo incrementar
-        return nroRegistros+=1;
+        return nroRegistros=nroRegistros+1;
     }
 
     private mesNumeralToLiteral(mes: any): string{
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
   private agregarFilaEncabezadosItem(
     encabezados: [],
@@ -1187,10 +1207,10 @@ export class ExcelService {
     worksheet.getCell(`C${nroFila}`).alignment = { horizontal: "center" };
     worksheet.mergeCells(`C${nroFila}:J${nroFila}`);
 
-<<<<<<< HEAD
+
     return;
   }
-=======
+
             //Columna `Dias Trabajados` en negrita
             if(id === 12){
                 cell.font = { name: 'Arial', family: 4, size: 7, underline: 'none', bold: true };
@@ -1275,7 +1295,7 @@ export class ExcelService {
         });       
 
     }
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
   private agregarLogos(workbook: Workbook, worksheet: Worksheet): any {
     //Agregar las imagenes del encabezado
@@ -1286,12 +1306,12 @@ export class ExcelService {
       extension: "png",
     });
 
-<<<<<<< HEAD
+
     worksheet.addImage(logoInstitucionalElement, {
       tl: { col: 0, row: 0 },
       ext: { width: 180, height: 60 },
     });
-=======
+
         //filaEncabezados.addPageBreak();
 
         // Estilo de las celdas : Fill and Border
@@ -1333,7 +1353,7 @@ export class ExcelService {
             cell.font = { name: 'Arial', family: 4, size: 7, underline: 'none', bold: true };
             cell.alignment = {horizontal: 'center',vertical:'middle', wrapText: true};            
         });
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
     return;
   }
@@ -1344,7 +1364,7 @@ export class ExcelService {
     const workbook = new ej.Workbook();
     const worksheet = workbook.addWorksheet("Funcionarios");
 
-<<<<<<< HEAD
+
     // Agregar encabezados
     worksheet.columns = [
       { header: "Nº", key: "numero", width: 7 },
@@ -1355,7 +1375,7 @@ export class ExcelService {
       { header: "Dependencia", key: "dependencia", width: 30 },
       { header: "Estado", key: "estado", width: 15 },
     ];
-=======
+
         let filaSubPeriodo = worksheet.insertRow(nroFila, filaDatos);        
         filaSubPeriodo.font = { name: 'Arial', family: 4, size: 14, underline: 'none', bold: true };
         
@@ -1363,7 +1383,7 @@ export class ExcelService {
         worksheet.getCell(`C${nroFila}`).alignment = {horizontal: 'center'};
         //merge desde la columna C hasta la J
         worksheet.mergeCells(`C${nroFila}:J${nroFila}`);
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
     // Agregar filas con numeración
     data.forEach((element, index) => {
@@ -1390,7 +1410,6 @@ export class ExcelService {
       });
     });
 
-<<<<<<< HEAD
     // Aplicar estilos a los encabezados
     worksheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true };
@@ -1401,7 +1420,7 @@ export class ExcelService {
     worksheet.eachRow((row, rowNumber) => {
       row.height = 20; // Puedes ajustar la altura según sea necesario
     });
-=======
+
     private agregarLogos(id: number, worksheet: Worksheet): any{
         //Agregar las imagenes del encabezado        
         worksheet.addImage(id, {
@@ -1411,7 +1430,7 @@ export class ExcelService {
         
         return;
     }
->>>>>>> 0c843b4bb0801e9f10c09a2cae0f31726396e4d0
+
 
     workbook.xlsx.writeBuffer().then((buffer) => {
       const blob = new Blob([buffer], {
@@ -1460,6 +1479,7 @@ export class ExcelService {
       row.height = 20; // Puedes ajustar la altura según sea necesario
     });
 
+
     workbook.xlsx.writeBuffer().then((buffer) => {
       const blob = new Blob([buffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1468,3 +1488,5 @@ export class ExcelService {
     });
   }
 }
+}
+
