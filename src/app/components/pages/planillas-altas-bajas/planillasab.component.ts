@@ -11,8 +11,8 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
 import { MatButtonModule } from '@angular/material/button';
 
-import { switchMap, map } from "rxjs/operators";
-import { forkJoin } from "rxjs";
+import { switchMap, map, filter } from "rxjs/operators";
+import { Observable, forkJoin } from "rxjs";
 
 //import { DialogPlanillasabComponent } from "./dialog-planillas-altas-bajas/dialog-planillasab.component";
 
@@ -87,8 +87,7 @@ load() {
 }
 
 loadFuncionariosAndRegistros() {
-forkJoin({    
-    //funcionarios: this.funcionariosService.getFiltroCampos("estado", "true"),   
+forkJoin({
     funcionarios: this.funcionariosService.getFuncionarios(),
     registros: this.registrosService.getRegistros(),
     cargos: this.cargosService.getFiltroCampos("estado", "true")
@@ -228,6 +227,14 @@ this.funcionariosService
 contratoByFilter(valor: string) {
 
     const campo = "contrato";
+    console.log("Filtrando por TipoContrato: " + valor);
+
+    
+    const cargosDS = this.cargosService.getFiltroCampos(campo, valor);
+
+    console.log("Cargos sin filtrar: ");
+    console.log(cargosDS);
+    
  
     this.funcionariosService
         .getFiltroCampos("estado", "true")
@@ -235,7 +242,8 @@ contratoByFilter(valor: string) {
             switchMap((funcionarios) => {
                 return forkJoin({
                     registros: this.registrosService.getRegistros(),
-                    cargos: this.cargosService.getFiltroCampos(campo, valor)               
+                    //cargos: this.cargosService.getFiltroCampos(campo, valor)
+                    cargos: cargosDS
                 }).pipe(
                     map(({registros, cargos }) => {
                         return this.combineFuncionariosData(funcionarios, registros, cargos);
