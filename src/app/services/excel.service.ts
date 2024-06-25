@@ -9,7 +9,6 @@ import { EntidadAltaBaja } from "./Utils/EntidadAltaBaja";
 import { totalmem } from "node:os";
 
 import { Logos } from "../shared/resources/Logos";
-import { range } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -44,6 +43,8 @@ export class ExcelService {
     if(this.TipoContrato === "ITEM"){
       this.generarExcelItem(data);
     }else  if(this.TipoContrato === "EVENTUAL" || this.TipoContrato === "EVENTUAL-SALUD"){
+      console.log("Data received for tipoContrato: " + this.TipoContrato);
+      console.log(data);
       this.generarExcelEventual(data);
     }
   }
@@ -151,17 +152,14 @@ export class ExcelService {
                                 montoSalario,
                                 objAltaBaja.diasTrabajados];
         
-        //console.log("Agregando subTotalUnidades : ",nroRegistros,  ", ", d.cargo.id_dependencia?.nombre);
         //Comprobar si hay una nueva unidad para imprimir el Nombre de la seccion
         if(d.cargo.id_dependencia?.nombre !== nombreUnidadActual){
 
-            const titulo_seccion_unidad = ['**', '', d.cargo.id_dependencia?.nombre, '', '', '', '', '', '', '', '', ''];
-
-            
+            const titulo_seccion_unidad = ['**', '', d.cargo.id_dependencia?.nombre, '', '', '', '', '', '', '', '', ''];            
 
             var filaTituloDependencia = worksheet.addRow(titulo_seccion_unidad);
             this.formatearFilaDatosItem(filaTituloDependencia, objAltaBaja.modificacion, true);
-            //nroRegistros += 1;
+            
            
             nombreUnidadActual = d.cargo.id_dependencia?.nombre;
 
@@ -170,12 +168,10 @@ export class ExcelService {
         }
 
         var row = worksheet.addRow(funcionario_cargo);
-        this.formatearFilaDatosItem(row, objAltaBaja.modificacion, false);
-        //nroRegistros += 1;
+        this.formatearFilaDatosItem(row, objAltaBaja.modificacion, false);        
         
         nroRegistros = this.verificarImprimirEncabezados(encabezados, nroRegistros, controlPrimera,
-            nroFilasPrimeraHoja, nroFilasRestoHojas, worksheet);
-          
+            nroFilasPrimeraHoja, nroFilasRestoHojas, worksheet);          
     });
 
     //Establecer ancho de columnas
