@@ -26,6 +26,7 @@ import { FuncionariosComponent } from "./components/pages/funcionarios/funcionar
 import { NivelesComponent } from "./components/pages/niveles/niveles.component";
 import { DependenciasComponent } from "./components/pages/dependencias/dependencias.component";
 import { PartidasComponent } from "./components/pages/partidas/partidas.component";
+import { UnidadesComponent } from "./components/pages/unidades/unidades.component";
 import { PlanillasabComponent } from "./components/pages/planillas-altas-bajas/planillasab.component";
 //import { DescuentosComponent } from "./components/pages/descuentos/descuentos.component";
 import { OrganigramaComponent } from "./components/pages/organigrama/organigrama.component";
@@ -35,15 +36,18 @@ import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
 
-import { AuthService } from "./auth.service";
+import { AuthService } from "./services/auth.service";
 
 import { DialogFuncionarioComponent } from "./components/pages/funcionarios/dialog-funcionario/dialog-funcionario.component";
 import { DialogCargoComponent } from "./components/pages/cargos/dialog-cargo/dialog-cargo.component";
 import { DialogDependenciaComponent } from "./components/pages/dependencias/dialog-dependencia/dialog-dependencia.component";
 import { DialogPartidaComponent } from "./components/pages/partidas/dialog-partida/dialog-partida.component";
+import { DialogUnidadComponent } from "./components/pages/unidades/dialog-unidad/dialog-unidad.component";
 import { DialogNivelComponent } from "./components/pages/niveles/dialog-nivel/dialog-nivel.component";
 import { DialogOrganigramaComponent } from "./components/pages/organigrama/dialog-organigrama/dialog-organigrama.component";
 import { ViewFuncionarioComponent } from "./components/pages/funcionarios/view-funcionario/view-funcionario.component";
+import { ConfirmDialogComponent } from "./shared/components/confirm-dialog/confirm-dialog.component";
+import { MessageDialogComponent } from "./shared/components/message-dialog/message-dialog.component";
 
 // Define los formatos de fecha
 export const MY_DATE_FORMATS = {
@@ -67,6 +71,7 @@ export const MY_DATE_FORMATS = {
     FuncionariosComponent,
     NivelesComponent,
     DependenciasComponent,
+    UnidadesComponent,
     PartidasComponent,
     DialogFuncionarioComponent,
     PlanillasabComponent,
@@ -75,7 +80,10 @@ export const MY_DATE_FORMATS = {
     DialogPartidaComponent,
     DialogNivelComponent,
     DialogOrganigramaComponent,
+    DialogUnidadComponent,
     ViewFuncionarioComponent,
+    ConfirmDialogComponent,
+    MessageDialogComponent,
   ],
   imports: [
     BrowserModule,

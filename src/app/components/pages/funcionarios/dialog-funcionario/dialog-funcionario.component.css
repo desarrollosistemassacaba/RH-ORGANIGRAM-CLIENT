@@ -45,6 +45,16 @@
   width: 65%;
 }
 
+.field-hidden {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.mat-label {
+  color: antiquewhite;
+}
+
 .form-select-group {
   display: flex;
   justify-content: space-between;
@@ -66,7 +76,6 @@
   margin-left: 5px;
   text-transform: uppercase;
 }
-
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

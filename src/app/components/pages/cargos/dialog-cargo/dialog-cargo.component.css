@@ -67,6 +67,12 @@
   text-transform: uppercase;
 }
 
+.container-dep {
+  height: 20vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  background-color: #3a3a3a;
+}
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -77,4 +83,16 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+.icon-remove {
+  color: rgba(248, 70, 70, 0.918);
+}
+
+.item-title {
+  white-space: normal; /* Permite que el texto se envuelva en varias líneas */
+  overflow: visible; /* Asegura que el texto desbordado sea visible */
+  word-wrap: break-word; /* Permite que las palabras largas se rompan */
+  flex-grow: 1; /* Permite que el contenedor de texto crezca para ocupar el espacio disponible */
+  transition: color 0.3s ease;
 }

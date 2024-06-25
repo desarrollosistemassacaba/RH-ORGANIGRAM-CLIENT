@@ -8,6 +8,10 @@ import {
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { DependenciasService } from "../../../../services/dependencias.service";
 import { Component, Inject } from "@angular/core";
+import { Observable } from "rxjs";
+import { map, startWith } from "rxjs/operators";
+
+import { convertToUpperCase } from "src/app/utils/utils";
 
 @Component({
   selector: "app-dialog-dependencia",
@@ -19,6 +23,10 @@ export class DialogDependenciaComponent {
   noDependence: boolean = false;
   dependences: any[] = [];
 
+  filteredDependents!: Observable<any[]>;
+
+  idDependencia = new FormControl();
+
   FormDependence: FormGroup = this.fb.group({
     nombre: [
       "",
@@ -29,7 +37,7 @@ export class DialogDependenciaComponent {
         this.nombreExistsValidator.bind(this),
       ],
     ],
-    id_dependencia: ["", Validators.required],
+    id_dependencia: this.idDependencia,
     sigla: [
       "",
       [
@@ -52,8 +60,10 @@ export class DialogDependenciaComponent {
   ngOnInit(): void {
     if (this.data) {
       this.FormDependence.patchValue(this.data);
+      this.idDependencia.setValue(this.data.id_dependencia);
     }
     this.loadDependencias();
+    this.filtro();
   }
 
   private loadDependencias() {
@@ -62,49 +72,50 @@ export class DialogDependenciaComponent {
         this.dependences = data;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
 
-  guardar() {
-    this.FormDependence.value.id_dependencia =
-      this.FormDependence.value.id_dependencia?._id ||
-      this.FormDependence.value.id_dependencia;
+  displayFn(option: any): string {
+    return option ? option.nombre : "";
+  }
 
-    this.clearCampos();
-    this.convertToUpperCase("nombre");
-    this.convertToUpperCase("sigla");
+  filtroTexto(
+    control: FormControl,
+    filtroDependencia: any[]
+  ): Observable<any[]> {
+    return control.valueChanges.pipe(
+      startWith(""),
+      map((value) => {
+        const filterValue = (value || "").toString().toUpperCase();
+        return filtroDependencia.filter((dependencia) =>
+          (dependencia.nombre || "")
+            .toString()
+            .toUpperCase()
+            .includes(filterValue)
+        );
+      })
+    );
+  }
 
-    if (this.data) {
-      this.dependenciaService
-        .updateDependencia(this.data._id, this.FormDependence.value)
-        .subscribe(
-          (response) => {
-            // Manejo de la respuesta del servicio si es necesario
-            this.dialogRef.close(response);
-            //console.log("Respuesta del servicio:", response);
-          },
-          (error) => {
-            // Manejo de errores si ocurre alguno al llamar al servicio
-            console.error("Error al llamar al servicio:", error);
-          }
-        );
-    } else {
-      this.dependenciaService
-        .addDependencia(this.FormDependence.value)
-        .subscribe(
-          (response) => {
-            // Manejo de la respuesta del servicio si es necesario
-            this.dialogRef.close(response);
-            //console.log("Respuesta del servicio:", response);
-          },
-          (error) => {
-            // Manejo de errores si ocurre alguno al llamar al servicio
-            console.error("Error al llamar al servicio:", error);
-          }
-        );
+  filtro() {
+    this.filteredDependents = this.idDependencia.valueChanges.pipe(
+      startWith(""),
+      map((value) => this._filtrado(value || ""))
+    );
+  }
+
+  private _filtrado(value: string): any[] {
+    // Si el valor no es una cadena, no filtramos nada
+    if (typeof value !== "string") {
+      return [];
     }
+
+    let filterValue = value.toUpperCase();
+    return this.dependences.filter((dependencia) =>
+      dependencia.nombre.toUpperCase().includes(filterValue)
+    );
   }
 
   private clearCampos() {
@@ -120,17 +131,6 @@ export class DialogDependenciaComponent {
     });
   }
 
-  private convertToUpperCase(fieldName: string): void {
-    if (
-      this.FormDependence.value[fieldName] &&
-      this.FormDependence.value[fieldName] !== null &&
-      this.FormDependence.value[fieldName] !== undefined
-    ) {
-      this.FormDependence.value[fieldName] =
-        this.FormDependence.value[fieldName].toUpperCase();
-    }
-  }
-
   searchDependence(value: any) {
     this.loadDependencias();
     this.dependenciaService.getFiltroCampos("estado", "true").subscribe(
@@ -138,7 +138,7 @@ export class DialogDependenciaComponent {
         this.availableDependences = data;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }
@@ -194,5 +194,41 @@ export class DialogDependenciaComponent {
     control: AbstractControl
   ): { [key: string]: any } | null {
     return this.existsValidator(control, "sigla", this.data, this.dependences);
+  }
+
+  guardar() {
+    this.FormDependence.value.id_dependencia =
+      this.FormDependence.value.id_dependencia?._id ||
+      this.FormDependence.value.id_dependencia;
+
+    this.clearCampos();
+    convertToUpperCase(this.FormDependence, "nombre");
+    convertToUpperCase(this.FormDependence, "sigla");
+
+    if (this.data) {
+      this.dependenciaService
+        .updateDependencia(this.data._id, this.FormDependence.value)
+        .subscribe(
+          (response) => {
+            this.dialogRef.close(response);
+            //console.log("Respuesta del servicio:", response);
+          },
+          (error) => {
+            //console.error("Error al llamar al servicio:", error);
+          }
+        );
+    } else {
+      this.dependenciaService
+        .addDependencia(this.FormDependence.value)
+        .subscribe(
+          (response) => {
+            this.dialogRef.close(response);
+            //console.log("Respuesta del servicio:", response);
+          },
+          (error) => {
+            //console.error("Error al llamar al servicio:", error);
+          }
+        );
+    }
   }
 }

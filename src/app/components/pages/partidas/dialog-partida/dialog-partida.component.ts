@@ -8,6 +8,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { PartidasService } from "../../../../services/partidas.service";
 import { Component, Inject } from "@angular/core";
 
+import { convertToUpperCase, convertToNumber } from "src/app/utils/utils";
+
 @Component({
   selector: "app-dialog-partida",
   templateUrl: "./dialog-partida.component.html",
@@ -92,54 +94,6 @@ export class DialogPartidaComponent {
     );
   }
 
-  guardar() {
-    this.clearCampos();
-    this.convertToUpperCase("nombre");
-    this.convertToUpperCase("tipo");
-    this.convertToNumber("codigo");
-    this.convertToNumber("fuente");
-    this.convertToNumber("organismo");
-    this.convertToNumber("codigo");
-
-    if (this.data) {
-      //console.log(this.FormPartida.value);
-      //const valueN = this.FormPartida.value;
-      //console.log(valueN);
-      this.partidaService
-        .updatePartida(this.data._id, this.FormPartida.value)
-        .subscribe(
-          (response) => {
-            // Manejo de la respuesta del servicio si es necesario
-            this.dialogRef.close(response);
-            //console.log("Respuesta del servicio:", response);
-          },
-          (error) => {
-            // Manejo de errores si ocurre alguno al llamar al servicio
-            //console.error("Error al llamar al servicio:", error);
-          }
-        );
-      //   this.usuariosService
-      //     .edit(this.data._id, this.FormPartida.value)
-      //     .subscribe((dependences) => {
-      //       this.dialogRef.close(dependences);
-      //     });
-    } else {
-      //console.log(this.FormPartida.value);
-
-      this.partidaService.addPartida(this.FormPartida.value).subscribe(
-        (response) => {
-          // Manejo de la respuesta del servicio si es necesario
-          this.dialogRef.close(response);
-          //console.log("Respuesta del servicio:", response);
-        },
-        (error) => {
-          // Manejo de errores si ocurre alguno al llamar al servicio
-          //console.error("Error al llamar al servicio:", error);
-        }
-      );
-    }
-  }
-
   private clearCampos() {
     Object.keys(this.FormPartida.value).forEach((key) => {
       // Verifica si el valor del campo es null o undefined
@@ -154,29 +108,6 @@ export class DialogPartidaComponent {
     });
   }
 
-  private convertToUpperCase(fieldName: string): void {
-    if (
-      this.FormPartida.value[fieldName] &&
-      this.FormPartida.value[fieldName] !== null &&
-      this.FormPartida.value[fieldName] !== undefined
-    ) {
-      this.FormPartida.value[fieldName] =
-        this.FormPartida.value[fieldName].toUpperCase();
-    }
-  }
-
-  private convertToNumber(fieldName: string): void {
-    if (
-      this.FormPartida.value[fieldName] &&
-      this.FormPartida.value[fieldName] !== null &&
-      this.FormPartida.value[fieldName] !== undefined
-    ) {
-      this.FormPartida.value[fieldName] = parseInt(
-        this.FormPartida.value[fieldName]
-      );
-    }
-  }
-
   existsValidator(
     control: AbstractControl,
     field: string,
@@ -187,36 +118,18 @@ export class DialogPartidaComponent {
     if (!value) {
       return null;
     }
-    //console.log(value);
+
     if (typeof value === "string") {
       value = value.toUpperCase();
     }
-
-    // if (!isNaN(Number(value))) {
-    //   numericValue = Number(value);
-    // }
-
     let element = "";
     if (data) {
       element = data._id;
     }
-    // console.log(element);
-    // console.log(typeof value);
     let exists = partidas.some(
       (partida) =>
         partida[field].toString() === value && partida._id !== element
     );
-
-    // if (numericValue) {
-    //   exists = partidas.some(
-    //     (partida) =>
-    //       partida[field] === parseInt(value) && partida._id !== element
-    //   );
-    // } else {
-    //   exists = partidas.some(
-    //     (partida) => partida[field] === value && partida._id !== element
-    //   );
-    // }
     return exists ? { [`${field}Exists`]: { value } } : null;
   }
 
@@ -230,5 +143,39 @@ export class DialogPartidaComponent {
     control: AbstractControl
   ): { [key: string]: any } | null {
     return this.existsValidator(control, "codigo", this.data, this.partidas);
+  }
+
+  guardar() {
+    this.clearCampos();
+    convertToUpperCase(this.FormPartida, "nombre");
+    convertToUpperCase(this.FormPartida, "tipo");
+    convertToNumber(this.FormPartida, "codigo");
+    convertToNumber(this.FormPartida, "fuente");
+    convertToNumber(this.FormPartida, "organismo");
+    convertToNumber(this.FormPartida, "codigo");
+
+    if (this.data) {
+      this.partidaService
+        .updatePartida(this.data._id, this.FormPartida.value)
+        .subscribe(
+          (response) => {
+            this.dialogRef.close(response);
+            //console.log("Respuesta del servicio:", response);
+          },
+          (error) => {
+            //console.error("Error al llamar al servicio:", error);
+          }
+        );
+    } else {
+      this.partidaService.addPartida(this.FormPartida.value).subscribe(
+        (response) => {
+          this.dialogRef.close(response);
+          //console.log("Respuesta del servicio:", response);
+        },
+        (error) => {
+          //console.error("Error al llamar al servicio:", error);
+        }
+      );
+    }
   }
 }

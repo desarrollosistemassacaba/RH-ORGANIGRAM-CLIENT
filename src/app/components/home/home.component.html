@@ -1,6 +1,6 @@
 <div class="example-container" [class.example-is-mobile]="mobileQuery.matches">
 
-    <mat-toolbar color="primary" class="example-toolbar">
+    <mat-toolbar color="" class="example-toolbar">
 
 
         <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
@@ -47,6 +47,12 @@
                     </div>
                 </a>
 
+                <a mat-list-item routerLink="unidades">
+                    <div class="icon">
+                        <mat-icon>ac_unit</mat-icon><span>Unidades</span>
+                    </div>
+                </a>
+
                 <a mat-list-item routerLink="dependencias">
                     <div class="icon">
                         <mat-icon>pages</mat-icon><span>Dependencias</span>
@@ -65,11 +71,11 @@
                     </div>
                 </a>
 
-                <a mat-list-item routerLink="dialog">
+                <!-- <a mat-list-item routerLink="dialog">
                     <div class="icon">
                         <mat-icon>gamepad</mat-icon><span>View</span>
                     </div>
-                </a>
+                </a> -->
 
                 <a mat-list-item (click)="logout()">
                     <div class="icon">
