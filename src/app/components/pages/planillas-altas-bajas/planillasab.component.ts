@@ -227,25 +227,41 @@ this.funcionariosService
 contratoByFilter(valor: string) {
 
     const campo = "contrato";
-    console.log("Filtrando por TipoContrato: " + valor);
-
     
-    const cargosDS = this.cargosService.getFiltroCampos(campo, valor);
-
-    console.log("Cargos sin filtrar: ");
-    console.log(cargosDS);
+    var tipoContrato = valor;
     
- 
+    if(valor === "EVENTUAL" || valor === "EVENTUAL-SALUD"){
+        tipoContrato = "EVENTUAL";
+    }
+    console.log("Filtrando por TipoContrato: " + tipoContrato);
+   
     this.funcionariosService
         .getFiltroCampos("estado", "true")
         .pipe(
             switchMap((funcionarios) => {
                 return forkJoin({
-                    registros: this.registrosService.getRegistros(),
-                    //cargos: this.cargosService.getFiltroCampos(campo, valor)
-                    cargos: cargosDS
-                }).pipe(
+                    registros: this.registrosService.getRegistros(),                    
+                    cargos: this.cargosService.getFiltroCampos(campo, tipoContrato)
+                }).pipe(                   
                     map(({registros, cargos }) => {
+                        console.log("inside map")
+                        console.log(cargos);
+
+                        var cargosPorTipoSalud;
+
+                        if(valor === "EVENTUAL-SALUD"){
+                            cargosPorTipoSalud = cargos.filter((cargo: any) => cargo.id_dependencia?.sigla === "SMS");
+                        } else if(valor === "EVENTUAL"){
+                            cargosPorTipoSalud = cargos.filter((cargo: any) => cargo.id_dependencia?.sigla !== "SMS");
+                        }else{
+                            //Se muestran todos los registros con el tipoContrato=ITEM
+                            cargosPorTipoSalud = cargos;
+                        }
+                        
+
+                        console.log("filtered");
+                        console.log(cargosPorTipoSalud);
+
                         return this.combineFuncionariosData(funcionarios, registros, cargos);
                 })
                 );

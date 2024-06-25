@@ -42,7 +42,7 @@ export class ExcelService {
         console.log("YEAR: " + this.GestionNumeral + " , MONTH: " + this.MesNumeral + ", MONTH NAME: " + this.MesLiteral);
         if(this.TipoContrato === "ITEM"){
             this.generarExcelItem(data);
-        }else  if(this.TipoContrato === "EVENTUAL"){
+        }else  if(this.TipoContrato === "EVENTUAL" || this.TipoContrato === "EVENTUAL-SALUD"){
             this.generarExcelEventual(data);
         }
     }
