@@ -245,16 +245,24 @@ export class DialogCargoComponent implements OnInit {
   fieldsDinamico() {
     /* evita asignar cargos dependientes de distintas secretarias evitando incoherencia y error de datos en diagrama. Por ejemplo, el usuario puede asignar DESPACHO y seleccionar los cargos correspondientes, pero puede cambiar la secretaria y seleccionar SMFA y tambien seleccionar los cargos correspondientes, por ello se evita con esta funcionalidad. */
 
+    let cargoSuperior;
+    if (this.data) {
+      cargoSuperior = this.idCargoControl.value;
+    }
+
+    //console.log(cargoSuperior);
     this.isDisabling = true;
-    if (this.dependientes && this.dependientes.length > 0) {
+    if (
+      (this.dependientes && this.dependientes.length > 0) ||
+      (cargoSuperior && cargoSuperior._id)
+    ) {
       this.FormJob.get("id_nivel_salarial")?.disable();
       this.FormJob.get("id_dependencia")?.disable();
       this.FormJob.get("categoria")?.disable();
-      this.idUnidadControl.disable();
     } else {
       this.FormJob.get("id_nivel_salarial")?.enable();
       this.FormJob.get("id_dependencia")?.enable();
-      this.fillRegistro();
+      this.FormJob.get("categoria")?.enable();
     }
     this.isDisabling = false;
   }
@@ -784,8 +792,6 @@ export class DialogCargoComponent implements OnInit {
   validar() {
     //eliminando el elemento de control del campo del formulario
     delete this.FormJob.value.disableCargoControl;
-
-    //console.log(this.FormJob.value);
 
     //eliminando campo de cargo superior dependiente al deshabilitar el cargo
     if (

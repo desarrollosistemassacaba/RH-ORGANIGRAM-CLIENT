@@ -166,7 +166,8 @@
                             <mat-label>Buscar cargo</mat-label>
                             <input type="text" matInput [matAutocomplete]="auto" [formControl]="idCargoControl"
                                 placeholder="Ej. AUXILIAR II">
-                            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+                            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn"
+                                (optionSelected)="fieldsDinamico()">
                                 <mat-option *ngFor="let cargo of filteredCharges | async" [value]="cargo">
                                     {{ cargo.nombre }} - {{ cargo.contrato}} ( {{cargo.registro}} )
                                 </mat-option>
