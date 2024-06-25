@@ -233,7 +233,7 @@ contratoByFilter(valor: string) {
     if(valor === "EVENTUAL" || valor === "EVENTUAL-SALUD"){
         tipoContrato = "EVENTUAL";
     }
-    console.log("Filtrando por TipoContrato: " + tipoContrato);
+    console.log("Filtrando por TipoContrato: " + valor + " --> "+ tipoContrato);
    
     this.funcionariosService
         .getFiltroCampos("estado", "true")
@@ -262,16 +262,26 @@ contratoByFilter(valor: string) {
                         console.log("filtered");
                         console.log(cargosPorTipoSalud);
 
-                        return this.combineFuncionariosData(funcionarios, registros, cargos);
+                        return this.combineFuncionariosData(funcionarios, registros, cargosPorTipoSalud);
                 })
                 );
             })
         )
         .subscribe(
             (combinedData) => {
+
+                console.log("Inside contratoByFilter::subscribe...");
+                console.log("Combined data:");
+                console.log(combinedData);
                 //Remover filas que no tienen cargo
                 //debido a que el filtro aplica al tipo de Contrato especificamente
-                var filteredData = combinedData.filter((row: any) => row.cargo.length !== 0 );                
+                var filteredData = combinedData.filter((row: any) => row.cargo.length !== 0);
+
+                //.filter((row: any) => row.cargo.id_dependencia?.sigla === "SMS")
+
+                console.log("filtered data to datasource: .... ");
+                console.log(filteredData);
+
                 this.setupDataSource(filteredData);
             },
             (error) => {
