@@ -1,5 +1,5 @@
 <div class="form-container">
-    <mat-tab-group>
+    <mat-tab-group [backgroundColor]="'warn'">
         <form [formGroup]="FormJob">
             <mat-tab label="Datos">
                 <div class="row form">
@@ -36,14 +36,6 @@
                                 </mat-select>
                             </mat-form-field>
 
-                            <!-- <mat-form-field class="" [style.width.%]="32.5">
-                                <mat-label>Unidad</mat-label>
-                                <mat-select formControlName="id_unidad">
-                                    <mat-option *ngFor="let unidad of unidades" [value]="unidad">{{ unidad
-                                        }}</mat-option>
-                                </mat-select>
-                            </mat-form-field> -->
-
                             <mat-form-field class="" [style.width.%]="24">
                                 <mat-label>Categoria</mat-label>
                                 <mat-select formControlName='categoria'>
@@ -55,9 +47,9 @@
 
                             <mat-form-field appearance="fill" [style.width.%]="45">
                                 <mat-label>Buscar unidad</mat-label>
-                                <input type="text" matInput [matAutocomplete]="auto" [formControl]="idUnidadControl"
-                                    placeholder="Ej. UNIDAD DE SISTEMAS">
-                                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete"
+                                <input type="text" matInput [matAutocomplete]="autoUnidad"
+                                    [formControl]="idUnidadControl" placeholder="Ej. UNIDAD DE SISTEMAS">
+                                <mat-autocomplete autoActiveFirstOption #autoUnidad="matAutocomplete"
                                     [displayWith]="displayFn">
                                     <mat-option *ngFor="let option of filteredUnits | async" [value]="option">
                                         {{ option.nombre }}
@@ -105,7 +97,7 @@
                                     Ingrese un número válido.
                                 </ng-container>
                                 <ng-container *ngIf="FormJob.get('registro')?.hasError('registroExists')">
-                                    El número no está disponible.
+                                    No disponible.
                                 </ng-container>
                             </mat-error>
                         </mat-form-field>
@@ -165,14 +157,14 @@
                 </div>
             </mat-tab>
 
-            <mat-tab label="Organigrama">
+            <mat-tab label="Organigrama" *ngIf="this.data">
                 <div class="row form">
 
                     <div>
                         <mat-form-field appearance="fill" *ngIf="FormJob.get('cargo_principal')?.value === false"
                             [style.width.%]="78">
                             <mat-label>Buscar cargo</mat-label>
-                            <input type="text" matInput #input [matAutocomplete]="auto" [formControl]="idCargoControl"
+                            <input type="text" matInput [matAutocomplete]="auto" [formControl]="idCargoControl"
                                 placeholder="Ej. AUXILIAR II">
                             <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
                                 <mat-option *ngFor="let cargo of filteredCharges | async" [value]="cargo">
@@ -187,32 +179,38 @@
                     </div>
 
                     <div>
-                        <!-- <mat-form-field class="full-width">
-                            <mat-label>Ingrese cargos dependientes</mat-label>
-                            <input formControlName="id_cargo_dependiente" matInput placeholder="Ej. PROFESIONAL I">
-                        </mat-form-field> -->
-
-                        <app-sever-mat-select [placeholder]="'Buscar cargos dependientes'" [data]="jobs"
-                            (eventSelectedOption)="selectDependents($event)" [pathPropertyOfObjectDisplay]="'nombre'"
-                            (eventSearch)="searchDependents($event)"></app-sever-mat-select>
+                        <mat-form-field appearance="fill" [style.width.%]="100">
+                            <mat-label>Buscar cargo dependiente</mat-label>
+                            <input type="text" matInput [formControl]="idCargoDependiente"
+                                [matAutocomplete]="autoDependiente"
+                                placeholder="Ej. TECNICO I DESARROLLADOR DE SISTEMA">
+                            <mat-autocomplete #autoDependiente="matAutocomplete" [displayWith]="displayFn"
+                                (optionSelected)="seleccionarDependientes($event)">
+                                <mat-option *ngFor="let element of filteredDependents | async" [value]="element">
+                                    {{ element.nombre }} - {{ element.contrato }} ({{ element.registro ?
+                                    element.registro : 'Sin Registro' }})
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
                     </div>
-
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <mat-list>
-                                <mat-list-item *ngIf="dependentJobs.length===0">
-                                    Sin dependientes
-                                </mat-list-item>
-                                <mat-list-item *ngFor="let folder of dependentJobs; let i=index">
-                                    <div mat-subheader>Cargos</div>
-                                    <div matListItemTitle>{{folder.nombre}}</div>
-                                    <button (click)="removeDependentJob(i)" mat-icon-button matListItemMeta>
-                                        <mat-icon>delete</mat-icon>
-                                    </button>
-                                    <mat-divider></mat-divider>
-                                </mat-list-item>
-                            </mat-list>
-                        </div>
+                    <div>
+                        <mat-list class="container-dep" [style.width.%]="100">
+                            <mat-list-item *ngIf="dependientes.length===0">
+                                Sin Cargos Dependientes
+                            </mat-list-item>
+                            <mat-list-item *ngFor="let element of dependientes; let i=index">
+                                <div matListItemTitle [ngStyle]="{'color': this.getColors(element.contrato)}"
+                                    class="item-title">
+                                    {{element.nombre}} -
+                                    {{element.contrato}} ({{ element.registro ?
+                                    element.registro : 'Sin Registro' }})
+                                </div>
+                                <button (click)="removerDependientes(i)" mat-icon-button matListItemMeta>
+                                    <mat-icon class="icon-remove">delete</mat-icon>
+                                </button>
+                                <mat-divider></mat-divider>
+                            </mat-list-item>
+                        </mat-list>
                     </div>
                 </div>
             </mat-tab>
@@ -222,6 +220,6 @@
     <mat-dialog-actions align="end" class="form-button">
         <button mat-flat-button color="warn" mat-dialog-close class="button-send">Cancelar</button>
         <button mat-flat-button color="primary" class="button-send" [disabled]="!FormJob.valid"
-            (click)="validar()">Aceptar</button>
+            (click)="verificar()">Aceptar</button>
     </mat-dialog-actions>
 </div>

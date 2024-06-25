@@ -19,8 +19,8 @@
                         +
                         this.salario +
                         " Bs": this.nivel}}.</li>
-                    <li>{{this.fecha_ingreso !== "Sin Registro"? "Ingresó al cargo el "+this.fecha_ingreso:
-                        this.fecha_ingreso}}.</li>
+                    <li>{{this.fecha_ingreso_text !== "Sin Registro"? "Ingresó al cargo el "+this.fecha_ingreso_text:
+                        this.fecha_ingreso_text}}.</li>
                     <li class="card-content-footer">{{this.fecha_nac !== "Sin Registro" ? "Nacido el " + this.fecha_nac:
                         this.fecha_nac}}.
                     </li>
@@ -30,9 +30,8 @@
         </div>
         <!-- <div *ngIf="this.contrato !== undefined && this.registro && this.fecha_conclusion && this.fecha_contrato && this.ci"
     class="card-content-header"> -->
-        <div *ngIf="(this.contrato !== undefined && this.registro && this.registro !== 'Sin Registro' && this.fecha_conclusion && this.fecha_conclusion !== 'Sin Registro') || (this.contrato !== undefined && this.contrato === 'ITEM' && this.registro !== 'Sin Registro' && this.fecha_contrato && this.fecha_contrato !== 'Sin Registro' && this.tipo_contrato && this.tipo_contrato !== 'Sin Registro')"
-            class=" card-content-header">
-            <div class="card-document">{{this.codigo}}<span>
+        <div *ngIf="habilitado" class=" card-content-header">
+            <div class="card-document">{{this.numero_contrato}}<span>
                     <button mat-button (click)="downloadPDF()">
                         <mat-icon style="color: red;">download</mat-icon></button></span>
             </div>

@@ -1,27 +1,25 @@
-// funcionarios.component.ts
-
 import {
   Component,
   ViewChild,
   AfterViewInit,
   ChangeDetectorRef,
 } from "@angular/core";
-// import { FormControl } from '@angular/forms';
+
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
-//import { Observable } from 'rxjs';
-//import { map, startWith } from 'rxjs/operators';
 
-import { switchMap, map } from "rxjs/operators";
-import { forkJoin } from "rxjs";
+import { switchMap, map, catchError } from "rxjs/operators";
+import { of, forkJoin } from "rxjs";
 
 import { DialogFuncionarioComponent } from "./dialog-funcionario/dialog-funcionario.component";
+import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { ViewFuncionarioComponent } from "./view-funcionario/view-funcionario.component";
 import { FuncionariosService } from "../../../services/funcionarios.service";
 import { RegistrosService } from "../../../services/registros.service";
 import { DependenciasService } from "src/app/services/dependencias.service";
 import { CargosService } from "../../../services/cargos.service";
+import { ExcelService } from "../../../services/excel.service";
 
 @Component({
   selector: "app-funcionarios",
@@ -44,6 +42,7 @@ export class FuncionariosComponent implements AfterViewInit {
     private funcionariosService: FuncionariosService,
     private registrosService: RegistrosService,
     private dependenciasService: DependenciasService,
+    private excelService: ExcelService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog
   ) {
@@ -72,9 +71,15 @@ export class FuncionariosComponent implements AfterViewInit {
 
   loadFuncionariosAndRegistros() {
     forkJoin({
-      funcionarios: this.funcionariosService.getFuncionarios(),
-      registros: this.registrosService.getRegistros(),
-      dependencias: this.dependenciasService.getDependencias(),
+      funcionarios: this.funcionariosService
+        .getFuncionarios()
+        .pipe(map((data) => data || [])),
+      registros: this.registrosService
+        .getRegistros()
+        .pipe(map((data) => data || [])),
+      dependencias: this.dependenciasService
+        .getDependencias()
+        .pipe(map((data) => data || [])),
     })
       .pipe(
         map(({ funcionarios, registros, dependencias }) => {
@@ -100,12 +105,26 @@ export class FuncionariosComponent implements AfterViewInit {
     const filteredRegistros = this.filterRegistros(registros);
 
     return funcionarios.map((funcionario: any) => {
+      // Verificar que el funcionario no sea null o undefined y tenga _id
+      if (!funcionario || !funcionario._id) {
+        //console.error("Funcionario inválido:", funcionario);
+        return funcionario; // O manejarlo de otra manera, como omitirlo del resultado
+      }
+
       const registrosFuncionario = filteredRegistros.filter(
-        (registro: any) => registro.id_funcionario._id === funcionario._id
+        (registro: any) =>
+          registro &&
+          registro.id_funcionario &&
+          registro.id_funcionario._id === funcionario._id
       );
+
+      // Obtener la dependencia solo si hay registros válidos
+      const dependenciaId =
+        registrosFuncionario.length > 0 && registrosFuncionario[0].id_cargo
+          ? registrosFuncionario[0].id_cargo.id_dependencia
+          : null;
       const dependencia = dependencias.find(
-        (dep: any) =>
-          dep._id === (registrosFuncionario[0]?.id_cargo?.id_dependencia || "")
+        (dep: any) => dep && dep._id === dependenciaId
       );
 
       return {
@@ -160,7 +179,6 @@ export class FuncionariosComponent implements AfterViewInit {
   loadCargos() {
     this.cargosService.getCargos().subscribe(
       (data) => {
-        //this.cargos = data;
         this.dataSource = new MatTableDataSource(data);
         this.dataSource.paginator = this.paginator;
         this.cdr.detectChanges();
@@ -212,32 +230,36 @@ export class FuncionariosComponent implements AfterViewInit {
     this.load();
   }
 
+  filtradoExcel(): void {
+    const filteredData = this.dataSource.filteredData;
+    this.excelService.exportFuncionarioToExcel(
+      filteredData,
+      "funcionarios.xlsx"
+    );
+  }
+
   edit(funcionario: any) {
-    //console.log(funcionario);
     const dialogRef = this.dialog.open(DialogFuncionarioComponent, {
       width: "600px",
       data: funcionario, // Pasar los datos del cargo al componente de edición
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      // Aquí puedes manejar la respuesta del diálogo de edición
-      //   console.log("El diálogo de edición se cerró");
-      //   console.log("Resultado:", result);
-      this.load();
+      if (result) {
+        this.load();
+      }
     });
   }
 
   view(funcionario: any) {
-    //console.log(funcionario);
     const dialogRef = this.dialog.open(ViewFuncionarioComponent, {
       data: funcionario, // Pasar los datos del cargo al componente de edición
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      // Aquí puedes manejar la respuesta del diálogo de edición
-      //   console.log("El diálogo de edición se cerró");
-      //   console.log("Resultado:", result);
-      this.load();
+      if (result) {
+        this.load();
+      }
     });
   }
 
@@ -246,32 +268,64 @@ export class FuncionariosComponent implements AfterViewInit {
       width: "600px",
     });
     dialogRef.afterClosed().subscribe((result: any) => {
-      this.load();
-      //   if (result) {
-      //     this.dataSource = new MatTableDataSource([
-      //       result,
-      //       ...this.dataSource.data,
-      //     ]);
-      //     this.dataSource.paginator = this.paginator;
-      //   }
+      if (result) {
+        this.load();
+      }
     });
   }
 
   delete(element: any): void {
-    const confirmar = confirm(
-      "¿Estás seguro de que deseas eliminar esta dependencia?"
-    );
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: "450px",
+      data: {
+        message: "¿Estás seguro de eliminar el usuario y sus registros?",
+      },
+    });
 
-    if (confirmar) {
-      this.funcionariosService.deleteFuncionario(element._id).subscribe(
-        () => {
-          this.load();
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.eliminarRegistro(element._id);
+        this.funcionariosService.deleteFuncionario(element._id).subscribe(
+          () => {
+            this.load();
+          },
+          (error) => {
+            //console.error("Error al eliminar la dependencia:", error);
+          }
+        );
+      } else {
+        //console.log("La eliminación ha sido cancelada.");
+      }
+    });
+  }
+
+  eliminarRegistro(element: any) {
+    this.registrosService
+      .getFiltroCampos("id_funcionario", element)
+      .pipe(
+        switchMap((registers) => {
+          const deleteObservables = registers.map((register: any) =>
+            this.registrosService.deleteRegistro(register._id).pipe(
+              catchError((error: any) => {
+                // console.error(
+                //   `Error eliminando registro con ID ${register._id}:`,
+                //   error
+                // );
+                return of(null); // Manejar errores individuales
+              })
+            )
+          );
+          return forkJoin(deleteObservables); // Ejecutar todas las eliminaciones en paralelo
+        })
+      )
+      .subscribe(
+        (results) => {
+          //console.log("Registros eliminados:", results);
         },
         (error) => {
-          //console.error('Error al eliminar la dependencia:', error);
+          //console.error("Error al eliminar registros:", error);
         }
       );
-    }
   }
 
   rotation(edit: string) {}

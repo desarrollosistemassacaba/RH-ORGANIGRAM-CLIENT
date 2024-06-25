@@ -2,7 +2,7 @@
     <div class="drop">
         <div class="drop-add">
             <mat-toolbar>
-                <span>FUNCIONARIOS</span>
+                <span>UNIDADES</span>
                 <button (click)="add()" mat-icon-button>
                     <mat-icon>add</mat-icon>
                 </button>
@@ -13,9 +13,8 @@
         </div>
         <div class="drop-filter">
             <mat-form-field class="form-filter">
-                <mat-label>Buscar Nombre/Ap. Paterno/Ap. Materno/Carnet Identidad/Cargo/Dependencia/Contrato</mat-label>
-                <input matInput (keyup)="applyFilter($event)"
-                    placeholder="Nombre/Ap. Paterno/Ap. Materno/Carnet Identidad/Cargo/Dependencia/Contrato" #input>
+                <mat-label>Buscar Unidad/Sigla/Clasificacion</mat-label>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Unidad/Sigla/Clasificacion" #input>
                 <button mat-icon-button matSuffix *ngIf="input.value !== ''" (click)="clearInput(input)">
                     <mat-icon>clear</mat-icon>
                 </button>
@@ -40,34 +39,18 @@
             <table mat-table [dataSource]="dataSource">
                 <ng-container matColumnDef="nombre">
                     <th mat-header-cell *matHeaderCellDef> Nombre </th>
-                    <td mat-cell *matCellDef="let element"> {{element.nombre}} {{element.paterno}} {{element.materno}}
-                    </td>
+                    <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
                 </ng-container>
 
-                <ng-container matColumnDef="ci">
-                    <th mat-header-cell *matHeaderCellDef> C.I. </th>
-                    <td mat-cell *matCellDef="let element"> {{element.ci || "Sin C.I."}} {{ element.ci && element.ext?
-                        "- " + element.ext: ""}}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="cargo">
-                    <th mat-header-cell *matHeaderCellDef> Cargo </th>
-                    <td mat-cell *matCellDef="let element"> {{ element.registros && element.registros.length > 0 &&
-                        element.registros[0].id_cargo ?
-                        element.registros[0].id_cargo.nombre : 'Sin cargo.' }}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="contrato">
-                    <th mat-header-cell *matHeaderCellDef> Contrato </th>
-                    <td mat-cell *matCellDef="let element">{{ element.registros && element.registros.length > 0 &&
-                        element.registros[0].id_cargo ?
-                        element.registros[0].id_cargo.contrato : 'Sin cargo.' }}</td>
+                <ng-container matColumnDef="clasificacion">
+                    <th mat-header-cell *matHeaderCellDef> Clasificación </th>
+                    <td mat-cell *matCellDef="let element"> {{element.clasificacion}} </td>
                 </ng-container>
 
                 <ng-container matColumnDef="dependencia">
                     <th mat-header-cell *matHeaderCellDef> Dependencia </th>
-                    <td mat-cell *matCellDef="let element">{{element.sigla}}
+                    <td mat-cell *matCellDef="let element"> {{element.sigla !== null &&element.sigla ? element.sigla :
+                        "Sin Dependencia"}} </td>
                 </ng-container>
 
                 <ng-container matColumnDef="estado">
@@ -93,20 +76,9 @@
                                 <mat-icon style="color: royalblue;">edit</mat-icon>
                                 <span>Editar</span>
                             </button>
-                            <div
-                                *ngIf="element.registros && element.registros.length > 0 && element.registros[0].id_cargo">
-                                <button mat-menu-item (click)="view(element)">
-                                    <mat-icon style="color: royalblue;">visibility_on</mat-icon>
-                                    <span>Detalle</span>
-                                </button>
-                            </div>
                             <button mat-menu-item (click)="delete(element)">
                                 <mat-icon style="color: royalblue;">delete</mat-icon>
                                 <span>Eliminar</span>
-                            </button>
-                            <button mat-menu-item (click)="rotation(element)">
-                                <mat-icon style="color: royalblue;">list</mat-icon>
-                                <span>Asignaciones</span>
                             </button>
                         </mat-menu>
                     </td>
@@ -115,8 +87,8 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-                <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" colspan="4">No hay datos que coincidan con el filtro. </td>
+                <tr *matNoDataRow>
+                    <td colspan="6">No hay datos que coincidan con el filtro.</td>
                 </tr>
             </table>
             <mat-paginator [pageSizeOptions]="[8, 10, 15, 20, 50]" showFirstLastButtons>

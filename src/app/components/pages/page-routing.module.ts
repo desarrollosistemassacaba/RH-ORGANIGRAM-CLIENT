@@ -7,7 +7,7 @@ import { DependenciasComponent } from "./dependencias/dependencias.component";
 import { NivelesComponent } from "./niveles/niveles.component";
 import { PartidasComponent } from "./partidas/partidas.component";
 import { PlanillasabComponent } from "./planillas-altas-bajas/planillasab.component";
-//import { DescuentosComponent } from './descuentos/descuentos.component';
+import { UnidadesComponent } from "./unidades/unidades.component";
 import { OrganigramaComponent } from "./organigrama/organigrama.component";
 import { ViewFuncionarioComponent } from "./funcionarios/view-funcionario/view-funcionario.component";
 
@@ -15,11 +15,11 @@ const routes: Routes = [
   { path: "", component: FuncionariosComponent },
   { path: "funcionarios", component: FuncionariosComponent },
   { path: "cargos", component: CargosComponent },
-  { path: "dependencias", component: DependenciasComponent },
   { path: "niveles", component: NivelesComponent },
   { path: "partidas", component: PartidasComponent },
+  { path: "unidades", component: UnidadesComponent },
+  { path: "dependencias", component: DependenciasComponent },
   { path: "planillasab", component: PlanillasabComponent },
-  //{ path: 'descuentos', component: DescuentosComponent },
   { path: "organigrama", component: OrganigramaComponent },
   { path: "dialog", component: ViewFuncionarioComponent },
 ];

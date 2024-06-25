@@ -12,6 +12,8 @@ import { DialogOrganigramaComponent } from "./dialog-organigrama/dialog-organigr
 import { OrganigramaService } from "src/app/services/organigrama.service";
 import { RegistrosService } from "src/app/services/registros.service";
 
+import { getColor } from "src/app/utils/utils";
+
 interface Nodo {
   _id: string;
   puesto?: string;
@@ -90,7 +92,7 @@ export class OrganigramaComponent implements AfterViewInit {
               filteredData = data;
             }
 
-            console.log(register);
+            //console.log(register);
             const combinedData = filteredData.map((cargo: any) => {
               const registroEncontrado = register.find(
                 (registro: any) => registro.id_cargo?._id === cargo._id
@@ -105,13 +107,13 @@ export class OrganigramaComponent implements AfterViewInit {
               return cargo;
             });
 
-            console.log(combinedData);
+            //console.log(combinedData);
             const datos = filteredData.map((objeto: any) =>
               this.modelarEstructura(objeto)
             );
 
             const datosEstructurados = this.transformarEstructura(datos);
-            console.log(datos);
+            //console.log(datos);
             this.setupZoomAndPan();
             //this.addStuffToContents();
 
@@ -119,7 +121,7 @@ export class OrganigramaComponent implements AfterViewInit {
             this.cdr.detectChanges();
           },
           (error) => {
-            console.error("Error al obtener los cargos:", error);
+            //console.error("Error al obtener los cargos:", error);
           }
         );
     });
@@ -186,10 +188,10 @@ export class OrganigramaComponent implements AfterViewInit {
         this.addEventListeners();
         //this.expandCollapseAutomatically();
       } else {
-        console.error("Error: organigramaContainer no está inicializado.");
+        //console.error("Error: organigramaContainer no está inicializado.");
       }
     } else {
-      console.error("Error: Los datos no estan inicializados.");
+      //console.error("Error: Los datos no estan inicializados.");
     }
   }
 
@@ -243,7 +245,7 @@ export class OrganigramaComponent implements AfterViewInit {
 
   handleEditEvent(_id: string): void {
     // Implementa la lógica para el evento Edit aquí
-    console.log("Evento Edit para el _id:", _id);
+    //console.log("Evento Edit para el _id:", _id);
   }
 
   addNode(parent: HTMLElement, data: any): void {
@@ -288,12 +290,8 @@ export class OrganigramaComponent implements AfterViewInit {
       row.appendChild(cell);
       parent.appendChild(row);
 
-      if (data.contrato === "ITEM") {
-        nodo.style.backgroundColor = "#5DADE2";
-      } else if (data.contrato === "EVENTUAL") {
-        nodo.style.backgroundColor = "#52BE80";
-      } else if (data.contrato === "REMANENTE") {
-        nodo.style.backgroundColor = "#F5B041";
+      if (data.contrato) {
+        nodo.style.backgroundColor = getColor(data.contrato);
       }
 
       if (childs !== 0) {
@@ -362,26 +360,26 @@ export class OrganigramaComponent implements AfterViewInit {
       div.className = "controls";
 
       // Btn Add
-      let btn = document.createElement("button");
-      btn.setAttribute("type", "button");
-      btn.setAttribute("data-id", id ?? "");
-      btn.className = "btn btn-primary btn-block btn-add";
+      //   let btn = document.createElement("button");
+      //   btn.setAttribute("type", "button");
+      //   btn.setAttribute("data-id", id ?? "");
+      //   btn.className = "btn btn-primary btn-block btn-add";
 
-      let icon = document.createElement("i");
-      icon.className = "glyphicon glyphicon-plus";
-      btn.appendChild(icon);
-      div.appendChild(btn);
+      //   let icon = document.createElement("i");
+      //   icon.className = "glyphicon glyphicon-plus";
+      //   btn.appendChild(icon);
+      //   div.appendChild(btn);
 
       // Btn Edit
-      btn = document.createElement("button");
-      btn.setAttribute("type", "button");
-      btn.setAttribute("data-id", id ?? "");
-      btn.className = "btn btn-success btn-block btn-edit";
+      //   btn = document.createElement("button");
+      //   btn.setAttribute("type", "button");
+      //   btn.setAttribute("data-id", id ?? "");
+      //   btn.className = "btn btn-success btn-block btn-edit";
 
-      icon = document.createElement("i");
-      icon.className = "glyphicon glyphicon-pencil";
-      btn.appendChild(icon);
-      div.appendChild(btn);
+      //   icon = document.createElement("i");
+      //   icon.className = "glyphicon glyphicon-pencil";
+      //   btn.appendChild(icon);
+      //   div.appendChild(btn);
 
       nodos[i].appendChild(div);
     }
