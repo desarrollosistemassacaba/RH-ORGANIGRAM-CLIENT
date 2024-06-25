@@ -11,8 +11,8 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
 import { MatButtonModule } from '@angular/material/button';
 
-import { switchMap, map } from "rxjs/operators";
-import { forkJoin } from "rxjs";
+import { switchMap, map, filter } from "rxjs/operators";
+import { Observable, forkJoin } from "rxjs";
 
 //import { DialogPlanillasabComponent } from "./dialog-planillas-altas-bajas/dialog-planillasab.component";
 
@@ -87,8 +87,7 @@ load() {
 }
 
 loadFuncionariosAndRegistros() {
-forkJoin({    
-    //funcionarios: this.funcionariosService.getFiltroCampos("estado", "true"),   
+forkJoin({
     funcionarios: this.funcionariosService.getFuncionarios(),
     registros: this.registrosService.getRegistros(),
     cargos: this.cargosService.getFiltroCampos("estado", "true")
@@ -228,16 +227,41 @@ this.funcionariosService
 contratoByFilter(valor: string) {
 
     const campo = "contrato";
- 
+    
+    var tipoContrato = valor;
+    
+    if(valor === "EVENTUAL" || valor === "EVENTUAL-SALUD"){
+        tipoContrato = "EVENTUAL";
+    }
+    console.log("Filtrando por TipoContrato: " + tipoContrato);
+   
     this.funcionariosService
         .getFiltroCampos("estado", "true")
         .pipe(
             switchMap((funcionarios) => {
                 return forkJoin({
-                    registros: this.registrosService.getRegistros(),
-                    cargos: this.cargosService.getFiltroCampos(campo, valor)               
-                }).pipe(
+                    registros: this.registrosService.getRegistros(),                    
+                    cargos: this.cargosService.getFiltroCampos(campo, tipoContrato)
+                }).pipe(                   
                     map(({registros, cargos }) => {
+                        console.log("inside map")
+                        console.log(cargos);
+
+                        var cargosPorTipoSalud;
+
+                        if(valor === "EVENTUAL-SALUD"){
+                            cargosPorTipoSalud = cargos.filter((cargo: any) => cargo.id_dependencia?.sigla === "SMS");
+                        } else if(valor === "EVENTUAL"){
+                            cargosPorTipoSalud = cargos.filter((cargo: any) => cargo.id_dependencia?.sigla !== "SMS");
+                        }else{
+                            //Se muestran todos los registros con el tipoContrato=ITEM
+                            cargosPorTipoSalud = cargos;
+                        }
+                        
+
+                        console.log("filtered");
+                        console.log(cargosPorTipoSalud);
+
                         return this.combineFuncionariosData(funcionarios, registros, cargos);
                 })
                 );
@@ -335,11 +359,9 @@ rotation(edit: string) {
 generateExcel() {
 
     if(!this.habilitarBotonExportar && this.filtrarTipoContrato !== "none"){
-
                
         var tipoSeleccionado = this.filtrarTipoContrato;
-
-        //this.excelService.setTipoContrato(tipoSeleccionado);        
+        
         let mesReporte = 0;
         let yearReporte = 0;
 
@@ -357,14 +379,11 @@ generateExcel() {
             yearReporte = new Date().getFullYear();
         }
 
-        console.log("yearReporte: " + yearReporte + " , mesReporte: " + mesReporte + ", MONTH NAME: " + mesReporte);
-
         this.excelService.generarExcel(this.dataSource.data, tipoSeleccionado, mesReporte, yearReporte);        
     }
 
     console.log("Actual DataSource:");
     console.log(this.dataSource.data);
-    //this.excelService.generateExcel();
   }
 
 }

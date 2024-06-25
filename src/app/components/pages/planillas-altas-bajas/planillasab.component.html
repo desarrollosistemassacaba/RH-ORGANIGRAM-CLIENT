@@ -24,7 +24,7 @@
                     <mat-option value="none">Todos</mat-option>
                     <mat-option value="ITEM">ITEM</mat-option>
                     <mat-option value="EVENTUAL">EVENTUAL</mat-option>
-                    <mat-option value="REMANENTE">REMANENTE</mat-option>
+                    <mat-option value="EVENTUAL-SALUD">EVENTUAL-SALUD</mat-option>
                 </mat-select>
             </mat-form-field>
 
@@ -66,19 +66,13 @@
                     <mat-option value="2024">2024</mat-option>
                     <mat-option value="2025">2024</mat-option>
                     <mat-option value="2026">2024</mat-option>
-                    <mat-option value="2027">2024</mat-option>
-                    
+                    <mat-option value="2027">2024</mat-option>                    
                 </mat-select>
             </mat-form-field>
-            
-            <button mat-flat-button color="primary" [disabled]="habilitarBotonExportar" (click)="generateExcel()">Exportar</button>
-            
+            <div></div>
+            <button mat-flat-button color="primary" [disabled]="habilitarBotonExportar" (click)="generateExcel()" class="button-flat">Exportar</button>            
         </div>
-   
-            
-       
     </div>
-
     <div>
         <div class="form-table">
             <table mat-table [dataSource]="dataSource">
