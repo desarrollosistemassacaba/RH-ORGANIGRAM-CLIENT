@@ -15,6 +15,7 @@ import { DialogCargoComponent } from "./dialog-cargo/dialog-cargo.component";
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
+import { AuthService } from "src/app/services/auth.service";
 import { CargosService } from "../../../services/cargos.service";
 import { RegistrosService } from "../../../services/registros.service";
 import { FuncionariosService } from "../../../services/funcionarios.service";
@@ -36,9 +37,34 @@ export class CargosComponent implements AfterViewInit {
   filtrarEstado: string = "none";
   displayedColumns: string[];
   dataSource = new MatTableDataSource<any>([]);
+  userType: string;
+
+  visitor: any[] = [
+    "registro",
+    "nombre",
+    "personal",
+    "dependencia",
+    "contrato",
+    "nivel",
+    "estado",
+    "superior",
+  ];
+
+  user: any[] = [
+    "registro",
+    "nombre",
+    "personal",
+    "dependencia",
+    "contrato",
+    "nivel",
+    "estado",
+    "superior",
+    "options",
+  ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(
+    private authService: AuthService,
     private cargosService: CargosService,
     private registrosService: RegistrosService,
     private funcionariosService: FuncionariosService,
@@ -47,17 +73,10 @@ export class CargosComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog
   ) {
-    this.displayedColumns = [
-      "registro",
-      "nombre",
-      "personal",
-      "dependencia",
-      "contrato",
-      "nivel",
-      "estado",
-      "superior",
-      "options",
-    ];
+    this.authService.getUserRole().subscribe((userRole) => {
+      this.userType = userRole;
+      this.displayedColumns = userRole === "visitor" ? this.visitor : this.user;
+    });
   }
 
   ngAfterViewInit(): void {

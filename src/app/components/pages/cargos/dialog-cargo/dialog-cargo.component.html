@@ -74,8 +74,8 @@
                         <mat-form-field class="form-select-1 form-select-space" [style.width.%]="30">
                             <mat-label>Contrato</mat-label>
                             <mat-select formControlName="contrato" (selectionChange)="fillRegistro()">
-                                <mat-option value="ITEM">Item</mat-option>
-                                <mat-option value="EVENTUAL">Eventual</mat-option>
+                                <mat-option value="ITEM" *ngIf="userType === 'root'">Item</mat-option>
+                                <mat-option value="EVENTUAL" *ngIf="userType === 'root'">Eventual</mat-option>
                                 <mat-option value="REMANENTE">Remanente</mat-option>
                             </mat-select>
                         </mat-form-field>

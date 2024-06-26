@@ -3,7 +3,7 @@
         <div class="drop-add">
             <mat-toolbar>
                 <span>NIVELES</span>
-                <button (click)="add()" mat-icon-button>
+                <button (click)="add()" mat-icon-button *ngIf="userType === 'user' || userType === 'root'">
                     <mat-icon>add</mat-icon>
                 </button>
             </mat-toolbar>
@@ -94,7 +94,7 @@
                                 <mat-icon style="color: royalblue;">edit</mat-icon>
                                 <span>Editar</span>
                             </button>
-                            <button mat-menu-item (click)="delete(element)">
+                            <button mat-menu-item (click)="delete(element)" *ngIf="userType === 'root'">
                                 <mat-icon style="color: royalblue;">delete</mat-icon>
                                 <span>Eliminar</span>
                             </button>

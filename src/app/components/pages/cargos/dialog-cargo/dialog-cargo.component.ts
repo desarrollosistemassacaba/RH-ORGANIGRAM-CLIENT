@@ -2,6 +2,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Component, Inject, OnInit, ChangeDetectorRef } from "@angular/core";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 
+import { AuthService } from "src/app/services/auth.service";
+
 import { DependenciasService } from "../../../../services/dependencias.service";
 import { NivelesService } from "../../../../services/niveles.service";
 import { PartidasService } from "../../../../services/partidas.service";
@@ -93,17 +95,23 @@ export class DialogCargoComponent implements OnInit {
   filteredUnits!: Observable<any[]>;
   filteredDependents!: Observable<any[]>;
 
+  userType: string;
   constructor(
     public dialogRef: MatDialogRef<DialogCargoComponent>,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
     private dependenciaService: DependenciasService,
     private unidadService: UnidadesService,
     private nivelService: NivelesService,
     private partidaService: PartidasService,
     private cargoService: CargosService,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) {
+    this.authService.getUserRole().subscribe((userRole) => {
+      this.userType = userRole;
+    });
+  }
 
   ngOnInit(): void {
     this.load();

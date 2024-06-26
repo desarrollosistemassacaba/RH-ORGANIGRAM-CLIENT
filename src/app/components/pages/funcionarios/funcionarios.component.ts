@@ -12,6 +12,8 @@ import { MatDialog } from "@angular/material/dialog";
 import { switchMap, map, catchError } from "rxjs/operators";
 import { of, forkJoin } from "rxjs";
 
+import { AuthService } from "src/app/services/auth.service";
+
 import { DialogFuncionarioComponent } from "./dialog-funcionario/dialog-funcionario.component";
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { ViewFuncionarioComponent } from "./view-funcionario/view-funcionario.component";
@@ -35,9 +37,29 @@ export class FuncionariosComponent implements AfterViewInit {
   filtrarEstado: string = "none";
   displayedColumns: string[];
   dataSource = new MatTableDataSource<any>([]);
+  userType: string;
+  visitor: any[] = [
+    "nombre",
+    "ci",
+    "cargo",
+    "dependencia",
+    "contrato",
+    "estado",
+  ];
+
+  user: any[] = [
+    "nombre",
+    "ci",
+    "cargo",
+    "dependencia",
+    "contrato",
+    "estado",
+    "options",
+  ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(
+    private authService: AuthService,
     private cargosService: CargosService,
     private funcionariosService: FuncionariosService,
     private registrosService: RegistrosService,
@@ -46,15 +68,10 @@ export class FuncionariosComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog
   ) {
-    this.displayedColumns = [
-      "nombre",
-      "ci",
-      "cargo",
-      "dependencia",
-      "contrato",
-      "estado",
-      "options",
-    ];
+    this.authService.getUserRole().subscribe((userRole) => {
+      this.userType = userRole;
+      this.displayedColumns = userRole === "visitor" ? this.visitor : this.user;
+    });
   }
 
   ngAfterViewInit(): void {
