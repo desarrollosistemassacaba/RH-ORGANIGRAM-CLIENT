@@ -66,7 +66,7 @@ this.displayedColumns = [
     "fecha_ingreso",
     "fecha_conclusion",
     "estado",
-    "options",
+    //"options",
 ];
 }
 
