@@ -8,13 +8,9 @@ import {
   
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatDialog } from "@angular/material/dialog";
-import { MatButtonModule } from '@angular/material/button';
 
 import { switchMap, map, filter } from "rxjs/operators";
 import { Observable, forkJoin } from "rxjs";
-
-//import { DialogPlanillasabComponent } from "./dialog-planillas-altas-bajas/dialog-planillasab.component";
 
 //Servicios
 import { FuncionariosService } from "../../../services/funcionarios.service";
@@ -46,7 +42,6 @@ habilitarBotonExportar: boolean = true;
 mesPeriodo: string;
 yearPeriodo: string;
 
-
 dataSource = new MatTableDataSource<any>([]);
 
 @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -55,7 +50,6 @@ private cargosService: CargosService,
 private funcionariosService: FuncionariosService,
 private registrosService: RegistrosService,
 private cdr: ChangeDetectorRef,
-private dialog: MatDialog,
 private excelService: ExcelService
 ) {
 this.displayedColumns = [
@@ -66,7 +60,6 @@ this.displayedColumns = [
     "fecha_ingreso",
     "fecha_conclusion",
     "estado",
-    //"options",
 ];
 }
 
@@ -228,12 +221,12 @@ contratoByFilter(valor: string) {
 
     const campo = "contrato";
     
+    //ITEM por defecto
     var tipoContrato = valor;
     
     if(valor === "EVENTUAL" || valor === "EVENTUAL-SALUD"){
         tipoContrato = "EVENTUAL";
     }
-    console.log("Filtrando por TipoContrato: " + valor + " --> "+ tipoContrato);
    
     this.funcionariosService
         .getFiltroCampos("estado", "true")
@@ -244,9 +237,7 @@ contratoByFilter(valor: string) {
                     cargos: this.cargosService.getFiltroCampos(campo, tipoContrato)
                 }).pipe(                   
                     map(({registros, cargos }) => {
-                        console.log("inside map")
-                        console.log(cargos);
-
+                       
                         var cargosPorTipoSalud;
 
                         if(valor === "EVENTUAL-SALUD"){
@@ -258,30 +249,16 @@ contratoByFilter(valor: string) {
                             cargosPorTipoSalud = cargos;
                         }
                         
-
-                        console.log("filtered");
-                        console.log(cargosPorTipoSalud);
-
                         return this.combineFuncionariosData(funcionarios, registros, cargosPorTipoSalud);
                 })
                 );
             })
         )
         .subscribe(
-            (combinedData) => {
-
-                console.log("Inside contratoByFilter::subscribe...");
-                console.log("Combined data:");
-                console.log(combinedData);
+            (combinedData) => {               
                 //Remover filas que no tienen cargo
                 //debido a que el filtro aplica al tipo de Contrato especificamente
                 var filteredData = combinedData.filter((row: any) => row.cargo.length !== 0);
-
-                //.filter((row: any) => row.cargo.id_dependencia?.sigla === "SMS")
-
-                console.log("filtered data to datasource: .... ");
-                console.log(filteredData);
-
                 this.setupDataSource(filteredData);
             },
             (error) => {
@@ -345,27 +322,6 @@ clearInput(input: HTMLInputElement): void {
     this.load();
 }
 
-edit(cargo: any) {
-    /*
-    const dialogRef = this.dialog.open(DialogFuncionarioComponent, {
-      width: "600px",
-      data: cargo._id, // Pasar los datos del cargo al componente de edición
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      // Aquí puedes manejar la respuesta del diálogo de edición
-      //   console.log("El diálogo de edición se cerró");
-      //   console.log("Resultado:", result);
-      this.load();
-    });
-    */
-}
-
-
-rotation(edit: string) {
-
-}
-
 generateExcel() {
 
     if(!this.habilitarBotonExportar && this.filtrarTipoContrato !== "none"){
@@ -392,8 +348,6 @@ generateExcel() {
         this.excelService.generarExcel(this.dataSource.data, tipoSeleccionado, mesReporte, yearReporte);        
     }
 
-    console.log("Actual DataSource:");
-    console.log(this.dataSource.data);
   }
 
 }

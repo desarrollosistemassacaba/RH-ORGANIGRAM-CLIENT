@@ -6,7 +6,6 @@ import * as fs from "file-saver";
 
 import { DatePipe } from "@angular/common";
 import { EntidadAltaBaja } from "./Utils/EntidadAltaBaja";
-import { totalmem } from "node:os";
 
 import { Logos } from "../shared/resources/Logos";
 
@@ -27,24 +26,18 @@ export class ExcelService {
   }
 
   async generarExcel(data: any[], tipoContrato: string, mes: any, year: any) {
+
     this.TipoContrato = tipoContrato;
     this.MesNumeral = mes;
     this.MesLiteral = this.mesNumeralToLiteral(mes);
     this.GestionNumeral = year;
 
-    console.log(
-      "YEAR: " +
-        this.GestionNumeral +
-        " , MONTH: " +
-        this.MesNumeral +
-        ", MONTH NAME: " +
-        this.MesLiteral
-    );
     if(this.TipoContrato === "ITEM"){
+
       this.generarExcelItem(data);
+    
     }else  if(this.TipoContrato === "EVENTUAL" || this.TipoContrato === "EVENTUAL-SALUD"){
-      console.log("Data received for tipoContrato: " + this.TipoContrato);
-      console.log(data);
+    
       this.generarExcelEventual(data);
     }
   }
@@ -112,9 +105,7 @@ export class ExcelService {
     this.agregarFilaEncabezadosItem(encabezados, worksheet);
     
     //Cargar los datos y aplicar estilos en funcion a ciertos valores
-    console.log("Data inside ExcelEngine: ");
-    console.log(data);       
-    
+  
     let nroRegistros = 1;
     var nombreUnidadActual = "Inicial";
     var montoTotal = 0; 
@@ -126,19 +117,13 @@ export class ExcelService {
 
         //Determinar si se efectuo una Alta o Baja en el presente periodo
         //para establecer las etiquetas [A, B, A/B]
-        //y para resaltar la fila si es que hubo uno de esos eventos
-        //tambien se define el nro de dias trabajados si hubo cambios            
+        //y para resaltar la fila si es que hubo uno de esos eventos        
         let objAltaBaja = new EntidadAltaBaja();
         objAltaBaja.procesarEvento(d, this.MesNumeral, this.GestionNumeral);
 
         var montoSalario = this.formatearMonto(d.cargo.id_nivel_salarial.haber_basico);
         montoTotal = montoTotal + parseFloat(d.cargo.id_nivel_salarial.haber_basico);
-         /*
-            ['B/A', 'No Item', 'Cargo', 'Contrato', 'C.I.', 'NOMBRE COMPLETO', 
-            'FECHA DE NACIMIENTO', 'FECHA DE INGRESO', 'FECHA DE CONCLUSION',
-            'Nivel', 'Sueldo [Bs/Mes]', 'DIAS TRABAJADOS']
-        */ 
-
+        
         const funcionario_cargo = [objAltaBaja.etiquetaAltaBaja,
                                 d.cargo.registro,
                                 d.cargo.nombre,
@@ -256,9 +241,6 @@ private async generarExcelEventual(data: any[]){
    * Seccion para agregar los datos iterando data[]
   **********************/
   //Cargar los datos y aplicar estilos en funcion a ciertos valores
-  console.log("Data inside ExcelEngine: ");
-  console.log(data);       
-  
   let nroRegistros = 1;
   var nombreUnidadActual = "Inicial";
   var montoTotal = 0;
@@ -348,7 +330,6 @@ private async generarExcelEventual(data: any[]){
           nroFila = [];
          
           nombreUnidadActual = d.cargo.id_dependencia?.nombre;
-
           totalParcialMonto = 0;
           
           nroRegistros = this.verificarImprimirEncabezados(encabezados, nroRegistros, controlPrimera, 
