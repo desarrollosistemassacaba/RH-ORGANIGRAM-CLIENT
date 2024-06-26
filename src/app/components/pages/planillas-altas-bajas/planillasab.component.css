@@ -29,6 +29,8 @@
   
   .first {
     padding-left: 1%;
+    size-adjust: inherit;
+    min-width: 170px;
   }
   
   .drop-add {
