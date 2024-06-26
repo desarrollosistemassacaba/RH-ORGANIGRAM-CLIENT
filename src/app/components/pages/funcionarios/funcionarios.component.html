@@ -1,8 +1,8 @@
-<div class="container-fluid">
-    <div class="drop">
+<div>
+    <div class=" drop">
         <div class="drop-add">
             <mat-toolbar>
-                <span>FUNCIONARIOS</span>
+                <button class="load"><span (click)="load()">FUNCIONARIOS</span></button>
                 <button (click)="add()" mat-icon-button *ngIf="userType === 'user' || userType === 'root'">
                     <mat-icon>add</mat-icon>
                 </button>
@@ -104,7 +104,7 @@
                                 <mat-icon style="color: royalblue;">delete</mat-icon>
                                 <span>Eliminar</span>
                             </button>
-                            <button mat-menu-item (click)="rotation(element)">
+                            <button mat-menu-item (click)="rotation(element)" *ngIf="userType === 'root'">
                                 <mat-icon style="color: royalblue;">list</mat-icon>
                                 <span>Asignaciones</span>
                             </button>

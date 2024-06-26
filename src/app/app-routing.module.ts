@@ -22,7 +22,7 @@ const routes: Routes = [
       },
     ],
     canActivate: [AuthGuard],
-    data: { roles: ["user", "visitor"] },
+    data: { roles: ["root", "user", "visitor"] },
   },
   { path: "organigrama", component: OrganigramaComponent },
   // Redirigir a home por defecto

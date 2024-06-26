@@ -2,7 +2,7 @@
     <div class="drop">
         <div class="drop-add">
             <mat-toolbar>
-                <span>DEPENDENCIAS</span>
+                <button class="load"><span (click)="load()">DEPENDENCIAS</span></button>
                 <button (click)="add()" mat-icon-button *ngIf="userType === 'user' || userType === 'root'">
                     <mat-icon>add</mat-icon>
                 </button>
