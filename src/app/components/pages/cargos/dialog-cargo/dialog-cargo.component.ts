@@ -386,7 +386,7 @@ export class DialogCargoComponent implements OnInit {
     if (this.dependenciaId !== "" && this.nivelId !== "") {
       this.updateCargosByDependencia(this.dependenciaId, this.nivelId);
       this.updateCargosByDependientes(this.dependenciaId, this.nivelId);
-      this.fieldsDinamico();
+      //this.fieldsDinamico();
     }
   }
 

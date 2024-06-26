@@ -32,7 +32,7 @@ export class HomeComponent {
     this.auth.logout();
   }
   name() {
-    console.log(this.auth.getUserName());
+    //console.log(this.auth.getUserName());
     const name = this.auth.getUserNameValue().toString();
     return this.formatName(name);
   }

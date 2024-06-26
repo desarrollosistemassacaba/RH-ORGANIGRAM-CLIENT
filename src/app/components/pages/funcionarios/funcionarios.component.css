@@ -17,9 +17,22 @@
 
 .drop-add {
   display: flex;
-  min-width: 170px;
+  min-width: 230px;
   padding: 0;
   margin: 0;
+}
+
+.load {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  transition: 500ms;
+}
+
+.load:hover {
+  color: rgb(44, 253, 243);
+  box-shadow: inset;
 }
 
 .drop-add mat-toolbar {

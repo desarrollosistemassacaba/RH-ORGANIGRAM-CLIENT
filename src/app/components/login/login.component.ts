@@ -27,6 +27,7 @@ export class LoginComponent {
       .subscribe(
         () => {
           this.authService.getUserRole().subscribe((userRole: any) => {
+            console.log(userRole);
             if (
               userRole === "user" ||
               userRole === "visitor" ||
