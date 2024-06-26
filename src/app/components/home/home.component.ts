@@ -1,6 +1,8 @@
 import { MediaMatcher } from "@angular/cdk/layout";
 import { ChangeDetectorRef, Component } from "@angular/core";
 
+import { AuthService } from "src/app/services/auth.service";
+
 @Component({
   selector: "app-home",
   templateUrl: "./home.component.html",
@@ -14,7 +16,7 @@ export class HomeComponent {
   private _mobileQueryListener: () => void;
 
   constructor(
-    //private auth: AuthService,
+    private auth: AuthService,
     changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher
   ) {
@@ -27,13 +29,13 @@ export class HomeComponent {
     this.mobileQuery.removeListener(this._mobileQueryListener);
   }
   logout() {
-    //this.auth.logout();
+    this.auth.logout();
   }
-  //   name() {
-  //     //console.log(this.auth.getUserName());
-  //     const name = this.auth.getUserName().toString();
-  //     return this.formatName(name);
-  //   }
+  name() {
+    console.log(this.auth.getUserName());
+    const name = this.auth.getUserNameValue().toString();
+    return this.formatName(name);
+  }
 
   formatName(name: string): string {
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();

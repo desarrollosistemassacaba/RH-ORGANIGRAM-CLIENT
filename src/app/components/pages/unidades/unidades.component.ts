@@ -12,6 +12,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { DialogUnidadComponent } from "./dialog-unidad/dialog-unidad.component";
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 
+import { AuthService } from "src/app/services/auth.service";
 import { UnidadesService } from "src/app/services/unidades.service";
 import { ExcelService } from "src/app/services/excel.service";
 
@@ -26,21 +27,24 @@ export class UnidadesComponent implements AfterViewInit {
   filtrarEstado: string = "none";
   displayedColumns: string[];
   dataSource = new MatTableDataSource<any>([]);
+  userType: string;
+
+  visitor: any[] = ["nombre", "clasificacion", "dependencia", "estado"];
+
+  user: any[] = ["nombre", "clasificacion", "dependencia", "estado", "options"];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(
+    private authService: AuthService,
     private unidadService: UnidadesService,
     private excelService: ExcelService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
-    this.displayedColumns = [
-      "nombre",
-      "clasificacion",
-      "dependencia",
-      "estado",
-      "options",
-    ];
+    this.authService.getUserRole().subscribe((userRole) => {
+      this.userType = userRole;
+      this.displayedColumns = userRole === "visitor" ? this.visitor : this.user;
+    });
   }
 
   ngAfterViewInit(): void {

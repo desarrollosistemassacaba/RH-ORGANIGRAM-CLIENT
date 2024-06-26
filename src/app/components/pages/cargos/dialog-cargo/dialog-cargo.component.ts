@@ -2,6 +2,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Component, Inject, OnInit, ChangeDetectorRef } from "@angular/core";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
 
+import { AuthService } from "src/app/services/auth.service";
+
 import { DependenciasService } from "../../../../services/dependencias.service";
 import { NivelesService } from "../../../../services/niveles.service";
 import { PartidasService } from "../../../../services/partidas.service";
@@ -93,17 +95,23 @@ export class DialogCargoComponent implements OnInit {
   filteredUnits!: Observable<any[]>;
   filteredDependents!: Observable<any[]>;
 
+  userType: string;
   constructor(
     public dialogRef: MatDialogRef<DialogCargoComponent>,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
     private dependenciaService: DependenciasService,
     private unidadService: UnidadesService,
     private nivelService: NivelesService,
     private partidaService: PartidasService,
     private cargoService: CargosService,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) {
+    this.authService.getUserRole().subscribe((userRole) => {
+      this.userType = userRole;
+    });
+  }
 
   ngOnInit(): void {
     this.load();
@@ -245,16 +253,24 @@ export class DialogCargoComponent implements OnInit {
   fieldsDinamico() {
     /* evita asignar cargos dependientes de distintas secretarias evitando incoherencia y error de datos en diagrama. Por ejemplo, el usuario puede asignar DESPACHO y seleccionar los cargos correspondientes, pero puede cambiar la secretaria y seleccionar SMFA y tambien seleccionar los cargos correspondientes, por ello se evita con esta funcionalidad. */
 
+    let cargoSuperior;
+    if (this.data) {
+      cargoSuperior = this.idCargoControl.value;
+    }
+
+    //console.log(cargoSuperior);
     this.isDisabling = true;
-    if (this.dependientes && this.dependientes.length > 0) {
+    if (
+      (this.dependientes && this.dependientes.length > 0) ||
+      (cargoSuperior && cargoSuperior._id)
+    ) {
       this.FormJob.get("id_nivel_salarial")?.disable();
       this.FormJob.get("id_dependencia")?.disable();
       this.FormJob.get("categoria")?.disable();
-      this.idUnidadControl.disable();
     } else {
       this.FormJob.get("id_nivel_salarial")?.enable();
       this.FormJob.get("id_dependencia")?.enable();
-      this.fillRegistro();
+      this.FormJob.get("categoria")?.enable();
     }
     this.isDisabling = false;
   }
@@ -784,8 +800,6 @@ export class DialogCargoComponent implements OnInit {
   validar() {
     //eliminando el elemento de control del campo del formulario
     delete this.FormJob.value.disableCargoControl;
-
-    //console.log(this.FormJob.value);
 
     //eliminando campo de cargo superior dependiente al deshabilitar el cargo
     if (

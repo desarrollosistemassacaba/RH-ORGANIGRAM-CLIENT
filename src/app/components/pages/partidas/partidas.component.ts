@@ -10,6 +10,8 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
 import { DialogPartidaComponent } from "./dialog-partida/dialog-partida.component";
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
+
+import { AuthService } from "src/app/services/auth.service";
 import { PartidasService } from "../../../services/partidas.service";
 
 @Component({
@@ -29,21 +31,30 @@ export class PartidasComponent implements AfterViewInit {
   filtrarOrganismo: string = "none";
   displayedColumns: string[];
   dataSource = new MatTableDataSource<any>([]);
+  userType: string;
+
+  visitor: any[] = ["nombre", "codigo", "fuente", "organismo", "estado"];
+
+  user: any[] = [
+    "nombre",
+    "codigo",
+    "fuente",
+    "organismo",
+    "estado",
+    "options",
+  ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(
+    private authService: AuthService,
     private partidaService: PartidasService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
-    this.displayedColumns = [
-      "nombre",
-      "codigo",
-      "fuente",
-      "organismo",
-      "estado",
-      "options",
-    ];
+    this.authService.getUserRole().subscribe((userRole) => {
+      this.userType = userRole;
+      this.displayedColumns = userRole === "visitor" ? this.visitor : this.user;
+    });
   }
 
   ngAfterViewInit(): void {

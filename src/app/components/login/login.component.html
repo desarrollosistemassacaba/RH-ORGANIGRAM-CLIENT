@@ -1,0 +1,54 @@
+<div class="login">
+    <img src="assets/img/login-bg.png" class="login__img">
+
+    <form (ngSubmit)="onSubmit()" class="login__form">
+        <h1 class="login__title">ORGANIGRAM</h1>
+
+        <div class="login__content">
+            <div class="login__box">
+                <i class="ri-user-3-line login__icon"></i>
+
+                <div class="login__box-input">
+                    <input type="text" required class="login__input" id="login-email" placeholder=" " name="username"
+                        [(ngModel)]="username">
+                    <label for="login-email" class="login__label">Usuario</label>
+                </div>
+            </div>
+
+            <div class="login__box">
+                <i class="ri-lock-2-line login__icon"></i>
+
+                <div class="login__box-input">
+
+                    <input class="login__input" type="password" required id="login-pass" matInput
+                        [type]="hidePassword ? 'password' : 'text'" id="password" name="password" [(ngModel)]="password"
+                        placeholder=" " />
+                    <label for="login-pass" class="login__label">Contraseña</label>
+                    <li class="login__eye" id="login-eye" style="list-style: none;">
+                        <mat-icon (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'"
+                            [attr.aria-pressed]="hidePassword">
+                            {{
+                            hidePassword ? "visibility_off" : "visibility"
+                            }}
+                        </mat-icon>
+                    </li>
+                </div>
+            </div>
+        </div>
+
+        <div class="login__check">
+            <div class="login__check-group">
+                <input type="checkbox" class="login__check-input" id="login-check">
+                <label for="login-check" class="login__check-label">Recordarme</label>
+            </div>
+            <a href="#" class="login__forgot">Olvidó su contraseña?</a>
+        </div>
+
+        <button type="submit" class="login__button">INGRESAR
+        </button>
+
+        <div class="login__register" *ngIf="errorMessage">
+            {{ errorMessage }}
+        </div>
+    </form>
+</div>

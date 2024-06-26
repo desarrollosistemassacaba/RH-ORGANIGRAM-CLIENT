@@ -20,7 +20,7 @@ import { AppRoutingModule } from "./app-routing.module";
 
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/home/home.component";
-//import { LoginComponent } from "./components/login/login.component";
+import { LoginComponent } from "./components/login/login.component";
 import { CargosComponent } from "./components/pages/cargos/cargos.component";
 import { FuncionariosComponent } from "./components/pages/funcionarios/funcionarios.component";
 import { NivelesComponent } from "./components/pages/niveles/niveles.component";
@@ -37,6 +37,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
 
 import { AuthService } from "./services/auth.service";
+import { AuthGuard } from "./guards/auth.guard";
 
 import { DialogFuncionarioComponent } from "./components/pages/funcionarios/dialog-funcionario/dialog-funcionario.component";
 import { DialogCargoComponent } from "./components/pages/cargos/dialog-cargo/dialog-cargo.component";
@@ -67,6 +68,7 @@ export const MY_DATE_FORMATS = {
     AppComponent,
     OrganigramaComponent,
     HomeComponent,
+    LoginComponent,
     CargosComponent,
     FuncionariosComponent,
     NivelesComponent,
@@ -102,6 +104,7 @@ export const MY_DATE_FORMATS = {
   ],
   providers: [
     AuthService,
+    AuthGuard,
     provideClientHydration(),
     provideAnimationsAsync(),
     DatePipe,

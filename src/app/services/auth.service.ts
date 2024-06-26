@@ -3,22 +3,30 @@ import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { Observable, BehaviorSubject } from "rxjs";
 import { tap } from "rxjs/operators";
-import { environment } from "src/environments/environment";
-const base_url = environment.base_url;
+
+const base_url = "http://190.181.22.149:3310";
 
 @Injectable({
   providedIn: "root",
 })
 export class AuthService {
   private data: any;
-  private loggedIn = new BehaviorSubject<boolean>(false);
-  private userRole = new BehaviorSubject<string>("");
-  private userName = new BehaviorSubject<string>("");
+  private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
+  private userRole = new BehaviorSubject<string>(this.getUserRoleFromStorage());
+  private userName = new BehaviorSubject<string>(this.getUserNameFromStorage());
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getUserByUsername(username: string): Observable<any> {
-    return this.http.get<any>(`${base_url}/admin?username=${username}`);
+  private hasToken(): boolean {
+    return !!localStorage.getItem("token");
+  }
+
+  private getUserRoleFromStorage(): string {
+    return localStorage.getItem("role") || "";
+  }
+
+  private getUserNameFromStorage(): string {
+    return localStorage.getItem("name") || "";
   }
 
   getUserRole(): Observable<string> {
@@ -26,27 +34,11 @@ export class AuthService {
   }
 
   getUserName(): Observable<string> {
-    return this.userName;
+    return this.userName.asObservable();
   }
 
-  getAllUsers(): Observable<any> {
-    return this.http.get(`${base_url}/admin`);
-  }
-
-  getUserById(id: string): Observable<any> {
-    return this.http.get<any>(`${base_url}/admin/${id}`);
-  }
-
-  createUser(user: any): Observable<any> {
-    return this.http.post<any>(`${base_url}/admin`, user);
-  }
-
-  updateUser(id: string, user: any): Observable<any> {
-    return this.http.put<any>(`${base_url}/admin/${id}`, user);
-  }
-
-  deleteUser(id: string): Observable<any> {
-    return this.http.delete<any>(`${base_url}/admin/${id}`);
+  getUserNameValue(): string {
+    return this.userName.getValue();
   }
 
   login(credentials: { username: string; password: string }) {
@@ -55,29 +47,20 @@ export class AuthService {
         if (user) {
           this.loggedIn.next(true);
           localStorage.setItem("token", user.token);
+          localStorage.setItem("role", user.role);
+          localStorage.setItem("name", user.name);
           this.userRole.next(user.role);
-          this.userName = user.name;
+          this.userName.next(user.name);
+          return user;
         }
       })
     );
   }
 
-  register(user: {
-    name: string;
-    surname_pa: string;
-    surname_ma: string;
-    ci: string;
-    extension: string;
-    phone: string;
-    username: string;
-    password: string;
-    role: string;
-  }) {
-    return this.http.post<any>(`${base_url}/register`, user);
-  }
-
   logout(): boolean {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("name");
     this.loggedIn.next(false);
     this.userRole.next("");
     this.router.navigate(["/login"]); // Redirige al usuario a la página de inicio de sesión después de cerrar sesión
@@ -85,6 +68,6 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem("token");
+    return this.loggedIn.value;
   }
 }
