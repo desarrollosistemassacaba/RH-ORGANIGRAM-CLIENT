@@ -14,7 +14,9 @@ import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialo
 
 import { AuthService } from "src/app/services/auth.service";
 import { UnidadesService } from "src/app/services/unidades.service";
+import { CargosService } from "src/app/services/cargos.service";
 import { ExcelService } from "src/app/services/excel.service";
+import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
 @Component({
   selector: "app-unidades",
@@ -37,6 +39,7 @@ export class UnidadesComponent implements AfterViewInit {
   constructor(
     private authService: AuthService,
     private unidadService: UnidadesService,
+    private cargoService: CargosService,
     private excelService: ExcelService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
@@ -123,6 +126,54 @@ export class UnidadesComponent implements AfterViewInit {
         this.load();
       }
     });
+  }
+
+  async estado(element: any) {
+    //console.log(element);
+    const cargos = await this.cargoService
+      .getFiltroCampos("id_unidad", element._id)
+      .toPromise();
+
+    const filter = cargos.filter((cargo: any) => cargo.estado === true);
+
+    if (filter.length > 0) {
+      const dialogRef = this.dialog.open(MessageDialogComponent, {
+        width: "450px",
+        data: {
+          message: `La unidad se encuentra asignado a un cargo activo, primero debe asegurarse de que ningún cargo ocupe la unidad ${element.nombre}`,
+        },
+      });
+      dialogRef.afterClosed().subscribe((result) => {});
+    } else {
+      const nombre = element.nombre;
+      const estado = element.estado ? "deshabilitar" : "habilitar";
+
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: "450px",
+        data: {
+          message: `¿Está seguro/a de ${estado} la unidad ${nombre}?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          const value = {
+            estado: !element.estado,
+          };
+
+          this.unidadService.updateUnidad(element._id, value).subscribe(
+            (response) => {
+              if (response) {
+                this.load();
+              }
+            },
+            (error) => {
+              //console.error("Error al llamar al servicio:", error);
+            }
+          );
+        }
+      });
+    }
   }
 
   delete(element: any): void {

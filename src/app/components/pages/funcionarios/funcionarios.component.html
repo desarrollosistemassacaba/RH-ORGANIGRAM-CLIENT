@@ -13,7 +13,7 @@
         </div>
         <div class="drop-filter">
             <mat-form-field class="form-filter">
-                <mat-label>Buscar Nombre/Ap. Paterno/Ap. Materno/Carnet Identidad/Cargo/Dependencia/Contrato</mat-label>
+                <mat-label>Buscar Nombre/Apellidos/Carnet Identidad/Cargo/Dependencia/Contrato</mat-label>
                 <input matInput (keyup)="applyFilter($event)"
                     placeholder="Nombre/Ap. Paterno/Ap. Materno/Carnet Identidad/Cargo/Dependencia/Contrato" #input>
                 <button mat-icon-button matSuffix *ngIf="input.value !== ''" (click)="clearInput(input)">
@@ -40,7 +40,9 @@
             <table mat-table [dataSource]="dataSource">
                 <ng-container matColumnDef="nombre">
                     <th mat-header-cell *matHeaderCellDef> Nombre </th>
-                    <td mat-cell *matCellDef="let element"> {{element.nombre}} {{element.paterno}} {{element.materno}}
+                    <td mat-cell *matCellDef="let element"> {{element.nombre? element.nombre: ""}} {{element.paterno?
+                        element.paterno: ""}} {{element.materno? element.materno: ""}} {{element.casada? element.casada:
+                        ""}}
                     </td>
                 </ng-container>
 
@@ -107,6 +109,12 @@
                             <button mat-menu-item (click)="rotation(element)" *ngIf="userType === 'root'">
                                 <mat-icon style="color: royalblue;">list</mat-icon>
                                 <span>Asignaciones</span>
+                            </button>
+                            <button mat-menu-item (click)="estado(element)"
+                                *ngIf="userType === 'user' || userType === 'root'">
+                                <mat-icon
+                                    [ngStyle]="{'color': element.estado ? 'royalblue' : 'rgb(44, 253, 243)'}">autorenew</mat-icon>
+                                <span>{{element.estado ? "Deshabilitar" : "Habilitar"}}</span>
                             </button>
                         </mat-menu>
                     </td>

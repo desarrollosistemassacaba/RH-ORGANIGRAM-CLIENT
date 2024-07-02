@@ -21,7 +21,11 @@ import { FuncionariosService } from "../../../services/funcionarios.service";
 import { RegistrosService } from "../../../services/registros.service";
 import { DependenciasService } from "src/app/services/dependencias.service";
 import { CargosService } from "../../../services/cargos.service";
+import { NivelesService } from "src/app/services/niveles.service";
 import { ExcelService } from "../../../services/excel.service";
+import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
+
+import { ordenPalabras } from "../../../utils/utils";
 
 @Component({
   selector: "app-funcionarios",
@@ -64,6 +68,7 @@ export class FuncionariosComponent implements AfterViewInit {
     private funcionariosService: FuncionariosService,
     private registrosService: RegistrosService,
     private dependenciasService: DependenciasService,
+    private nivelesService: NivelesService,
     private excelService: ExcelService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog
@@ -97,10 +102,16 @@ export class FuncionariosComponent implements AfterViewInit {
       dependencias: this.dependenciasService
         .getDependencias()
         .pipe(map((data) => data || [])),
+      niveles: this.nivelesService.getNiveles().pipe(map((data) => data || [])),
     })
       .pipe(
-        map(({ funcionarios, registros, dependencias }) => {
-          return this.combineData(funcionarios, registros, dependencias);
+        map(({ funcionarios, registros, dependencias, niveles }) => {
+          return this.combineData(
+            funcionarios,
+            registros,
+            dependencias,
+            niveles
+          );
         })
       )
       .subscribe(
@@ -117,7 +128,8 @@ export class FuncionariosComponent implements AfterViewInit {
   private combineData(
     funcionarios: any[],
     registros: any[],
-    dependencias: any[]
+    dependencias: any[],
+    niveles: any[]
   ): any[] {
     const filteredRegistros = this.filterRegistros(registros);
 
@@ -144,10 +156,19 @@ export class FuncionariosComponent implements AfterViewInit {
         (dep: any) => dep && dep._id === dependenciaId
       );
 
+      // Obtener la dependencia solo si hay registros válidos
+      const nivelId =
+        registrosFuncionario.length > 0 && registrosFuncionario[0].id_cargo
+          ? registrosFuncionario[0].id_cargo.id_nivel_salarial
+          : null;
+      const nivel = niveles.find((niv: any) => niv && niv._id === nivelId);
+
       return {
         ...funcionario,
         registros: registrosFuncionario,
-        sigla: dependencia ? dependencia.sigla : "Sin cargo.",
+        sigla: dependencia ? dependencia.sigla : "Sin dependencia.",
+        nombre_nivel: nivel ? nivel.nombre : "Sin nivel.",
+        haber_basico_nivel: nivel ? nivel.haber_basico : "Sin nivel.",
       };
     });
   }
@@ -161,15 +182,10 @@ export class FuncionariosComponent implements AfterViewInit {
     this.dataSource.paginator = this.paginator;
 
     this.dataSource.filterPredicate = (data: any, filter: string) => {
-      const textToSearch = (
-        data.nombre +
-        " " +
-        data.paterno +
-        " " +
-        data.materno +
-        " " +
-        data.ci
-      ).toLowerCase();
+      const nombre = (data.nombre ? data.nombre : "").toLowerCase();
+      const paterno = (data.paterno ? data.paterno : "").toLowerCase();
+      const materno = (data.materno ? data.materno : "").toLowerCase();
+      const casada = (data.casada ? data.casada : "").toLowerCase();
       const cargoToSearch =
         data.registros &&
         data.registros.length > 0 &&
@@ -185,7 +201,10 @@ export class FuncionariosComponent implements AfterViewInit {
       const dependenciaToSearch = data.sigla ? data.sigla.toLowerCase() : "";
 
       return (
-        textToSearch.includes(filter) ||
+        nombre.includes(filter) ||
+        paterno.includes(filter) ||
+        materno.includes(filter) ||
+        casada.includes(filter) ||
         cargoToSearch.includes(filter) ||
         contratoToSearch.includes(filter) ||
         dependenciaToSearch.includes(filter)
@@ -215,9 +234,15 @@ export class FuncionariosComponent implements AfterViewInit {
           return forkJoin({
             registros: this.registrosService.getRegistros(),
             dependencias: this.dependenciasService.getDependencias(),
+            niveles: this.nivelesService.getNiveles(),
           }).pipe(
-            map(({ registros, dependencias }) => {
-              return this.combineData(funcionarios, registros, dependencias);
+            map(({ registros, dependencias, niveles }) => {
+              return this.combineData(
+                funcionarios,
+                registros,
+                dependencias,
+                niveles
+              );
             })
           );
         })
@@ -289,6 +314,55 @@ export class FuncionariosComponent implements AfterViewInit {
         this.load();
       }
     });
+  }
+
+  estado(element: any) {
+    //console.log(element);
+    if (element.registros && element.registros.length > 0) {
+      const dialogRef = this.dialog.open(MessageDialogComponent, {
+        width: "450px",
+        data: {
+          message:
+            "El servidor público se encuentra con un cargo activo, primero debe dar de baja para deshabilitar.",
+        },
+      });
+      dialogRef.afterClosed().subscribe((result) => {});
+    } else {
+      const nombre = ordenPalabras(
+        (element.nombre ? element.nombre : "") +
+          " " +
+          (element.paterno ? element.paterno : "") +
+          " " +
+          (element.materno ? element.materno : "") +
+          " " +
+          (element.casada ? element.casada : "")
+      );
+      const estado = element.estado ? "deshabilitar" : "habilitar";
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: "450px",
+        data: {
+          message: `¿Está seguro/a de ${estado} al servidor público ${nombre}?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          const value = { estado: !element.estado };
+          this.funcionariosService
+            .updateFuncionario(element._id, value)
+            .subscribe(
+              (response) => {
+                if (response) {
+                  this.load();
+                }
+              },
+              (error) => {
+                //console.error("Error al llamar al servicio:", error);
+              }
+            );
+        }
+      });
+    }
   }
 
   delete(element: any): void {

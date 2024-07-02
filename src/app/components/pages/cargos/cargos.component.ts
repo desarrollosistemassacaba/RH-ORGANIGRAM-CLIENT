@@ -31,6 +31,7 @@ export class CargosComponent implements AfterViewInit {
   cargos: any[] = [];
   text: string = "";
   nivel: any[] = [];
+  none: string = "SIN ASIGNACION";
   searchNivel: boolean = false;
   searchEstado: boolean = false;
   filtrarNivel: string = "none";
@@ -153,7 +154,7 @@ export class CargosComponent implements AfterViewInit {
       if (!registro) {
         return {
           ...cargo,
-          personal: "SIN ASIGNACION",
+          personal: this.none,
         };
       }
 
@@ -166,12 +167,16 @@ export class CargosComponent implements AfterViewInit {
       if (!funcionario) {
         return {
           ...cargo,
-          personal: "SIN ASIGNACION",
+          personal: this.none,
         };
       }
 
       // Concatenar los campos del funcionario para el campo personal
-      const personal = `${funcionario.nombre} ${funcionario.paterno} ${funcionario.materno}`;
+      const personal = `${funcionario.nombre ? funcionario.nombre : ""} ${
+        funcionario.paterno ? funcionario.paterno : ""
+      } ${funcionario.materno ? funcionario.materno : ""} ${
+        funcionario.casada ? funcionario.casada : ""
+      }`;
 
       return {
         ...cargo,
@@ -244,7 +249,7 @@ export class CargosComponent implements AfterViewInit {
   }
 
   edit(cargo: any) {
-    const asignacion = cargo.personal === "SIN ASIGNACION" ? true : false;
+    const asignacion = cargo.personal === this.none ? true : false;
     const dialogRef = this.dialog.open(DialogCargoComponent, {
       width: "600px",
       data: { id: cargo._id, asignacion: asignacion }, // Pasar los datos del cargo al componente de edición
@@ -267,6 +272,45 @@ export class CargosComponent implements AfterViewInit {
         this.load();
       }
     });
+  }
+
+  estado(element: any) {
+    console.log(element);
+    if (element.personal && element.personal !== this.none) {
+      const dialogRef = this.dialog.open(MessageDialogComponent, {
+        width: "450px",
+        data: {
+          message:
+            "El cargo se encuentra asignado a un servidor público, primero debe dar de baja al servidor público para deshabilitar el cargo.",
+        },
+      });
+      dialogRef.afterClosed().subscribe((result) => {});
+    } else {
+      const nombre = element.nombre;
+      const estado = element.estado ? "deshabilitar" : "habilitar";
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: "450px",
+        data: {
+          message: `¿Está seguro/a de ${estado} el cargo ${nombre}?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          const value = { estado: !element.estado };
+          this.cargosService.updateCargo(element._id, value).subscribe(
+            (response) => {
+              if (response) {
+                this.load();
+              }
+            },
+            (error) => {
+              //console.error("Error al llamar al servicio:", error);
+            }
+          );
+        }
+      });
+    }
   }
 
   delete(element: any): void {
@@ -320,7 +364,8 @@ export class CargosComponent implements AfterViewInit {
             const dialogRef = this.dialog.open(MessageDialogComponent, {
               width: "450px",
               data: {
-                message: "El cargo se encuentra asignado a un funcionario!!!",
+                message:
+                  "El cargo se encuentra asignado a un servidor público!",
               },
             });
           }

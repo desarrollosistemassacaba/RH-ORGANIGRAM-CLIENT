@@ -11,9 +11,11 @@ import { MatDialog } from "@angular/material/dialog";
 
 import { DialogNivelComponent } from "./dialog-nivel/dialog-nivel.component";
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
 import { AuthService } from "src/app/services/auth.service";
 import { NivelesService } from "src/app/services/niveles.service";
+import { CargosService } from "src/app/services/cargos.service";
 
 @Component({
   selector: "app-niveles",
@@ -53,6 +55,7 @@ export class NivelesComponent implements AfterViewInit {
   constructor(
     private authService: AuthService,
     private nivelService: NivelesService,
+    private cargoService: CargosService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
@@ -130,6 +133,68 @@ export class NivelesComponent implements AfterViewInit {
     dialogRef.afterClosed().subscribe((result) => {
       this.load();
     });
+  }
+
+  async estado(element: any) {
+    //console.log(element);
+    const cargos = await this.cargoService
+      .getFiltroCampos("estado", "true")
+      .toPromise();
+
+    const filter = cargos.filter(
+      (cargo: any) =>
+        cargo.id_nivel_salarial && cargo.id_nivel_salarial._id === element._id
+    );
+
+    if (filter.length > 0) {
+      const dialogRef = this.dialog.open(MessageDialogComponent, {
+        width: "450px",
+        data: {
+          message: `El nivel se encuentra asignado a un cargo activo, primero debe asegurarse de que ningún cargo ocupe el nivel ${element.nombre}`,
+        },
+      });
+      dialogRef.afterClosed().subscribe((result) => {});
+    } else {
+      const nombre = element.nombre;
+      const estado = element.estado ? "deshabilitar" : "habilitar";
+
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: "450px",
+        data: {
+          message: `¿Está seguro/a de ${estado} el cargo ${nombre}?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          let value;
+          if (element.id_dependencia && element.id_dependencia._id) {
+            value = {
+              estado: !element.estado,
+              id_dependencia:
+                element.id_dependencia && element.id_dependencia._id
+                  ? element.id_dependencia._id
+                  : "",
+            };
+          } else {
+            value = {
+              estado: !element.estado,
+            };
+          }
+
+          this.nivelService.updateNivel(element._id, value).subscribe(
+            (response) => {
+              if (response) {
+                this.load();
+              }
+            },
+            (error) => {
+              //console.error("Error al llamar al servicio:", error);
+            }
+          );
+        }
+      });
+    }
   }
 
   delete(element: any): void {

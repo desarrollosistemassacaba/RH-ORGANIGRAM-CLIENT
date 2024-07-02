@@ -42,11 +42,11 @@
 
                     <mat-checkbox (change)="removeDependence()" [(ngModel)]="noDependence"
                         [ngModelOptions]="{standalone:true}" class="container-option-box" [style.width.%]="30">
-                        Sin dependencia
+                        Sin dependiente
                     </mat-checkbox>
                 </div>
 
-                <div class="form-select-1">
+                <div>
                     <mat-form-field hintLabel="Máximo 10 caracteres." [style.width.%]="40">
                         <mat-label>Sigla</mat-label>
                         <input formControlName="sigla" matInput #sigla maxlength="10" minlength="2"
@@ -69,7 +69,7 @@
                         </mat-error>
                     </mat-form-field>
 
-                    <mat-form-field class="" [style.width.%]="40">
+                    <mat-form-field class="form-select-space" [style.width.%]="59">
                         <mat-label>Categoria</mat-label>
                         <mat-select formControlName='tipo'>
                             <mat-option value="SECRETARIA">SECRETARIA</mat-option>
@@ -77,10 +77,6 @@
                             <mat-option value="DIRECCION">DIRECCION</mat-option>
                         </mat-select>
                     </mat-form-field>
-
-                    <mat-checkbox formControlName="estado" matTooltip="Habilita el cargo" [style.width.%]="30"
-                        class="container-option-box">Habilitar
-                        Dependencia</mat-checkbox>
                 </div>
             </div>
         </div>

@@ -89,7 +89,7 @@ export class DialogPartidaComponent {
         this.partidas = data;
       },
       (error) => {
-        console.error("Error al obtener los cargos:", error);
+        //console.error("Error al obtener los cargos:", error);
       }
     );
   }

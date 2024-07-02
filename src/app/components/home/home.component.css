@@ -25,6 +25,7 @@ h1.example-app-name {
   /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
        causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
   flex: 1;
+  background-color: #041629;
 }
 
 .example-is-mobile .example-sidenav-container {
@@ -57,7 +58,7 @@ mat-sidenav {
   background-image: linear-gradient(
     to right,
     rgba(0, 204, 255, 0.356) 0%,
-    #242424 90%
+    /*#242424 90%*/ #001d3da4 90%
   );
   background-color: black;
   border-right: 1px solid rgb(44, 253, 243);
@@ -66,8 +67,8 @@ mat-sidenav {
 .example-toolbar {
   background-image: radial-gradient(
     circle farthest-corner at 50.4% 50.5%,
-    rgba(44, 253, 243) 0%,
-    rgba(0, 72, 120) 85%
+    rgba(44, 253, 243, 0.445) 0%,
+    #001d3da4 70%
   );
 }
 

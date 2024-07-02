@@ -62,12 +62,16 @@ export class DialogFuncionarioComponent implements OnInit {
     paterno: [
       "",
       [
-        Validators.required,
+        //Validators.required,
         Validators.minLength(2),
         Validators.pattern("[a-zA-Z\\s\\ñ\\Ñ]*"),
       ],
     ],
     materno: [
+      "",
+      [Validators.minLength(2), Validators.pattern("[a-zA-Z\\s\\ñ\\Ñ]*")],
+    ],
+    casada: [
       "",
       [Validators.minLength(2), Validators.pattern("[a-zA-Z\\s\\ñ\\Ñ]*")],
     ],
@@ -84,7 +88,7 @@ export class DialogFuncionarioComponent implements OnInit {
     expedido: [
       "",
       [
-        Validators.required,
+        //Validators.required,
         Validators.minLength(2),
         Validators.pattern("[a-zA-Z]*"),
       ],
@@ -109,7 +113,7 @@ export class DialogFuncionarioComponent implements OnInit {
     distrito: [
       "",
       [
-        Validators.required,
+        //Validators.required,
         Validators.minLength(2),
         Validators.pattern("[a-zA-Z0-9\\s\\.\\-\\_]*"),
       ],
@@ -213,6 +217,7 @@ export class DialogFuncionarioComponent implements OnInit {
         nombre: this.data.nombre || "",
         paterno: this.data.paterno || "",
         materno: this.data.materno || "",
+        casada: this.data.casada || "",
         ci: this.data.ci || "",
         ext: this.data.ext || "",
         expedido: this.data.expedido || "",
@@ -573,6 +578,7 @@ export class DialogFuncionarioComponent implements OnInit {
     convertToUpperCase(this.FormJob, "nombre");
     convertToUpperCase(this.FormJob, "paterno");
     convertToUpperCase(this.FormJob, "materno");
+    convertToUpperCase(this.FormJob, "casada");
     convertToUpperCase(this.FormJob, "ext");
     convertToUpperCase(this.FormJob, "expedido");
     convertToUpperCase(this.FormJob, "genero");

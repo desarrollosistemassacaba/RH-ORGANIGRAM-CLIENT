@@ -35,6 +35,7 @@ export class ViewFuncionarioComponent implements OnInit {
   nombre: string;
   paterno: string;
   materno: string;
+  casada: string;
   titulo: string;
   ci: string;
   ext: string;
@@ -83,6 +84,7 @@ export class ViewFuncionarioComponent implements OnInit {
       this.nombre = this.data.nombre || "";
       this.paterno = this.data.paterno || "";
       this.materno = this.data.materno || "";
+      this.casada = this.data.casada || "";
       this.ci = this.data.ci || "";
       this.ext = this.data.ext || "";
       this.cargo = this.data.registros[0]?.id_cargo.nombre || this.nulo;
@@ -93,7 +95,14 @@ export class ViewFuncionarioComponent implements OnInit {
       this.fecha_nac = this.data.fecha_nacimiento || this.nulo;
       this.registro = this.data.registros[0]?.id_cargo.registro || this.nulo;
       this.unidad = this.data.registros[0]?.id_cargo.id_unidad || this.nulo;
-      this.funcionario = this.nombre + " " + this.paterno + " " + this.materno;
+      this.funcionario =
+        this.nombre +
+        " " +
+        this.paterno +
+        " " +
+        this.materno +
+        " " +
+        this.casada;
       this.id_secretaria_contratante =
         this.data.registros[0]?.id_secretaria_contratante || this.nulo;
       this.tipo_contrato = this.data.registros[0]?.tipo_contrato || this.nulo;
@@ -112,12 +121,17 @@ export class ViewFuncionarioComponent implements OnInit {
           .toPromise();
 
         this.contratante =
-          secretario_datos.nombre +
+          (secretario_datos.nombre ? secretario_datos.nombre : "") +
           " " +
-          secretario_datos.paterno +
+          (secretario_datos.paterno ? secretario_datos.paterno : "") +
           " " +
-          (secretario_datos.materno ? secretario_datos.materno : "");
-        this.genero_contratante = secretario_datos.genero;
+          (secretario_datos.materno ? secretario_datos.materno : "") +
+          " " +
+          (secretario_datos.casada ? secretario_datos.casada : "");
+
+        this.genero_contratante = secretario_datos.genero
+          ? secretario_datos.genero
+          : "";
 
         this.cargo_contratante = registro_secretaria.id_cargo.nombre;
       }

@@ -8,11 +8,14 @@ import {
 import { MatTableDataSource } from "@angular/material/table";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatDialog } from "@angular/material/dialog";
+
 import { DialogPartidaComponent } from "./dialog-partida/dialog-partida.component";
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
 import { AuthService } from "src/app/services/auth.service";
 import { PartidasService } from "../../../services/partidas.service";
+import { CargosService } from "src/app/services/cargos.service";
 
 @Component({
   selector: "app-partidas",
@@ -48,6 +51,7 @@ export class PartidasComponent implements AfterViewInit {
   constructor(
     private authService: AuthService,
     private partidaService: PartidasService,
+    private cargoService: CargosService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
@@ -238,6 +242,54 @@ export class PartidasComponent implements AfterViewInit {
         this.load();
       }
     });
+  }
+
+  async estado(element: any) {
+    //console.log(element);
+    const cargos = await this.cargoService
+      .getFiltroCampos("id_partida", element._id)
+      .toPromise();
+
+    const filter = cargos.filter((cargo: any) => cargo.estado === true);
+
+    if (filter.length > 0) {
+      const dialogRef = this.dialog.open(MessageDialogComponent, {
+        width: "450px",
+        data: {
+          message: `La partida se encuentra asignado a un cargo activo, primero debe asegurarse de que ningún cargo ocupe la partida presupuestaria ${element.nombre}`,
+        },
+      });
+      dialogRef.afterClosed().subscribe((result) => {});
+    } else {
+      const nombre = element.nombre;
+      const estado = element.estado ? "deshabilitar" : "habilitar";
+
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: "450px",
+        data: {
+          message: `¿Está seguro/a de ${estado} la partida presupuestaria ${nombre}?`,
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          const value = {
+            estado: !element.estado,
+          };
+
+          this.partidaService.updatePartida(element._id, value).subscribe(
+            (response) => {
+              if (response) {
+                this.load();
+              }
+            },
+            (error) => {
+              //console.error("Error al llamar al servicio:", error);
+            }
+          );
+        }
+      });
+    }
   }
 
   delete(element: any): void {

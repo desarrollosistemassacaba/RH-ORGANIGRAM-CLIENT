@@ -5,6 +5,12 @@
   display: flex;
   justify-content: center;
   width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.card-1 {
+  width: 100%;
 }
 
 .form-select-1 {
@@ -15,6 +21,10 @@
 
 .form-select-1 mat-form-field {
   padding-right: 2%;
+}
+
+.form-select-space {
+  margin-left: 1%;
 }
 
 .space-title {

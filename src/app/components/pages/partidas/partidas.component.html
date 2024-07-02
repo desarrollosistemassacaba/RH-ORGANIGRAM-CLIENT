@@ -99,6 +99,12 @@
                                 <mat-icon style="color: royalblue;">edit</mat-icon>
                                 <span>Editar</span>
                             </button>
+                            <button mat-menu-item (click)="estado(element)"
+                                *ngIf="userType === 'user' || userType === 'root'">
+                                <mat-icon
+                                    [ngStyle]="{'color': element.estado ? 'royalblue' : 'rgb(44, 253, 243)'}">autorenew</mat-icon>
+                                <span>{{element.estado ? "Deshabilitar" : "Habilitar"}}</span>
+                            </button>
                             <button mat-menu-item (click)="delete(element)" *ngIf="userType === 'root'">
                                 <mat-icon style="color: royalblue;">delete</mat-icon>
                                 <span>Eliminar</span>
