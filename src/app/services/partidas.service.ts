@@ -2,9 +2,9 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import { environment } from "../../environments/environment.development";
+import { server } from "../../environments/environment.staging";
 
-const base_url = environment.base_url + "/partida";
+const base_url = server.base_url + "/partida";
 
 @Injectable({
   providedIn: "root",
@@ -29,7 +29,6 @@ export class PartidasService {
   }
 
   addPartida(partida: any) {
-    console.log(partida);
     return this.http.post<any>(`${base_url}`, partida);
   }
 

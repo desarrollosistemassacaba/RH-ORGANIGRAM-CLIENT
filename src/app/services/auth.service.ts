@@ -4,13 +4,14 @@ import { Router } from "@angular/router";
 import { Observable, BehaviorSubject } from "rxjs";
 import { tap } from "rxjs/operators";
 
-const base_url = "http://190.181.22.149:3310";
+import { authentication } from "src/environments/environment.prod";
+
+const base_url = authentication.base_url;
 
 @Injectable({
   providedIn: "root",
 })
 export class AuthService {
-  private data: any;
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
   private userRole = new BehaviorSubject<string>(this.getUserRoleFromStorage());
   private userName = new BehaviorSubject<string>(this.getUserNameFromStorage());

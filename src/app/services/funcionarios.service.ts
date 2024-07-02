@@ -1,9 +1,9 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { environment } from "../../environments/environment.development";
+import { server } from "../../environments/environment.staging";
 
-const base_url = environment.base_url + "/funcionario";
+const base_url = server.base_url + "/funcionario";
 
 @Injectable({
   providedIn: "root",
@@ -34,7 +34,6 @@ export class FuncionariosService {
   }
 
   addFuncionario(funcionario: any) {
-    console.log(funcionario);
     return this.http.post<any>(`${base_url}`, funcionario);
   }
 
