@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { server } from "../../environments/environment.staging";
 
-const base_url = server.base_url + "/organigrama";
+const base_url = server.base_url + "/organization";
 
 @Injectable({
   providedIn: "root",
