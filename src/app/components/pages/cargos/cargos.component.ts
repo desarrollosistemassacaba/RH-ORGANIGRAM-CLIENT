@@ -275,7 +275,7 @@ export class CargosComponent implements AfterViewInit {
   }
 
   estado(element: any) {
-    console.log(element);
+    //console.log(element);
     if (element.personal && element.personal !== this.none) {
       const dialogRef = this.dialog.open(MessageDialogComponent, {
         width: "450px",

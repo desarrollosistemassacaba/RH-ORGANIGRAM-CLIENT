@@ -522,7 +522,7 @@ export class DialogFuncionarioComponent implements OnInit {
       const registro = this.registros.filter(
         (el: any) => el.id_cargo === cargo[0]._id
       );
-      console.log(registro[0]._id);
+      //console.log(registro[0]._id);
 
       //Agregando campos al formulario
       this.FormJob.addControl(
@@ -625,7 +625,7 @@ export class DialogFuncionarioComponent implements OnInit {
     const register = this.registros.filter(
       (element) => element.id_funcionario === this.data?._id
     );
-    console.log(form);
+    //console.log(form);
     if (Object.keys(register).length > 0) {
       this.registroService.updateRegistro(register[0]._id, form).subscribe(
         (response) => {
@@ -654,7 +654,7 @@ export class DialogFuncionarioComponent implements OnInit {
 
   guardarFuncionario() {
     if (this.data) {
-      console.log(this.data);
+      //console.log(this.data);
       this.funcionarioService
         .updateFuncionario(this.data._id, this.FormJob.value)
         .subscribe(

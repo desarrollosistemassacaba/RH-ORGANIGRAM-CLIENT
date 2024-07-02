@@ -19,21 +19,12 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ],    
+    "lib": ["ES2022", "dom"],
     "strictPropertyInitialization": false,
     "paths": {
-      "exceljs": [
-        "node_modules/exceljs/dist/exceljs.min"
-      ]
+      "exceljs": ["node_modules/exceljs/dist/exceljs.min"]
     },
-    "types": [
-      "node",
-      "file-saver",
-      "events"
-    ],
+    "types": ["node", "file-saver", "events"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
