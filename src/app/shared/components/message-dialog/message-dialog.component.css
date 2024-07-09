@@ -4,7 +4,9 @@
   flex-direction: column;
   margin: 0;
   padding: 0;
-  background-color: white;
+  background-color: rgb(49, 49, 49);
+  opacity: 0.9;
+  color: rgb(189, 189, 189);
 }
 
 .icon {
@@ -13,6 +15,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  color: #e73737;
 }
 
 .icon mat-icon {
@@ -39,9 +42,22 @@
 }
 
 .buttons .on {
-  background-color: green;
+  background-color: rgb(216, 216, 216);
+  color: black;
+}
+.buttons .on:hover {
+  background-color: black;
+  color: white;
 }
 
-.buttons .off {
-  background-color: red;
+.example-label {
+  display: table-cell;
+  font-size: 14px;
+  margin-left: 8px;
+  min-width: 120px;
+}
+
+.example-button-row {
+  display: table-cell;
+  max-width: 600px;
 }
