@@ -177,3 +177,10 @@ export function getColor(contrato: string): string {
       return "#000000"; // Color por defecto
   }
 }
+
+export function getIniciales(name: string): string {
+  return name
+    .split(" ")
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+}

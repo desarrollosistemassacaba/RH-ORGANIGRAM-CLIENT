@@ -557,7 +557,8 @@ export class DialogCargoComponent implements OnInit {
         (element) => element.id_cargo_superior === this.data.id
       );
     }
-    this.fieldsDinamico();
+    //provoca que se habilite el campo categoria cuando se selecciona remanente o eventual
+    //this.fieldsDinamico();
   }
 
   buscarDependientes(text: string) {

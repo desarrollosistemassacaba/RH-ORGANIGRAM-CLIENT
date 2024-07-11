@@ -19,7 +19,9 @@ import {
   convertirFecha,
   ordenPalabras,
   numerosALetras,
+  getIniciales,
 } from "src/app/utils/utils";
+
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
 
@@ -59,6 +61,8 @@ export class ViewFuncionarioComponent implements OnInit {
   numero_contrato: string;
   decreto_edil: string;
   tipo_contrato: string;
+
+  abreviatura_1: string;
 
   habilitado: boolean = false;
   nulo: string = "Sin Registro";
@@ -128,6 +132,8 @@ export class ViewFuncionarioComponent implements OnInit {
           (secretario_datos.materno ? secretario_datos.materno : "") +
           " " +
           (secretario_datos.casada ? secretario_datos.casada : "");
+
+        this.abreviatura_1 = getIniciales(this.contratante);
 
         this.genero_contratante = secretario_datos.genero
           ? secretario_datos.genero
@@ -224,7 +230,7 @@ export class ViewFuncionarioComponent implements OnInit {
     let text;
     let abreviatura;
     let pronombre;
-    const abreviatura_1 = "GVB";
+    const abreviatura_1 = this.abreviatura_1;
     const abreviatura_2 = "pav";
     const abreviatura_3 = "vnsl";
 

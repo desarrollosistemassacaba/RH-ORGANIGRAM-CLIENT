@@ -182,10 +182,14 @@ export class FuncionariosComponent implements AfterViewInit {
     this.dataSource.paginator = this.paginator;
 
     this.dataSource.filterPredicate = (data: any, filter: string) => {
-      const nombre = (data.nombre ? data.nombre : "").toLowerCase();
-      const paterno = (data.paterno ? data.paterno : "").toLowerCase();
-      const materno = (data.materno ? data.materno : "").toLowerCase();
+      const nombre =
+        (data.nombre ? data.nombre : "").toLowerCase() +
+        " " +
+        (data.paterno ? data.paterno : "").toLowerCase() +
+        " " +
+        (data.materno ? data.materno : "").toLowerCase();
       const casada = (data.casada ? data.casada : "").toLowerCase();
+      const ci = (data.ci ? data.ci : "") + (data.ext ? data.ext : "");
       const cargoToSearch =
         data.registros &&
         data.registros.length > 0 &&
@@ -202,9 +206,8 @@ export class FuncionariosComponent implements AfterViewInit {
 
       return (
         nombre.includes(filter) ||
-        paterno.includes(filter) ||
-        materno.includes(filter) ||
         casada.includes(filter) ||
+        ci.includes(filter) ||
         cargoToSearch.includes(filter) ||
         contratoToSearch.includes(filter) ||
         dependenciaToSearch.includes(filter)
