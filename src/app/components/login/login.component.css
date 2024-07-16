@@ -9,7 +9,7 @@
 body,
 input,
 button {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-family: "Poppins", sans-serif;
 }
 
@@ -78,7 +78,7 @@ img {
 }
 .login__icon,
 .login__eye {
-  font-size: 1.25rem;
+  font-size: 2rem;
 }
 .login__input {
   width: 100%;
@@ -102,7 +102,7 @@ img {
 .login__eye {
   position: absolute;
   right: 0;
-  top: 18px;
+  top: 7px;
   z-index: 10;
   cursor: pointer;
 }
