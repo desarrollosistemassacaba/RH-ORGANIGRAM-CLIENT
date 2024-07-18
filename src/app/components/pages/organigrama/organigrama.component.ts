@@ -100,7 +100,13 @@ export class OrganigramaComponent implements AfterViewInit {
 
               if (registroEncontrado) {
                 const funcionario = registroEncontrado.id_funcionario;
-                cargo.personal = `${funcionario.nombre} ${funcionario.paterno} ${funcionario.materno}`;
+                cargo.personal = `${
+                  funcionario.nombre && funcionario.nombre !== null
+                    ? funcionario.nombre
+                    : ""
+                } ${funcionario.paterno ? funcionario.paterno : ""} ${
+                  funcionario.materno ? funcionario.materno : ""
+                } ${funcionario.casada ? funcionario.casada : ""}`;
               } else {
                 cargo.personal = "SIN PERSONAL";
               }
@@ -255,6 +261,8 @@ export class OrganigramaComponent implements AfterViewInit {
     const cell = document.createElement("td");
     const nodo = document.createElement("div");
     nodo.style.width = "200px";
+    nodo.style.height = "13.5vh";
+    nodo.style.borderRadius = "7px";
     nodo.className = "nodo";
     nodo.setAttribute("data-id", data._id.toString());
     row.className = "nodo-header";
@@ -275,15 +283,28 @@ export class OrganigramaComponent implements AfterViewInit {
       item.style.fontSize = "10px";
       item.style.color = "black";
       item.style.width = "100%";
+      item.style.lineHeight = "1";
       item.className = "nodo-nombre";
+      item.style.height = "6.5vh";
       nodo.appendChild(item);
 
       item = document.createElement("div");
       item.innerText = data.personal;
       item.style.fontSize = "9px";
+      item.style.width = "100%";
       item.style.color = "white";
-      item.style.background = "#101D26";
+      item.style.lineHeight = "1";
+      item.style.height = "3.4vh";
+      item.style.paddingTop = "5px";
+      item.style.borderTopLeftRadius = "5px";
+      item.style.borderTopRightRadius = "5px";
+      item.style.background =
+        data.personal && data.personal == "SIN PERSONAL"
+          ? "#F33232"
+          : "#101D26";
+
       item.className = "nodo-puesto";
+
       nodo.appendChild(item);
 
       cell.appendChild(nodo);

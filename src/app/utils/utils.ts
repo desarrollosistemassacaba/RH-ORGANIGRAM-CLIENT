@@ -168,11 +168,11 @@ export function convertToDecimal(form: FormGroup, fieldName: string): void {
 export function getColor(contrato: string): string {
   switch (contrato) {
     case "EVENTUAL":
-      return "#52BE80";
+      return "#5DADE2";
     case "REMANENTE":
       return "#F5B041";
     case "ITEM":
-      return "#5DADE2";
+      return "#52BE80";
     default:
       return "#000000"; // Color por defecto
   }
@@ -183,4 +183,14 @@ export function getIniciales(name: string): string {
     .split(" ")
     .map((word) => word[0]?.toUpperCase())
     .join("");
+}
+
+export function limpiarObject(obj: any): any {
+  const cleanedObj: any = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
+      cleanedObj[key] = obj[key];
+    }
+  }
+  return cleanedObj;
 }

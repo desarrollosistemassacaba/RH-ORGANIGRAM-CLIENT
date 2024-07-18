@@ -34,6 +34,7 @@ export class DialogFuncionarioComponent implements OnInit {
   cargos: any[] = [];
   contrato: string;
   sigla: string;
+  cite: string;
   numero_contrato: string;
   selectedContrato: string;
   selectedRegistro: string;
@@ -243,8 +244,11 @@ export class DialogFuncionarioComponent implements OnInit {
 
       //   this.numero_contrato =
       //     numero && numero[0]?.numero_contrato ? numero[0]?.numero_contrato : "";
+
+      this.cite = this.data.registros[0]?.cite || "";
       this.numero_contrato = this.data.registros[0]?.numero_contrato || "";
       console.log(this.numero_contrato);
+      console.log(this.cite);
 
       this.idCargoControl.setValue(this.data.registros[0]?.id_cargo);
       if (this.data && this.data.registros[0]?.id_cargo) {
@@ -498,7 +502,7 @@ export class DialogFuncionarioComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  async validar() {
+  private validarDomicilio() {
     convertToUpperCase(this.FormJob, "distrito");
     convertToUpperCase(this.FormJob, "zona");
     convertToUpperCase(this.FormJob, "pasaje");
@@ -518,6 +522,21 @@ export class DialogFuncionarioComponent implements OnInit {
       Object.entries(domicilio).filter(([key, value]) => value !== "")
     );
 
+    // Verificar si domicilioFiltrado tiene algún elemento
+    if (Object.keys(domicilioFiltrado).length > 0) {
+      // Agregar un nuevo campo 'nuevoCampo' con valor 'valorInicial' y sin validadores
+      this.FormJob.addControl("domicilio", this.fb.control(domicilioFiltrado));
+
+      delete this.FormJob.value.distrito;
+      delete this.FormJob.value.zona;
+      delete this.FormJob.value.pasaje;
+      delete this.FormJob.value.calle;
+      delete this.FormJob.value.numero_casa;
+    }
+  }
+
+  async validar() {
+    this.validarDomicilio();
     if (
       this.selectedContrato === "EVENTUAL" ||
       this.selectedContrato === "REMANENTE"
@@ -532,7 +551,7 @@ export class DialogFuncionarioComponent implements OnInit {
       this.FormJob.value.fecha_ingreso !== undefined &&
       this.numero_contrato === ""
     ) {
-      //Si el funcionario esta asignado previamente a un cargo, cargo_seleccionado no recupera todos los datos, dado que ya esta seleccionado, esto suele suceder si se introdujo los campos por la base de datos, para evitar el error, se realiza una busqueda del argo y se recuperan los valores.
+      //Si el funcionario esta asignado previamente a un cargo, cargo_seleccionado no recupera todos los datos, dado que ya esta seleccionado, esto suele suceder si se introdujo los campos por la base de datos, para evitar el error, se realiza una busqueda del cargo y se recuperan los valores.
       if (
         this.cargo_seleccionado &&
         !this.cargo_seleccionado.id_dependencia._id
@@ -594,6 +613,34 @@ export class DialogFuncionarioComponent implements OnInit {
         this.sigla = "DESP";
       }
 
+      //         if (this.numero_contrato === "") {
+      //     console.log("here");
+      //     //cada tipo de contrato tiene un formato independiente
+      //     if (this.selectedContrato === "ITEM") {
+      //       years = fecha_ingreso_text.slice(-4);
+      //       this.selectedRegistro =
+      //         "GAMS-" +
+      //         this.sigla +
+      //         "/DRH/" +
+      //         this.FormJob.value.tipo_contrato +
+      //         "/" +
+      //         this.selectedRegistro +
+      //         "/" +
+      //         years;
+      //     } else {
+      //       years = fecha_ingreso_text.slice(-2);
+      //       console.log("here II");
+      //       await this.assignementRegistro();
+      //       this.selectedRegistro =
+      //         "GAMS-" +
+      //         this.sigla +
+      //         "/CAPE/" +
+      //         this.selectedRegistro +
+      //         "/" +
+      //         years;
+      //     }
+      //   }
+      // }
       console.log(this.numero_contrato);
       if (this.numero_contrato === "") {
         console.log("here");
@@ -622,31 +669,18 @@ export class DialogFuncionarioComponent implements OnInit {
             years;
         }
       }
+
+      //solo los de contrato ITEM no requiere un valor alfabetico en el contrato
+      //console.log(this.selectedRegistro);
+      this.FormJob.addControl("cite", this.fb.control(this.selectedRegistro));
+      this.FormJob.addControl(
+        "numero_contrato",
+        this.fb.control(this.numero_contrato)
+      );
     }
 
     console.log(this.numero_contrato);
     console.log(this.selectedRegistro);
-
-    //solo los de contrato ITEM no requiere un valor alfabetico en el contrato
-    //console.log(this.selectedRegistro);
-    this.FormJob.addControl(
-      "numero_contrato",
-      this.fb.control(this.numero_contrato)
-    );
-
-    this.FormJob.addControl("contrato", this.fb.control(this.selectedRegistro));
-
-    // Verificar si domicilioFiltrado tiene algún elemento
-    if (Object.keys(domicilioFiltrado).length > 0) {
-      // Agregar un nuevo campo 'nuevoCampo' con valor 'valorInicial' y sin validadores
-      this.FormJob.addControl("domicilio", this.fb.control(domicilioFiltrado));
-
-      delete this.FormJob.value.distrito;
-      delete this.FormJob.value.zona;
-      delete this.FormJob.value.pasaje;
-      delete this.FormJob.value.calle;
-      delete this.FormJob.value.numero_casa;
-    }
 
     this.clearCampos();
     convertToUpperCase(this.FormJob, "nombre");
@@ -658,7 +692,6 @@ export class DialogFuncionarioComponent implements OnInit {
     convertToUpperCase(this.FormJob, "genero");
     convertToUpperCase(this.FormJob, "descripcion");
     convertToUpperCase(this.FormJob, "tipo_contrato");
-
     convertToNumber(this.FormJob, "ci");
     convertToNumber(this.FormJob, "telefono");
 
@@ -669,6 +702,7 @@ export class DialogFuncionarioComponent implements OnInit {
         fecha_conclusion: this.FormJob.value.fecha_conclusion,
         id_secretaria_contratante: this.FormJob.value.id_secretaria_contratante,
         tipo_contrato: this.FormJob.value.tipo_contrato,
+        cite: this.FormJob.value.cite,
         numero_contrato: this.FormJob.value.numero_contrato,
         fecha_baja:
           !this.FormJob.value.disableCargoControl === false

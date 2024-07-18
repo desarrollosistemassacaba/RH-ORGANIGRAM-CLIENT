@@ -25,7 +25,7 @@ import { NivelesService } from "src/app/services/niveles.service";
 import { ExcelService } from "../../../services/excel.service";
 import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
-import { ordenPalabras } from "../../../utils/utils";
+import { limpiarObject, ordenPalabras } from "../../../utils/utils";
 
 @Component({
   selector: "app-funcionarios",
@@ -350,9 +350,17 @@ export class FuncionariosComponent implements AfterViewInit {
 
       dialogRef.afterClosed().subscribe((result) => {
         if (result) {
-          const value = { estado: !element.estado };
+          const value = {
+            paterno: element.paterno,
+            materno: element.materno,
+            casada: element.casada,
+            ext: element.ext,
+            telefono: element.telefono,
+            estado: !element.estado,
+          };
+          const valueClear = limpiarObject(value);
           this.funcionariosService
-            .updateFuncionario(element._id, value)
+            .updateFuncionario(element._id, valueClear)
             .subscribe(
               (response) => {
                 if (response) {

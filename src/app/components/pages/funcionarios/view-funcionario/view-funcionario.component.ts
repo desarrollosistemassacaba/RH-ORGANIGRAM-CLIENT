@@ -58,7 +58,7 @@ export class ViewFuncionarioComponent implements OnInit {
   contratante: string;
   cargo_contratante: string;
   genero_contratante: string;
-  numero_contrato: string;
+  cite: string;
   decreto_edil: string;
   tipo_contrato: string;
 
@@ -83,7 +83,7 @@ export class ViewFuncionarioComponent implements OnInit {
   }
 
   async load() {
-    //console.log(this.data);
+    console.log(this.data);
     if (this.data) {
       this.nombre = this.data.nombre || "";
       this.paterno = this.data.paterno || "";
@@ -110,8 +110,7 @@ export class ViewFuncionarioComponent implements OnInit {
       this.id_secretaria_contratante =
         this.data.registros[0]?.id_secretaria_contratante || this.nulo;
       this.tipo_contrato = this.data.registros[0]?.tipo_contrato || this.nulo;
-      this.numero_contrato =
-        this.data.registros[0]?.numero_contrato || this.nulo;
+      this.cite = this.data.registros[0]?.cite || this.nulo;
       this.decreto_edil = this.data.registros[0]?.decreto_edil || this.nulo;
 
       //Obteniendo datos del secretario o alcalde para el contrato
@@ -208,7 +207,7 @@ export class ViewFuncionarioComponent implements OnInit {
       this.fecha_ingreso !== this.nulo &&
       this.id_secretaria_contratante &&
       this.id_secretaria_contratante !== this.nulo &&
-      this.numero_contrato !== this.nulo
+      this.cite !== this.nulo
     ) {
       if (
         this.contrato === "ITEM" ||
@@ -251,11 +250,11 @@ export class ViewFuncionarioComponent implements OnInit {
     }
 
     if (this.contrato === "EVENTUAL" || this.contrato === "REMANENTE") {
-      tamañoHoja = "LEGAL";
+      tamañoHoja = { width: 628.51, height: 936.13 };
 
       if (this.nivel && this.nivel !== undefined) {
         const detalle_contrato = {
-          contrato: this.numero_contrato,
+          contrato: this.cite,
           secretario_nombre: contratante,
           secretario_cargo: this.cargo_contratante,
           edil: edil,
@@ -299,7 +298,7 @@ export class ViewFuncionarioComponent implements OnInit {
     if (this.contrato === "ITEM") {
       tamañoHoja = "LETTER";
       const detalle_item = {
-        contrato: this.numero_contrato,
+        contrato: this.cite,
         secretario_nombre: contratante,
         secretario_cargo: this.cargo_contratante,
         nombre: this.funcionario,
@@ -322,7 +321,7 @@ export class ViewFuncionarioComponent implements OnInit {
 
     let docDefinition = {
       pageSize: tamañoHoja, // Tamaño de hoja oficio
-      pageMargins: [88, 113, 60, 72], // Márgenes: [izquierda, superior, derecha, inferior]
+      pageMargins: [88, 120, 60, 100], // Márgenes: [izquierda, superior, derecha, inferior]
       content: text,
       styles: {
         titulo: {
@@ -351,6 +350,7 @@ export class ViewFuncionarioComponent implements OnInit {
           fontSize: 11,
           alignment: "justify",
           margin: [0, 0, 0, 1],
+          lineHeight: 1,
         },
         normal1: {
           fontSize: 10,
