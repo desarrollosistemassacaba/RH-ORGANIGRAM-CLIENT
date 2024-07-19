@@ -211,7 +211,7 @@ export class DialogFuncionarioComponent implements OnInit {
   }
   async formDatos() {
     if (this.data) {
-      console.log(this.data);
+      //console.log(this.data);
       this.FormJob.patchValue({
         nombre: this.data.nombre || "",
         paterno: this.data.paterno || "",
@@ -236,19 +236,10 @@ export class DialogFuncionarioComponent implements OnInit {
         tipo_contrato: this.data.registros[0]?.tipo_contrato || "",
       });
 
-      //  console.log(this.registros);
-      //   const numero = this.registros.filter(
-      //     (element: any) =>
-      //       element.id_funcionario === this.data.registros[0]?.id_funcionario._id
-      //   );
-
-      //   this.numero_contrato =
-      //     numero && numero[0]?.numero_contrato ? numero[0]?.numero_contrato : "";
-
       this.cite = this.data.registros[0]?.cite || "";
       this.numero_contrato = this.data.registros[0]?.numero_contrato || "";
-      console.log(this.numero_contrato);
-      console.log(this.cite);
+      //console.log(this.numero_contrato);
+      //console.log(this.cite);
 
       this.idCargoControl.setValue(this.data.registros[0]?.id_cargo);
       if (this.data && this.data.registros[0]?.id_cargo) {
@@ -393,66 +384,11 @@ export class DialogFuncionarioComponent implements OnInit {
       }
     });
   }
-
-  //   async assignementRegistro(years: string) {
-  //     const elements = await this.registroService
-  //       .getFiltroCampos("id_cargo", this.selectedCargoId)
-  //       .toPromise();
-
-  //     const year = new Date(this.FormJob.value.fecha_ingreso).getFullYear();
-
-  //     // Filtrar elementos por año de ingreso
-  //     const elementosFiltradosPorAnio = elements.filter((element: any) => {
-  //       const fechaIngreso = new Date(element.fecha_ingreso);
-  //       return fechaIngreso.getFullYear() === year && element.numero_contrato;
-  //     });
-
-  //     const list = [
-  //       "A",
-  //       "B",
-  //       "C",
-  //       "D",
-  //       "E",
-  //       "F",
-  //       "G",
-  //       "H",
-  //       "I",
-  //       "J",
-  //       "K",
-  //       "L",
-  //       "M",
-  //       "N",
-  //       "O",
-  //       "P",
-  //       "Q",
-  //       "R",
-  //       "S",
-  //       "T",
-  //       "U",
-  //       "V",
-  //       "W",
-  //       "X",
-  //       "Y",
-  //       "Z",
-  //     ];
-  //     //console.log(elementosFiltradosPorAnio);
-
-  //     if (elementosFiltradosPorAnio.length === 0) {
-  //       //console.log("es primer registro");
-  //     } else if (elementosFiltradosPorAnio.length <= list.length) {
-  //       this.selectedRegistro =
-  //         this.selectedRegistro + "-" + list[elementosFiltradosPorAnio.length - 1];
-  //     }
-
-  //     //console.log(elementosFiltradosPorAnio.length);
-  //     this.cdr.detectChanges();
-  //   }
-
   async assignementRegistro() {
     const elements = await this.registroService
       .getFiltroCampos("id_cargo", this.selectedCargoId)
       .toPromise();
-    console.log(elements);
+    //console.log(elements);
     const year = new Date(this.FormJob.value.fecha_ingreso).getFullYear();
 
     // Filtrar elementos por año de ingreso
@@ -460,7 +396,7 @@ export class DialogFuncionarioComponent implements OnInit {
       const fechaIngreso = new Date(element.fecha_ingreso);
       return fechaIngreso.getFullYear() === year && element.numero_contrato;
     });
-    console.log(elementosFiltradosPorAnio);
+    //console.log(elementosFiltradosPorAnio);
     if (elementosFiltradosPorAnio.length === 0) {
       this.numero_contrato = this.selectedRegistro;
       //console.log("es primer registro");
@@ -476,13 +412,13 @@ export class DialogFuncionarioComponent implements OnInit {
         }
         return parseInt(numA) - parseInt(numB);
       });
-      console.log("ordenado: ", elementosFiltradosPorAnio);
+      //.log("ordenado: ", elementosFiltradosPorAnio);
       let ultimoNumeroContrato =
         elementosFiltradosPorAnio.length > 0
           ? elementosFiltradosPorAnio[elementosFiltradosPorAnio.length - 1]
               .numero_contrato
           : null;
-      console.log("último contrato: ", ultimoNumeroContrato);
+      //console.log("último contrato: ", ultimoNumeroContrato);
       if (ultimoNumeroContrato && ultimoNumeroContrato.includes("-")) {
         const partes = ultimoNumeroContrato.split("-");
         const ultimaLetra = partes[1];
@@ -613,37 +549,8 @@ export class DialogFuncionarioComponent implements OnInit {
         this.sigla = "DESP";
       }
 
-      //         if (this.numero_contrato === "") {
-      //     console.log("here");
-      //     //cada tipo de contrato tiene un formato independiente
-      //     if (this.selectedContrato === "ITEM") {
-      //       years = fecha_ingreso_text.slice(-4);
-      //       this.selectedRegistro =
-      //         "GAMS-" +
-      //         this.sigla +
-      //         "/DRH/" +
-      //         this.FormJob.value.tipo_contrato +
-      //         "/" +
-      //         this.selectedRegistro +
-      //         "/" +
-      //         years;
-      //     } else {
-      //       years = fecha_ingreso_text.slice(-2);
-      //       console.log("here II");
-      //       await this.assignementRegistro();
-      //       this.selectedRegistro =
-      //         "GAMS-" +
-      //         this.sigla +
-      //         "/CAPE/" +
-      //         this.selectedRegistro +
-      //         "/" +
-      //         years;
-      //     }
-      //   }
-      // }
-      console.log(this.numero_contrato);
+      //console.log(this.numero_contrato);
       if (this.numero_contrato === "") {
-        console.log("here");
         //cada tipo de contrato tiene un formato independiente
         if (this.selectedContrato === "ITEM") {
           years = fecha_ingreso_text.slice(-4);
@@ -658,7 +565,6 @@ export class DialogFuncionarioComponent implements OnInit {
             years;
         } else {
           years = fecha_ingreso_text.slice(-2);
-          console.log("here II");
           await this.assignementRegistro();
           this.selectedRegistro =
             "GAMS-" +
@@ -679,8 +585,8 @@ export class DialogFuncionarioComponent implements OnInit {
       );
     }
 
-    console.log(this.numero_contrato);
-    console.log(this.selectedRegistro);
+    //console.log(this.numero_contrato);
+    //console.log(this.selectedRegistro);
 
     this.clearCampos();
     convertToUpperCase(this.FormJob, "nombre");
