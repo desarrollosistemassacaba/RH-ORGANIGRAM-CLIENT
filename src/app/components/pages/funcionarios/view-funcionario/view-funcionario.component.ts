@@ -83,7 +83,7 @@ export class ViewFuncionarioComponent implements OnInit {
   }
 
   async load() {
-    console.log(this.data);
+    //console.log(this.data);
     if (this.data) {
       this.nombre = this.data.nombre || "";
       this.paterno = this.data.paterno || "";
