@@ -25,7 +25,7 @@ import { NivelesService } from "src/app/services/niveles.service";
 import { ExcelService } from "../../../services/excel.service";
 import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
-import { limpiarObject, ordenPalabras } from "../../../utils/utils";
+import { limpiarObject, ordenPalabras, getColor } from "../../../utils/utils";
 
 @Component({
   selector: "app-funcionarios",
@@ -281,6 +281,11 @@ export class FuncionariosComponent implements AfterViewInit {
       filteredData,
       "funcionarios.xlsx"
     );
+  }
+
+  public getColors(contrato: string): string {
+    const color = getColor(contrato);
+    return color;
   }
 
   edit(funcionario: any) {

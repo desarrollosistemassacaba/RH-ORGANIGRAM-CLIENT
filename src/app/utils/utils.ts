@@ -174,7 +174,7 @@ export function getColor(contrato: string): string {
     case "ITEM":
       return "#52BE80";
     default:
-      return "#000000"; // Color por defecto
+      return "#fffff"; // Color por defecto
   }
 }
 
