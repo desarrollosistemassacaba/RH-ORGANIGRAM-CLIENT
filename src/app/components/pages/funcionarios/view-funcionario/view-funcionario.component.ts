@@ -321,7 +321,7 @@ export class ViewFuncionarioComponent implements OnInit {
 
     let docDefinition = {
       pageSize: tamañoHoja, // Tamaño de hoja oficio
-      pageMargins: [88, 120, 60, 100], // Márgenes: [izquierda, superior, derecha, inferior]
+      pageMargins: [88, 98, 55, 45], // Márgenes: [izquierda, superior, derecha, inferior]
       content: text,
       styles: {
         titulo: {
