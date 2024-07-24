@@ -1,0 +1,76 @@
+* {
+  font-size: 12px;
+}
+
+.celda {
+  margin: 0;
+  padding: 0;
+}
+
+.denominacion {
+  width: 405px;
+}
+
+.separator {
+  margin: 0;
+  padding: 0;
+  border: 1px;
+  width: 100%;
+}
+
+.center {
+  text-align: center;
+}
+
+.header {
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.element {
+  margin-top: 5px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+.total-cell {
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.total-aling {
+  padding-left: 10px;
+}
+
+.card-header {
+  padding: 0;
+  margin: 0;
+  background-color: rgb(49, 46, 46);
+  display: flex;
+  align-items: center;
+}
+
+.card-header span {
+  font-size: 15px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.download-icon {
+  font-size: 25px;
+  width: 100%;
+  height: 25px;
+}
+
+.icon-button {
+  width: 50px;
+}
+
+.icon-button:hover {
+  color: rgba(54, 190, 253, 0.904);
+}

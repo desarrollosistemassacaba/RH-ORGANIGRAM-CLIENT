@@ -50,6 +50,8 @@ import { ViewFuncionarioComponent } from "./components/pages/funcionarios/view-f
 import { ConfirmDialogComponent } from "./shared/components/confirm-dialog/confirm-dialog.component";
 import { MessageDialogComponent } from "./shared/components/message-dialog/message-dialog.component";
 
+import { EscalasComponent } from "./components/pages/escalas/escalas.component";
+
 // Define los formatos de fecha
 export const MY_DATE_FORMATS = {
   parse: {
@@ -84,6 +86,7 @@ export const MY_DATE_FORMATS = {
     DialogOrganigramaComponent,
     DialogUnidadComponent,
     ViewFuncionarioComponent,
+    EscalasComponent,
     ConfirmDialogComponent,
     MessageDialogComponent,
   ],

@@ -9,7 +9,7 @@ import { PartidasComponent } from "./partidas/partidas.component";
 import { PlanillasabComponent } from "./planillas-altas-bajas/planillasab.component";
 import { UnidadesComponent } from "./unidades/unidades.component";
 import { OrganigramaComponent } from "./organigrama/organigrama.component";
-import { ViewFuncionarioComponent } from "./funcionarios/view-funcionario/view-funcionario.component";
+import { EscalasComponent } from "./escalas/escalas.component";
 
 const routes: Routes = [
   { path: "", component: FuncionariosComponent },
@@ -21,7 +21,7 @@ const routes: Routes = [
   { path: "dependencias", component: DependenciasComponent },
   { path: "planillasab", component: PlanillasabComponent },
   { path: "organigrama", component: OrganigramaComponent },
-  { path: "dialog", component: ViewFuncionarioComponent },
+  { path: "escala", component: EscalasComponent },
 ];
 
 @NgModule({

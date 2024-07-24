@@ -1043,4 +1043,53 @@ export class ExcelService {
       fs.saveAs(blob, fileName);
     });
   }
+
+  escalaGeneralItems(data: any[], fileName: string): void {
+    const workbook = new ej.Workbook();
+    const worksheet = workbook.addWorksheet("Cargos");
+
+    // Agregar encabezados
+    worksheet.columns = [
+      { header: "Categoría", key: "categoria", width: 15 },
+      { header: "Nivel Salarial", key: "nivel", width: 20 },
+      { header: "Denominación Del Puesto", key: "denominacion", width: 50 },
+      { header: "Nº De Items", key: "items", width: 15 },
+      { header: "Haber Básico", key: "sueldo", width: 20 },
+      { header: "Costo Mensual", key: "costo_mensual", width: 20 },
+      { header: "Costo Anual", key: "costo_anual", width: 20 },
+    ];
+
+    // Agregar filas con los datos
+    data.forEach((element) => {
+      element.niveles.forEach((nivel: any, index: any) => {
+        worksheet.addRow({
+          categoria: element.categoria,
+          nivel: nivel.nivel,
+          denominacion: element.denominaciones[index].denominacion,
+          items: element.items[index].item,
+          sueldo: element.sueldos[index].sueldo,
+          costo_mensual: element.mensuales[index].mensual,
+          costo_anual: element.anuales[index].anual,
+        });
+      });
+    });
+
+    // Aplicar estilos a los encabezados
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+
+    // Ajustar el alto de las filas
+    worksheet.eachRow((row, rowNumber) => {
+      row.height = 20; // Puedes ajustar la altura según sea necesario
+    });
+
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      fs.saveAs(blob, fileName);
+    });
+  }
 }
