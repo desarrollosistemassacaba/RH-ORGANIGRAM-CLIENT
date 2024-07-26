@@ -218,7 +218,8 @@
     </mat-tab-group>
 
     <mat-dialog-actions align="end" class="form-button">
-        <button mat-flat-button color="warn" mat-dialog-close class="button-send">Cancelar</button>
+        <button mat-flat-button color="warn" mat-dialog-close class="button-send">{{this.data?
+            "CERRAR": "CANCELAR"}}</button>
         <button mat-flat-button color="primary" class="button-send" [disabled]="!FormJob.valid"
             (click)="verificar()">Aceptar</button>
     </mat-dialog-actions>

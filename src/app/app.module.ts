@@ -30,6 +30,7 @@ import { UnidadesComponent } from "./components/pages/unidades/unidades.componen
 import { PlanillasabComponent } from "./components/pages/planillas-altas-bajas/planillasab.component";
 //import { DescuentosComponent } from "./components/pages/descuentos/descuentos.component";
 import { OrganigramaComponent } from "./components/pages/organigrama/organigrama.component";
+import { EscalasComponent } from "./components/pages/escalas/escalas.component";
 
 import { AsyncPipe } from "@angular/common";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
@@ -49,8 +50,6 @@ import { DialogOrganigramaComponent } from "./components/pages/organigrama/dialo
 import { ViewFuncionarioComponent } from "./components/pages/funcionarios/view-funcionario/view-funcionario.component";
 import { ConfirmDialogComponent } from "./shared/components/confirm-dialog/confirm-dialog.component";
 import { MessageDialogComponent } from "./shared/components/message-dialog/message-dialog.component";
-
-import { EscalasComponent } from "./components/pages/escalas/escalas.component";
 
 // Define los formatos de fecha
 export const MY_DATE_FORMATS = {

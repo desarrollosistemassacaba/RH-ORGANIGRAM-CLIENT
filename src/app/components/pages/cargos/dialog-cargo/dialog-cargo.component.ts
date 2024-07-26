@@ -580,6 +580,9 @@ export class DialogCargoComponent implements OnInit {
     this.dependientes.unshift(cargo);
     this.idCargoDependiente.setValue("");
     this.fieldsDinamico();
+    if (this.dependientes.length > 0) {
+      this.agregarDependientes();
+    }
   }
 
   agregarDependientes() {
@@ -598,7 +601,8 @@ export class DialogCargoComponent implements OnInit {
 
           this.cargoService.updateCargo(elements._id, campo).subscribe(
             (response) => {
-              this.dialogRef.close(response);
+              //this.load();
+              //this.dialogRef.close(response);
             },
             (error) => {
               //console.error("Error al llamar al servicio:", error);
@@ -837,9 +841,6 @@ export class DialogCargoComponent implements OnInit {
     convertToNumber(this.FormJob, "duracion_contrato");
 
     this.guardar();
-    if (this.dependientes.length > 0) {
-      this.agregarDependientes();
-    }
   }
 
   guardar() {
