@@ -1152,39 +1152,25 @@ export class ExcelService {
     console.log(data);
     // Excel titulos, Encabezado
     const titulo = `OBJETO DE GASTO "PERSONAL EVENTUAL"`;
-    const subtituloPeriodo = `CORRESPONDIENTE AL MES DE `;
-    const subtituloExpresado = "(Expresado en Bolivianos)";
+    const subtituloPeriodo = "GESTIÓN: 2024";
+    const subtituloExpresado = "ENTIDAD: GOBIERNO AUTÓNOMO MUNICIPAL DE SACABA";
 
     //Encabezados de columna y anchos
     const encabezadosAncho = [
-      //           const cargo_eventual = [
-      //     element.registro,
-      //     element.objetivo,
-      //     element.id_dependencia.nombre,
-      //     element.denominacion,
-      //     element.id_nivel_salarial.nombre,
-      //     element.id_nivel_salarial.haber_basico,
-      //     tipo_gasto,
-      //     element.duracion_contrato,
-      //     numero_casos,
-      //     costo_mensual,
-      //     costo_mensual,
-      //   ];
-
       ["Nº", 4],
-      ["OBJETIVO", 20],
-      ["DEPENDENCIA", 25],
-      ["DENOMINACION", 10],
+      ["OBJETIVO DEL PUESTO", 25],
+      ["ÀREA ORGANIZACIONAL A LA CUAL PERTENCE", 25],
+      ["NIVEL SALARIAL", 8],
+      ["DENOMINACIÓN DEL PUESTO", 15],
       ["DENOMINACION DEL CARGO", 25],
-      ["NIVEL", 27],
-      ["SUELDO", 10],
-      ["TIPO GASTOS", 27],
-      ["DURACION CONTRATO", 10],
-      ["Nº CASOS", 10],
-      ["COSTO MENSUAL", 5],
-      ["COSTO TOTAL", 9],
-      ["TOTAL GANADO", 9],
-      ["OBSERVACION", 10],
+      ["HABER BÁSICO", 8],
+      ["TIPO DE GASTOS", 15],
+      ["FUENTE DE FINANCIAMIENTO", 8],
+      ["ORGANISMO FINANCIADOR", 8],
+      ["DURACIÓN DEL CONTRATO (meses)", 10],
+      ["Nº CASOS", 8],
+      ["COSTO MENSUAL", 8],
+      ["COSTO TOTAL", 8],
     ];
 
     const encabezados: any = [];
@@ -1199,7 +1185,7 @@ export class ExcelService {
     //landscape : horizontal
     const workbook = new Workbook();
 
-    const worksheet = workbook.addWorksheet("Altas-Bajas-Eventual");
+    const worksheet = workbook.addWorksheet("EVENTUAL");
     worksheet.pageSetup = { paperSize: 5, orientation: "landscape" };
     worksheet.views = [{ showGridLines: false }];
 
@@ -1216,6 +1202,9 @@ export class ExcelService {
 
     valoresFila[3] = subtituloExpresado;
     this.agregarFilaTitulos(3, valoresFila, worksheet);
+
+    valoresFila[3] = "";
+    this.agregarFilaTitulos(4, valoresFila, worksheet);
 
     //Agregar las imagenes del encabezado
     const objLogos = new Logos();
@@ -1236,90 +1225,57 @@ export class ExcelService {
     let nroRegistros = 1;
     var nombreUnidadActual = "Inicial";
     var montoTotal = 0;
+    var costo_mensual = 0;
     var controlPrimera = { isFirst: true };
     let contadorUnidades = 0;
     let totalParcialMonto = 0;
+    let totalGeneralMonto = 0;
     let totalParcialGanado = 0;
     const nroFilasPrimeraHoja = 16;
     const nroFilasRestoHojas = 19;
 
     data.forEach((element) => {
-      //Determinar si se efectuo una Alta o Baja en el presente periodo
-      //para establecer las etiquetas [A, B, A/B]
-      //y para resaltar la fila si es que hubo uno de esos eventos
-      //tambien se define el nro de dias trabajados si hubo cambios
       let objAltaBaja = new EntidadAltaBaja();
-      //objAltaBaja.procesarEvento(element, this.MesNumeral, this.GestionNumeral);
 
       var montoSalario = this.formatearMonto(
         element.id_nivel_salarial.haber_basico
       );
       montoTotal =
         montoTotal + parseFloat(element.id_nivel_salarial.haber_basico);
-      totalParcialMonto =
-        totalParcialMonto + parseFloat(element.id_nivel_salarial.haber_basico);
-      /*
-          [['No', 4],
-          ['A/B', 3],                                 
-          ['No. CONTRATO', 25],
-          ['CARNET', 10],
-          ['APELLIDOS Y NOMBRES', 27],
-          ['FECHA DE NACIMIENTO', 10],
-          ['CARGO', 27],
-          ['FECHA DE INGRESO', 10],
-          ['FECHA DE CONCLUSION', 10],
-          ['DIAS TRABAJADOS', 5],                                  
-          ['MONTO CONTRATO', 9],
-          ['TOTAL GANADO', 9],
-          ['OBSERVACION', 10]                                  
-          ]
-      */
+
       let tipo_gasto = "SERVICIOS PERSONALES";
       let numero_casos = 1;
-      let costo_mensual =
+      let fuente = 41;
+      let organismo = 113;
+      costo_mensual =
         element.id_nivel_salarial.haber_basico * element.duracion_contrato;
+      let costo_total = costo_mensual * 0.2505 + costo_mensual;
+
+      console.log("costo mensual:  ", costo_mensual);
+      totalParcialMonto += costo_mensual;
+      console.log(totalParcialMonto);
+      totalGeneralMonto = totalGeneralMonto + costo_total;
       const cargo_eventual = [
         element.registro,
         element.objetivo,
         element.id_dependencia.nombre,
+        element.id_nivel_salarial.nombre,
         element.denominacion,
         element.nombre,
-        element.id_nivel_salarial.nombre,
         element.id_nivel_salarial.haber_basico,
         tipo_gasto,
+        fuente,
+        organismo,
         element.duracion_contrato,
         numero_casos,
         costo_mensual,
-        costo_mensual,
+        costo_total,
       ];
-
-      //   const funcionario_cargo = [
-      //     d.cargo.registro,
-      //     d.cargo.contrato,
-      //     d.ci,
-      //     d.paterno + " " + d.materno + " " + d.nombre,
-      //     d.fecha_nacimiento ? this.formatearFecha(d.fecha_nacimiento) : "",
-      //     d.cargo.nombre,
-      //     d.registro.fecha_ingreso
-      //       ? this.formatearFecha(d.registro.fecha_ingreso)
-      //       : "",
-      //     d.registro.fecha_conclusion
-      //       ? this.formatearFecha(d.registro.fecha_conclusion)
-      //       : "",
-      //     objAltaBaja.diasTrabajados,
-      //     montoSalario,
-      //     montoSalario,
-      //     "",
-      //   ];
-
-      //Comprobar si hay una nueva unidad para imprimir el Nombre de la seccion
-      //Y los subtotales
       if (element.id_partida?.nombre !== nombreUnidadActual) {
-        //Imprimir SubTotales antes de imprimir el nombre de la nueva seccion
-        //Si es la primera unidad, no se imprime subtotales
         if (contadorUnidades > 0) {
-          //console.log("Agregando subTotalUnidades : ",nroRegistros, contadorUnidades, ", ", totalParcialMonto, ", ", d.cargo.id_dependencia?.nombre);
-          let montoFormateado = this.formatearMonto(totalParcialMonto);
+          console.log("totalParcialMonto: ", totalParcialMonto);
+          let parcialMontoFormateado = this.formatearMonto(totalParcialMonto);
+          let parcialTotalFormateado = this.formatearMonto(totalGeneralMonto);
           const contenidoFilaSubtotales = [
             "",
             "*Sub-Total",
@@ -1331,9 +1287,10 @@ export class ExcelService {
             "",
             "",
             "",
-            montoFormateado,
-            totalParcialMonto,
             "",
+            "",
+            parcialMontoFormateado,
+            parcialTotalFormateado,
           ];
 
           let filaSubtotales = worksheet.addRow(contenidoFilaSubtotales);
@@ -1391,6 +1348,8 @@ export class ExcelService {
 
         nombreUnidadActual = element.id_partida?.nombre;
         totalParcialMonto = 0;
+        totalGeneralMonto = 0;
+        montoTotal = 0;
 
         nroRegistros = this.verificarImprimirEncabezados(
           encabezados,
