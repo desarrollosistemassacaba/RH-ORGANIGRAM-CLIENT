@@ -231,7 +231,7 @@ export class ExcelService {
   }
 
   private async generarExcelEventual(data: any[]) {
-    console.log(data);
+    //console.log(data);
     // Excel titulos, Encabezado
     const titulo = `PLANILLA DE PERSONAL EVENTUAL ALTAS-BAJAS Y CAMBIOS`;
     const subtituloPeriodo = `CORRESPONDIENTE AL MES DE ${this.MesLiteral.toUpperCase()} de ${
@@ -1149,7 +1149,7 @@ export class ExcelService {
 
   /*******************************************POA***************************** */
   public async planillaGeneralEventual(data: any[], fileName: string) {
-    console.log(data);
+    //console.log(data);
     // Excel titulos, Encabezado
     const titulo = `OBJETO DE GASTO "PERSONAL EVENTUAL"`;
     const subtituloPeriodo = "GESTIÓN: 2024";
@@ -1159,10 +1159,10 @@ export class ExcelService {
     const encabezadosAncho = [
       ["Nº", 4],
       ["OBJETIVO DEL PUESTO", 25],
-      ["ÀREA ORGANIZACIONAL A LA CUAL PERTENCE", 25],
+      ["ÁREA ORGANIZACIONAL A LA CUAL PERTENECE", 25],
       ["NIVEL SALARIAL", 8],
       ["DENOMINACIÓN DEL PUESTO", 15],
-      ["DENOMINACION DEL CARGO", 25],
+      ["DENOMINACIÓN DEL CARGO", 25],
       ["HABER BÁSICO", 8],
       ["TIPO DE GASTOS", 15],
       ["FUENTE DE FINANCIAMIENTO", 8],
@@ -1218,43 +1218,46 @@ export class ExcelService {
     // Agregar fila de Encabezados
     this.agregarFilaEncabezadosItem(encabezados, worksheet);
 
-    /*********************
-     * Seccion para agregar los datos iterando data[]
-     **********************/
     //Cargar los datos y aplicar estilos en funcion a ciertos valores
     let nroRegistros = 1;
     var nombreUnidadActual = "Inicial";
-    var montoTotal = 0;
-    var costo_mensual = 0;
+    var sueldoTotal = 0;
+    var costo_anual = 0;
     var controlPrimera = { isFirst: true };
+    let contador = 0;
+    let contadorCasos = 0;
     let contadorUnidades = 0;
+    let costo_mensual = 0;
     let totalParcialMonto = 0;
     let totalGeneralMonto = 0;
-    let totalParcialGanado = 0;
+    let total = 0;
+    let totalMensual = 0;
     const nroFilasPrimeraHoja = 16;
     const nroFilasRestoHojas = 19;
 
     data.forEach((element) => {
       let objAltaBaja = new EntidadAltaBaja();
+      contador++;
+      contadorCasos++;
 
-      var montoSalario = this.formatearMonto(
-        element.id_nivel_salarial.haber_basico
-      );
-      montoTotal =
-        montoTotal + parseFloat(element.id_nivel_salarial.haber_basico);
-
-      let tipo_gasto = "SERVICIOS PERSONALES";
+      let tipo_gasto = element.id_partida?.tipo;
       let numero_casos = 1;
-      let fuente = 41;
-      let organismo = 113;
-      costo_mensual =
-        element.id_nivel_salarial.haber_basico * element.duracion_contrato;
-      let costo_total = costo_mensual * 0.2505 + costo_mensual;
+      let fuente = element.id_partida?.fuente;
+      let organismo = element.id_partida?.organismo;
 
-      console.log("costo mensual:  ", costo_mensual);
-      totalParcialMonto += costo_mensual;
-      console.log(totalParcialMonto);
-      totalGeneralMonto = totalGeneralMonto + costo_total;
+      costo_mensual += element.id_nivel_salarial.haber_basico;
+      costo_anual =
+        element.id_nivel_salarial.haber_basico * element.duracion_contrato;
+      let costo_total = costo_anual * 0.2505 + costo_anual;
+
+      totalParcialMonto += costo_anual;
+      totalGeneralMonto += costo_total;
+
+      sueldoTotal =
+        sueldoTotal + parseFloat(element.id_nivel_salarial.haber_basico);
+      totalMensual += costo_anual;
+      total += costo_total;
+
       const cargo_eventual = [
         element.registro,
         element.objetivo,
@@ -1268,27 +1271,35 @@ export class ExcelService {
         organismo,
         element.duracion_contrato,
         numero_casos,
-        costo_mensual,
+        costo_anual,
         costo_total,
       ];
+
       if (element.id_partida?.nombre !== nombreUnidadActual) {
         if (contadorUnidades > 0) {
-          console.log("totalParcialMonto: ", totalParcialMonto);
+          if (contadorUnidades >= 2) {
+            contadorCasos--;
+            costo_mensual =
+              costo_mensual - element.id_nivel_salarial.haber_basico;
+            totalParcialMonto = totalParcialMonto - costo_anual;
+            totalGeneralMonto = totalGeneralMonto - costo_total;
+          }
+
           let parcialMontoFormateado = this.formatearMonto(totalParcialMonto);
           let parcialTotalFormateado = this.formatearMonto(totalGeneralMonto);
           const contenidoFilaSubtotales = [
             "",
-            "*Sub-Total",
+            "Sub-Total",
             "",
             "",
             "",
             "",
+            costo_mensual,
             "",
             "",
             "",
             "",
-            "",
-            "",
+            contadorCasos,
             parcialMontoFormateado,
             parcialTotalFormateado,
           ];
@@ -1306,18 +1317,18 @@ export class ExcelService {
           let nroFilai = fila.split("$");
           worksheet.mergeCells(`B${nroFilai[2]}:J${nroFilai[2]}`);
 
-          nroRegistros = this.verificarImprimirEncabezados(
-            encabezados,
-            nroRegistros,
-            controlPrimera,
-            nroFilasPrimeraHoja,
-            nroFilasRestoHojas,
-            worksheet
-          );
+          //   nroRegistros = this.verificarImprimirEncabezados(
+          //     encabezados,
+          //     nroRegistros,
+          //     controlPrimera,
+          //     nroFilasPrimeraHoja,
+          //     nroFilasRestoHojas,
+          //     worksheet
+          //   );
         }
 
         const titulo_seccion_unidad = [
-          element.id_partida?.nombre,
+          element.id_partida.codigo + " " + element.id_partida?.nombre,
           "",
           "",
           "",
@@ -1347,18 +1358,27 @@ export class ExcelService {
         nroFila = [];
 
         nombreUnidadActual = element.id_partida?.nombre;
-        totalParcialMonto = 0;
-        totalGeneralMonto = 0;
-        montoTotal = 0;
+        if (contadorUnidades >= 1) {
+          //teniendo en cuenta que cuando ingresa el elemento al iterar se debe almacenar su valor, dado que los elementos de la segunda partida al ingresar no se almacena el valor del elemento que ingresa al if principal y varia los resultados.
+          costo_mensual = element.id_nivel_salarial?.haber_basico;
+          totalParcialMonto = costo_anual;
+          totalGeneralMonto = costo_total;
+          contadorCasos = 1;
+        } else {
+          costo_mensual = 0;
+          totalParcialMonto = 0;
+          totalGeneralMonto = 0;
+          contadorCasos = 0;
+        }
 
-        nroRegistros = this.verificarImprimirEncabezados(
-          encabezados,
-          nroRegistros,
-          controlPrimera,
-          nroFilasPrimeraHoja,
-          nroFilasRestoHojas,
-          worksheet
-        );
+        // nroRegistros = this.verificarImprimirEncabezados(
+        //   encabezados,
+        //   nroRegistros,
+        //   controlPrimera,
+        //   nroFilasPrimeraHoja,
+        //   nroFilasRestoHojas,
+        //   worksheet
+        // );
         contadorUnidades += 1;
       }
 
@@ -1369,14 +1389,15 @@ export class ExcelService {
         false,
         false
       );
-      nroRegistros = this.verificarImprimirEncabezados(
-        encabezados,
-        nroRegistros,
-        controlPrimera,
-        nroFilasPrimeraHoja,
-        nroFilasRestoHojas,
-        worksheet
-      );
+      //encabezados que se repiten
+      //   nroRegistros = this.verificarImprimirEncabezados(
+      //     encabezados,
+      //     nroRegistros,
+      //     controlPrimera,
+      //     nroFilasPrimeraHoja,
+      //     nroFilasRestoHojas,
+      //     worksheet
+      //   );
     });
 
     /***
@@ -1393,13 +1414,14 @@ export class ExcelService {
       "",
       "",
       "",
+      this.formatearMonto(sueldoTotal),
       "",
       "",
       "",
       "",
-      "",
-      "0.00",
-      "",
+      contador,
+      this.formatearMonto(totalMensual),
+      this.formatearMonto(total),
     ]);
     this.formatearFilaDatosItem(filaTotal, false, false);
 
