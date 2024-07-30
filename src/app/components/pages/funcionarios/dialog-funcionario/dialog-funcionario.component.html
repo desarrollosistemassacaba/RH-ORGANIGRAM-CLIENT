@@ -317,10 +317,10 @@
                                 <mat-option value="RENUNCIA">Renuncia</mat-option>
                                 <mat-option value="AGRADECIMIENTO">Agradecimiento</mat-option>
                                 <mat-option value="RESOLUCION"
-                                    *ngIf="this.contrato === 'EVENTUAL' || this.contrato === 'REMANENTE'">Resolución</mat-option>
-                                <mat-option value="ASCENSO" *ngIf="this.contrato === 'ITEM'">Ascenso</mat-option>
+                                    *ngIf="selectedContrato === 'EVENTUAL' || selectedContrato === 'REMANENTE'">Resolución</mat-option>
+                                <mat-option value="ASCENSO" *ngIf="selectedContrato === 'ITEM'">Ascenso</mat-option>
                                 <mat-option value="REASIGNACION"
-                                    *ngIf="this.contrato === 'ITEM'">Reasignación</mat-option>
+                                    *ngIf="selectedContrato === 'ITEM'">Reasignación</mat-option>
                             </mat-select>
                         </mat-form-field>
 
