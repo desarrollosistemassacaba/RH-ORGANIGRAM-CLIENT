@@ -53,3 +53,17 @@
     height: 100vh;
   }
 }
+
+.nodo-header {
+  border-bottom: 1px solid #ccc;
+}
+
+.nodo-id {
+  text-align: center;
+}
+
+.nodo-header.nivel-1 {
+  background-color: #f5f5f5; /* Cambia el color según el nivel */
+}
+
+/* Agrega más estilos para niveles del 2 al 14 */

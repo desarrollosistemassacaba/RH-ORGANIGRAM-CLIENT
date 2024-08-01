@@ -20,6 +20,7 @@ interface Nodo {
   nombre: string;
   registro?: number;
   contrato: string;
+  nivel: number;
   hijos?: Nodo[];
   id_cargo_superior?: { _id: string }[];
 }
@@ -91,7 +92,7 @@ export class OrganigramaComponent implements AfterViewInit {
             } else {
               filteredData = data;
             }
-
+            //console.log(filteredData);
             //console.log(register);
             const combinedData = filteredData.map((cargo: any) => {
               const registroEncontrado = register.find(
@@ -113,7 +114,7 @@ export class OrganigramaComponent implements AfterViewInit {
               return cargo;
             });
 
-            //console.log(combinedData);
+            console.log(combinedData);
             const datos = filteredData.map((objeto: any) =>
               this.modelarEstructura(objeto)
             );
@@ -141,6 +142,7 @@ export class OrganigramaComponent implements AfterViewInit {
         nombre: dato.nombre,
         registro: dato.registro,
         contrato: dato.contrato,
+        nivel: dato.nivel,
         personal: dato.personal,
         id_cargo_superior: [{ _id: dato.id_cargo_superior }],
       };
@@ -150,6 +152,7 @@ export class OrganigramaComponent implements AfterViewInit {
         nombre: dato.nombre,
         registro: dato.registro,
         contrato: dato.contrato,
+        nivel: dato.nivel,
         personal: dato.personal,
       };
     }
@@ -253,7 +256,7 @@ export class OrganigramaComponent implements AfterViewInit {
     // Implementa la lógica para el evento Edit aquí
     //console.log("Evento Edit para el _id:", _id);
   }
-
+  //hasta aqui
   addNode(parent: HTMLElement, data: any): void {
     const row = document.createElement("tr");
     //row.style.backgroundColor = "black";
@@ -320,6 +323,15 @@ export class OrganigramaComponent implements AfterViewInit {
         btnExpand.className = "btn-collapse glyphicon glyphicon-minus";
         nodo.appendChild(btnExpand);
         btnExpand.addEventListener("click", this.expandCollapse.bind(this));
+
+        // Agregar fila adicional para separación
+        // let spaceRow = document.createElement("tr");
+        // let spaceCell = document.createElement("td");
+        // spaceCell.setAttribute("colspan", (childs * 2).toString());
+        // spaceCell.style.height = "20px"; // Ajusta la altura según sea necesario
+        // spaceCell.style.backgroundColor = "transparent"; // Opcional
+        // spaceRow.appendChild(spaceCell);
+        // parent.appendChild(spaceRow);
 
         let trs = document.createElement("tr");
         let tds = document.createElement("td");
