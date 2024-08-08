@@ -33,13 +33,11 @@ export class DialogUnidadComponent {
       [
         Validators.required,
         Validators.minLength(2),
-        Validators.pattern("[a-zA-Z\\s]*"),
         this.nombreExistsValidator.bind(this),
       ],
     ],
     id_dependencia: this.idDependencia,
     clasificacion: ["", [Validators.required]],
-    estado: [true, Validators.required],
   });
 
   constructor(

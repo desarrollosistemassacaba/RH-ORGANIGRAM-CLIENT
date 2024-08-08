@@ -1248,7 +1248,7 @@ export class ExcelService {
       costo_mensual += element.id_nivel_salarial.haber_basico;
       costo_anual =
         element.id_nivel_salarial.haber_basico * element.duracion_contrato;
-      let costo_total = costo_anual * 0.2505 + costo_anual;
+      let costo_total = Math.ceil(costo_anual * 0.25043 + costo_anual);
 
       totalParcialMonto += costo_anual;
       totalGeneralMonto += costo_total;

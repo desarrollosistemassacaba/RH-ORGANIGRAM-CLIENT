@@ -20,11 +20,13 @@
   border: none;
   padding: 0;
   margin: 0;
-  transition: 500ms;
+  transition: 200ms;
+  color: white;
 }
 
 .load:hover {
   color: rgb(44, 253, 243);
+  letter-spacing: 0.5px;
   box-shadow: inset;
 }
 

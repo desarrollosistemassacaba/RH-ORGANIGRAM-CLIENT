@@ -1,53 +1,43 @@
-<h2 mat-dialog-title class="title">{{data?'EDICION':'CREACION'}} DEPENDENCIAS </h2>
-<mat-dialog-content>
-    <form [formGroup]="FormUnidad">
-        <div>
-            <div>
-
-                <mat-form-field hintLabel="Máximo 150 caracteres." [style.width.%]="100">
-                    <mat-label>Nombre</mat-label>
-                    <input formControlName="nombre" matInput #nombre maxlength="150" minlength="2"
-                        placeholder="Ej. DESPACHO" onkeyup="this.value = this.value.toUpperCase();">
-                    <mat-hint align="end">{{nombre.value.length}}/150</mat-hint>
-                    <mat-error *ngIf="FormUnidad.get('nombre')?.invalid && 
+<h2 mat-dialog-title class="title">{{data?'EDITAR':'CREAR'}} DEPENDENCIA </h2>
+<mat-dialog-content class="content">
+    <form [formGroup]="FormUnidad" class="form">
+        <mat-form-field hintLabel="Máximo 150 caracteres." [style.width.%]="100">
+            <mat-label>Nombre</mat-label>
+            <input formControlName="nombre" matInput #nombre maxlength="150" minlength="2" placeholder="Ej. DESPACHO"
+                onkeyup="this.value = this.value.toUpperCase();">
+            <mat-hint align="end">{{nombre.value.length}}/150</mat-hint>
+            <mat-error *ngIf="FormUnidad.get('nombre')?.invalid && 
                                     (FormUnidad.get('nombre')?.dirty || FormUnidad.get('nombre')?.touched)">
-                        <ng-container *ngIf="FormUnidad.get('nombre')?.hasError('minlength')">
-                            El nombre debe tener al menos 2 caracteres.
-                        </ng-container>
-                        <ng-container
-                            *ngIf="FormUnidad.get('nombre')?.hasError('pattern') && !FormUnidad.get('nombre')?.hasError('minlength')">
-                            El nombre debe contener solo letras.
-                        </ng-container>
-                        <ng-container *ngIf="FormUnidad.get('nombre')?.hasError('nombreExists')">
-                            El nombre ya existe en la base de datos.
-                        </ng-container>
-                    </mat-error>
-                </mat-form-field>
+                <ng-container *ngIf="FormUnidad.get('nombre')?.hasError('minlength')">
+                    El nombre debe tener al menos 2 caracteres.
+                </ng-container>
+                <ng-container
+                    *ngIf="FormUnidad.get('nombre')?.hasError('pattern') && !FormUnidad.get('nombre')?.hasError('minlength')">
+                    El nombre debe contener solo letras.
+                </ng-container>
+                <ng-container *ngIf="FormUnidad.get('nombre')?.hasError('nombreExists')">
+                    El nombre ya existe en la base de datos.
+                </ng-container>
+            </mat-error>
+        </mat-form-field>
 
-                <div class="container-option">
-                    <mat-form-field [style.width.%]="35">
-                        <mat-label>Dependencia</mat-label>
-                        <mat-select (selectionChange)="agregarDependencia($event)" formControlName='id_dependencia'>
-                            <mat-option *ngFor="let element of dependences" [value]="element._id">
-                                {{element.sigla}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+        <div class="container-option">
+            <mat-form-field [style.width.%]="35">
+                <mat-label>Dependencia</mat-label>
+                <mat-select (selectionChange)="agregarDependencia($event)" formControlName='id_dependencia'>
+                    <mat-option *ngFor="let element of dependences" [value]="element._id">
+                        {{element.sigla}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
 
-                    <mat-form-field class="" [style.width.%]="40" class="form-select-space">
-                        <mat-label>Clasificación</mat-label>
-                        <mat-select formControlName='clasificacion'>
-                            <mat-option value="SUSTANTIVO">SUSTANTIVO</mat-option>
-                            <mat-option value="ADMINISTRATIVO">ADMINISTRATIVO</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <mat-checkbox formControlName="estado" matTooltip="Habilita el cargo" [style.width.%]="30"
-                        class="container-option-box form-select-space">Habilitar
-                        Dependencia</mat-checkbox>
-
-                </div>
-            </div>
+            <mat-form-field class="" [style.width.%]="70" class="form-select-space">
+                <mat-label>Clasificación</mat-label>
+                <mat-select formControlName='clasificacion'>
+                    <mat-option value="SUSTANTIVO">SUSTANTIVO</mat-option>
+                    <mat-option value="ADMINISTRATIVO">ADMINISTRATIVO</mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
     </form>
 </mat-dialog-content>

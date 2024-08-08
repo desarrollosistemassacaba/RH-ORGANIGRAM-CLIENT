@@ -116,7 +116,7 @@ export class NivelesComponent implements AfterViewInit {
 
   add() {
     const dialogRef = this.dialog.open(DialogNivelComponent, {
-      width: "640px",
+      width: "600px",
     });
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
@@ -127,7 +127,7 @@ export class NivelesComponent implements AfterViewInit {
 
   edit(dependencia: any) {
     const dialogRef = this.dialog.open(DialogNivelComponent, {
-      width: "640px",
+      width: "600px",
       data: dependencia,
     });
     dialogRef.afterClosed().subscribe((result) => {

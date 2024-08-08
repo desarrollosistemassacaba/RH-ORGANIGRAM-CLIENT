@@ -15,6 +15,8 @@ import { DialogCargoComponent } from "./dialog-cargo/dialog-cargo.component";
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
+import { getColor } from "../../../utils/utils";
+
 import { AuthService } from "src/app/services/auth.service";
 import { CargosService } from "../../../services/cargos.service";
 import { RegistrosService } from "../../../services/registros.service";
@@ -373,5 +375,10 @@ export class CargosComponent implements AfterViewInit {
     }
   }
 
-  rotation(edit: string) {}
+  public getColors(contrato: string): string {
+    const color = getColor(contrato);
+    return color;
+  }
+
+  public rotation(element: any) {}
 }

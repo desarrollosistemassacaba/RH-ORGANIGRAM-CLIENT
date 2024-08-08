@@ -107,7 +107,7 @@ export class UnidadesComponent implements AfterViewInit {
 
   add() {
     const dialogRef = this.dialog.open(DialogUnidadComponent, {
-      width: "550px",
+      width: "470px",
     });
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
@@ -118,7 +118,7 @@ export class UnidadesComponent implements AfterViewInit {
 
   edit(dependencia: any) {
     const dialogRef = this.dialog.open(DialogUnidadComponent, {
-      width: "550px",
+      width: "470px",
       data: dependencia,
     });
     dialogRef.afterClosed().subscribe((result) => {

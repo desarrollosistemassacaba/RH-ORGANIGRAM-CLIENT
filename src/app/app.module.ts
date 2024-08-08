@@ -11,6 +11,10 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { SharedModule } from "./shared/shared.module";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 
+//Personalización de paginator en todos los módulos a español
+import { CustomPaginatorIntl } from "src/app/shared/material/paginator";
+import { MatPaginatorIntl } from "@angular/material/paginator";
+
 import { MAT_DATE_LOCALE } from "@angular/material/core";
 import { MAT_DATE_FORMATS } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
@@ -112,6 +116,7 @@ export const MY_DATE_FORMATS = {
     DatePipe,
     { provide: MAT_DATE_LOCALE, useValue: "es-ES" },
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    { provide: MatPaginatorIntl, useClass: CustomPaginatorIntl },
   ],
   bootstrap: [AppComponent],
 })
