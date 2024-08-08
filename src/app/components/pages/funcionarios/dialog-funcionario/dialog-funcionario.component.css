@@ -87,3 +87,7 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.error {
+  color: rgb(167, 167, 167);
+}

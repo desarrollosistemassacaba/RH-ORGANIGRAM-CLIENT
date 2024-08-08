@@ -96,3 +96,7 @@ input[type="number"] {
   flex-grow: 1; /* Permite que el contenedor de texto crezca para ocupar el espacio disponible */
   transition: color 0.3s ease;
 }
+
+.error {
+  color: rgb(167, 167, 167);
+}

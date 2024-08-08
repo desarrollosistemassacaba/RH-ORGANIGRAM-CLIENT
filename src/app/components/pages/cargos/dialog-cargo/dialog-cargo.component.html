@@ -5,11 +5,11 @@
                 <div class="row form">
 
                     <div>
-                        <mat-form-field hintLabel="Máximo 100 caracteres." [style.width.%]="100">
+                        <mat-form-field hintLabel="Máximo 100 caracteres." [style.width.%]="100" class="error">
                             <mat-label>Ingrese nombre del cargo</mat-label>
                             <input formControlName="nombre" matInput #nombre maxlength="100" minlength="2"
                                 placeholder="Ej. AUXILIAR I" onkeyup="this.value = this.value.toUpperCase();">
-                            <mat-hint align="end">{{nombre.value.length}}/100</mat-hint>
+                            <mat-hint class="error" align="end">{{nombre.value.length}}/100</mat-hint>
                             <mat-error
                                 *ngIf="FormJob.get('nombre')?.invalid && 
                                                                 (FormJob.get('nombre')?.dirty || FormJob.get('nombre')?.touched)">
@@ -84,7 +84,7 @@
                         <mat-form-field class="form-select-1 form-select-space" [style.width.%]="30">
                             <mat-label>Número</mat-label>
                             <input formControlName='registro' #register matInput maxlength="4" minlength="1">
-                            <mat-hint align="end">{{register.value.length}}/4</mat-hint>
+                            <mat-hint class="error" align="end">{{register.value.length}}/4</mat-hint>
                             <mat-error
                                 *ngIf="FormJob.get('registro')?.invalid &&  (FormJob.get('registro')?.dirty || FormJob.get('registro')?.touched)">
 
@@ -151,7 +151,7 @@
                     <mat-form-field appearance="fill" hintLabel="Máximo 300 caracteres." [style.width.%]="100">
                         <mat-label>Objetivo del cargo</mat-label>
                         <input formControlName="objetivo" matInput #input maxlength="300" placeholder="">
-                        <mat-hint align="end">{{input.value.length}}/300</mat-hint>
+                        <mat-hint class="error" align="end">{{input.value.length}}/300</mat-hint>
                     </mat-form-field>
                 </div>
             </mat-tab>

@@ -22,7 +22,7 @@
         </mat-form-field>
 
         <div class="container-option">
-            <mat-form-field [style.width.%]="35">
+            <mat-form-field [style.width.%]="50">
                 <mat-label>Dependencia</mat-label>
                 <mat-select (selectionChange)="agregarDependencia($event)" formControlName='id_dependencia'>
                     <mat-option *ngFor="let element of dependences" [value]="element._id">
@@ -31,7 +31,7 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field class="" [style.width.%]="70" class="form-select-space">
+            <mat-form-field class="" [style.width.%]="55" class="form-select-space">
                 <mat-label>Clasificación</mat-label>
                 <mat-select formControlName='clasificacion'>
                     <mat-option value="SUSTANTIVO">SUSTANTIVO</mat-option>
