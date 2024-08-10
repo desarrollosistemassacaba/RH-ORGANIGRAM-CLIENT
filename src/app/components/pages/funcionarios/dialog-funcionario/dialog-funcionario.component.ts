@@ -479,13 +479,14 @@ export class DialogFuncionarioComponent implements OnInit {
     ) {
       this.FormJob.value.tipo_contrato = "CO";
     }
-
+    ///console.group(this.FormJob.value.disableCargoControl);
     if (
       this.selectedCargoId &&
       this.selectedCargoId !== undefined &&
       this.FormJob.value.fecha_ingreso &&
       this.FormJob.value.fecha_ingreso !== undefined &&
-      this.numero_contrato === ""
+      this.numero_contrato === "" &&
+      this.FormJob.value.disableCargoControl === false
     ) {
       //Si el funcionario esta asignado previamente a un cargo, cargo_seleccionado no recupera todos los datos, dado que ya esta seleccionado, esto suele suceder si se introdujo los campos por la base de datos, para evitar el error, se realiza una busqueda del cargo y se recuperan los valores.
       if (
@@ -496,6 +497,7 @@ export class DialogFuncionarioComponent implements OnInit {
           .getCargosById(this.selectedCargoId)
           .toPromise();
       }
+      //console.log(this.cargo_seleccionado);
 
       //El registro numérico si tiene el valor 1, debe visualizar el valor 01
       if (
@@ -533,9 +535,20 @@ export class DialogFuncionarioComponent implements OnInit {
         cargo = secretarios.filter((el: any) => el.sigla === this.sigla);
       }
 
-      const registro = this.registros.filter(
-        (el: any) => el.id_cargo === cargo[0]._id
-      );
+      let registro;
+      //que pasa si se modifican secretarios o alcaldes?? lo solucionamos con el siguiente fragmento
+      if (
+        (this.cargo_seleccionado && this.cargo_seleccionado.nivel === 1) ||
+        (this.cargo_seleccionado && this.cargo_seleccionado.nivel === 2)
+      ) {
+        //lo agregamos dentro de un arreglo porque los elementos del else generan en arreglo
+        registro = [this.cargo_seleccionado];
+      } else {
+        //agregar un mensaje en caso de que el secretario este vacante
+        registro = this.registros.filter(
+          (el: any) => el.id_cargo === cargo[0]?._id
+        );
+      }
       //console.log(registro[0]._id);
 
       //Agregando campos al formulario
@@ -552,6 +565,7 @@ export class DialogFuncionarioComponent implements OnInit {
       //console.log(this.numero_contrato);
       if (this.numero_contrato === "") {
         //cada tipo de contrato tiene un formato independiente
+        //importante que el cite se genere para ambos
         if (this.selectedContrato === "ITEM") {
           years = fecha_ingreso_text.slice(-4);
           this.selectedRegistro =
@@ -639,14 +653,14 @@ export class DialogFuncionarioComponent implements OnInit {
     const register = this.registros.filter(
       (element) => element.id_funcionario === this.data?._id
     );
-    //console.log(form);
+    console.log(form);
     if (Object.keys(register).length > 0) {
       this.registroService.updateRegistro(register[0]._id, form).subscribe(
         (response) => {
           this.dialogRef.close(response);
         },
         (error) => {
-          //console.error("Error al llamar al servicio:", error);
+          console.error("Error al llamar al servicio:", error);
         }
       );
     } else {
@@ -660,7 +674,7 @@ export class DialogFuncionarioComponent implements OnInit {
           this.dialogRef.close(response);
         },
         (error) => {
-          //console.error("Error al llamar al servicio:", error);
+          console.error("Error al llamar al servicio:", error);
         }
       );
     }
