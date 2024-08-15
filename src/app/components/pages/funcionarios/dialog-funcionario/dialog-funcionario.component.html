@@ -96,7 +96,7 @@
                     <div class="center">
                         <div class="form-select-group">
 
-                            <mat-form-field [style.width.%]="23">
+                            <mat-form-field [style.width.%]="35">
                                 <mat-label>C.I.</mat-label>
                                 <input formControlName="ci" matInput #ci maxlength="10" minlength="5" placeholder="">
                                 <mat-hint class="error" align="end">{{ci.value.length}}/10</mat-hint>
@@ -115,7 +115,7 @@
                                 </mat-error>
                             </mat-form-field>
 
-                            <mat-form-field [style.width.%]="22">
+                            <mat-form-field [style.width.%]="23">
                                 <mat-label>Extensión</mat-label>
                                 <input formControlName="ext" matInput #ext maxlength="2" minlength="1" placeholder=""
                                     onkeyup="this.value = this.value.toUpperCase();">
@@ -131,7 +131,7 @@
                                     </ng-container>
                                 </mat-error>
                             </mat-form-field>
-
+                            <!-- 
                             <mat-form-field class="" [style.width.%]="27">
                                 <mat-label>Expedido</mat-label>
                                 <mat-select formControlName='expedido'>
@@ -145,9 +145,9 @@
                                     <mat-option value="SC">Santa Cruz</mat-option>
                                     <mat-option value="TJ">Tarija</mat-option>
                                 </mat-select>
-                            </mat-form-field>
+                            </mat-form-field> -->
 
-                            <mat-form-field [style.width.%]="25">
+                            <mat-form-field [style.width.%]="40">
                                 <mat-label>Teléfono</mat-label>
                                 <input formControlName="telefono" matInput #telefono maxlength="9" minlength="7"
                                     placeholder="">
@@ -298,8 +298,7 @@
                             <mat-datepicker #final></mat-datepicker>
                         </mat-form-field>
 
-                        <mat-form-field *ngIf="selectedContrato === 'ITEM'" [style.width.%]="30"
-                            class="form-select-space">
+                        <mat-form-field [style.width.%]="30" class="form-select-space">
                             <mat-label>Tipo Contrato</mat-label>
                             <mat-select formControlName="tipo_contrato">
                                 <mat-option value="MD">Designacion</mat-option>

@@ -21,6 +21,8 @@ interface Nodo {
   registro?: number;
   contrato: string;
   nivel: number;
+  agrupados: any[];
+  cantidad: string;
   hijos?: Nodo[];
   id_cargo_superior?: { _id: string }[];
 }
@@ -92,6 +94,8 @@ export class OrganigramaComponent implements AfterViewInit {
             } else {
               filteredData = data;
             }
+            //ordenar cargos por número de registro
+            filteredData.sort((a: any, b: any) => a.registro - b.registro);
             //console.log(filteredData);
             //console.log(register);
             const combinedData = filteredData.map((cargo: any) => {
@@ -114,8 +118,34 @@ export class OrganigramaComponent implements AfterViewInit {
               return cargo;
             });
 
-            console.log(combinedData);
-            const datos = filteredData.map((objeto: any) =>
+            //console.log(combinedData);
+
+            const elementosAgrupados: any = [];
+
+            filteredData.forEach((item: any) => {
+              // Find if the current item is already in the elementosAgrupados array
+              const existingGroup = elementosAgrupados.find(
+                (group: any) =>
+                  group.id_cargo_superior === item.id_cargo_superior &&
+                  group.nombre === item.nombre &&
+                  group.contrato === item.contrato
+              );
+
+              if (existingGroup) {
+                // If the group exists, push the current _id to the agrupado array
+                existingGroup.agrupado.push(item._id);
+              } else {
+                // If it doesn't exist, create a new group with the current item
+                elementosAgrupados.push({
+                  ...item,
+                  agrupado: [item._id],
+                });
+              }
+            });
+
+            // console.log(elementosAgrupados);
+
+            const datos = elementosAgrupados.map((objeto: any) =>
               this.modelarEstructura(objeto)
             );
 
@@ -144,6 +174,13 @@ export class OrganigramaComponent implements AfterViewInit {
         contrato: dato.contrato,
         nivel: dato.nivel,
         personal: dato.personal,
+        agrupados: dato.agrupado,
+        cantidad:
+          dato.agrupado.length > 1
+            ? dato.contrato === "ITEM"
+              ? dato.agrupado.length + " (I)"
+              : dato.agrupado.length + " (C)"
+            : "",
         id_cargo_superior: [{ _id: dato.id_cargo_superior }],
       };
     } else {
@@ -154,6 +191,13 @@ export class OrganigramaComponent implements AfterViewInit {
         contrato: dato.contrato,
         nivel: dato.nivel,
         personal: dato.personal,
+        agrupados: dato.agrupado,
+        cantidad:
+          dato.agrupado.length > 1
+            ? dato.contrato === "ITEM"
+              ? dato.agrupado.length + " (I)"
+              : dato.agrupado.length + " (C)"
+            : "",
       };
     }
     return nodo;
@@ -195,6 +239,7 @@ export class OrganigramaComponent implements AfterViewInit {
         this.addNode(this.organigramaContainer.nativeElement, estructura[0]);
         this.createControls(this.organigramaContainer.nativeElement);
         this.addEventListeners();
+        //comprime todos los cargos a una sola caja para luego ir expandiendolo
         //this.expandCollapseAutomatically();
       } else {
         //console.error("Error: organigramaContainer no está inicializado.");
@@ -252,10 +297,10 @@ export class OrganigramaComponent implements AfterViewInit {
   //     // y pasarías la información del nodo a través de una propiedad o un servicio.
   //   }
 
-  handleEditEvent(_id: string): void {
-    // Implementa la lógica para el evento Edit aquí
-    //console.log("Evento Edit para el _id:", _id);
-  }
+  //   handleEditEvent(_id: string): void {
+  //     ///Implementa la lógica para el evento Edit aquí
+  //     console.log("Evento Edit para el _id:", _id);
+  //   }
   //hasta aqui
   addNode(parent: HTMLElement, data: any): void {
     const row = document.createElement("tr");
@@ -263,8 +308,8 @@ export class OrganigramaComponent implements AfterViewInit {
     row.style.alignItems = "center";
     const cell = document.createElement("td");
     const nodo = document.createElement("div");
-    nodo.style.width = "200px";
-    nodo.style.height = "13.5vh";
+    nodo.style.width = "170px";
+    nodo.style.height = "14.5vh";
     nodo.style.borderRadius = "7px";
     nodo.className = "nodo";
     nodo.setAttribute("data-id", data._id.toString());
@@ -277,7 +322,12 @@ export class OrganigramaComponent implements AfterViewInit {
 
       let item = document.createElement("div");
       //item.innerText = data._id.toString();
-      item.innerText = data.registro ? data.registro : "";
+      item.innerText =
+        data.cantidad !== "" && data.registro !== undefined
+          ? data.cantidad
+          : data.registro && data.registro !== undefined
+          ? data.registro
+          : "";
       item.className = "nodo-id badge";
       nodo.appendChild(item);
 
@@ -288,7 +338,7 @@ export class OrganigramaComponent implements AfterViewInit {
       item.style.width = "100%";
       item.style.lineHeight = "1";
       item.className = "nodo-nombre";
-      item.style.height = "6.5vh";
+      item.style.height = "7.5vh";
       nodo.appendChild(item);
 
       item = document.createElement("div");
@@ -298,7 +348,7 @@ export class OrganigramaComponent implements AfterViewInit {
       item.style.color = "white";
       item.style.lineHeight = "1";
       item.style.height = "3.4vh";
-      item.style.paddingTop = "5px";
+      item.style.paddingTop = "6px";
       item.style.borderTopLeftRadius = "5px";
       item.style.borderTopRightRadius = "5px";
       item.style.background =
@@ -403,6 +453,7 @@ export class OrganigramaComponent implements AfterViewInit {
       //   btn.appendChild(icon);
       //   div.appendChild(btn);
 
+      //boton de acción que se visualiza en cada cargo del organigrama dibujado
       // Btn Edit
       //   btn = document.createElement("button");
       //   btn.setAttribute("type", "button");

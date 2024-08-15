@@ -1,9 +1,14 @@
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialog,
+} from "@angular/material/dialog";
 import { Component, Inject, OnInit, ChangeDetectorRef } from "@angular/core";
 
 import { CargosService } from "../../../../services/cargos.service";
 import { FuncionariosService } from "src/app/services/funcionarios.service";
 import { RegistrosService } from "src/app/services/registros.service";
+import { MessageDialogComponent } from "src/app/shared/components/message-dialog/message-dialog.component";
 
 import {
   convertToUpperCase,
@@ -85,15 +90,22 @@ export class DialogFuncionarioComponent implements OnInit {
         this.ciExistsValidator.bind(this),
       ],
     ],
-    ext: ["", [Validators.minLength(1), Validators.pattern("^[a-zA-Z1-9]*$")]],
-    expedido: [
+    ext: [
       "",
       [
-        //Validators.required,
-        Validators.minLength(2),
-        Validators.pattern("[a-zA-Z]*"),
+        Validators.minLength(1),
+        Validators.pattern("^[a-zA-Z1-9]*$"),
+        this.ciExistsValidator.bind(this),
       ],
     ],
+    // expedido: [
+    //   "",
+    //   [
+    //     //Validators.required,
+    //     Validators.minLength(2),
+    //     Validators.pattern("[a-zA-Z]*"),
+    //   ],
+    // ],
     genero: [
       "",
       [
@@ -151,7 +163,7 @@ export class DialogFuncionarioComponent implements OnInit {
     fecha_conclusion: [""],
     disableCargoControl: [false],
     estado: [true, Validators.required],
-    tipo_contrato: [""],
+    tipo_contrato: [{ value: "", disabled: true }],
   });
 
   filteredCharges!: Observable<any[]>;
@@ -163,6 +175,7 @@ export class DialogFuncionarioComponent implements OnInit {
     private cargoService: CargosService,
     private funcionarioService: FuncionariosService,
     private registroService: RegistrosService,
+    private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
@@ -219,7 +232,7 @@ export class DialogFuncionarioComponent implements OnInit {
         casada: this.data.casada || "",
         ci: this.data.ci || "",
         ext: this.data.ext || "",
-        expedido: this.data.expedido || "",
+        //expedido: this.data.expedido || "",
         genero: this.data.genero || "",
         telefono: this.data.telefono || "",
         fecha_nacimiento: this.data.fecha_nacimiento || "",
@@ -234,12 +247,17 @@ export class DialogFuncionarioComponent implements OnInit {
         id_secretaria_contratante:
           this.data.registros[0]?.id_secretaria_contratante || "",
         tipo_contrato: this.data.registros[0]?.tipo_contrato || "",
+        estado: this.data.estado,
       });
 
       this.cite = this.data.registros[0]?.cite || "";
       this.numero_contrato = this.data.registros[0]?.numero_contrato || "";
       //console.log(this.numero_contrato);
       //console.log(this.cite);
+
+      if (this.data.registros[0]?.tipo_contrato) {
+        this.FormJob.get("tipo_contrato")?.disable();
+      }
 
       this.idCargoControl.setValue(this.data.registros[0]?.id_cargo);
       if (this.data && this.data.registros[0]?.id_cargo) {
@@ -255,13 +273,27 @@ export class DialogFuncionarioComponent implements OnInit {
     }
   }
 
+  setContrato() {
+    //Habilitar si es tipo contrato y sea un campo requerido
+    //console.log(this.selectedContrato);
+    if (this.selectedContrato === "ITEM") {
+      this.FormJob.get("tipo_contrato")?.enable();
+      this.FormJob.get("tipo_contrato")?.setValidators([Validators.required]);
+    } else {
+      this.FormJob.get("tipo_contrato")?.disable();
+      this.FormJob.get("tipo_contrato")?.clearValidators();
+    }
+
+    this.FormJob.get("tipo_contrato")?.updateValueAndValidity();
+  }
+
   setValidarDatosOcultos(applyValidators: boolean): void {
     const hiddenFields = [
       "fecha_ingreso",
       "fecha_conclusion",
       "id_cargo",
       "tipo",
-      //"tipo_contrato",
+      "tipo_contrato",
     ]; // Agrega más campos ocultos si es necesario
     hiddenFields.forEach((fieldName) => {
       const control = this.FormJob.get(fieldName);
@@ -292,6 +324,7 @@ export class DialogFuncionarioComponent implements OnInit {
 
       if (selectedCargo && selectedCargo.contrato) {
         this.selectedContrato = selectedCargo.contrato;
+        this.setContrato();
       } else {
         this.selectedContrato = "";
       }
@@ -343,6 +376,7 @@ export class DialogFuncionarioComponent implements OnInit {
     if (this.data && this.data.registros > 0) {
       id = this.data.registros[0].id_funcionario._id;
     }
+
     return this.existsValidator(control, "ci", id, this.funcionarios);
   }
 
@@ -352,17 +386,59 @@ export class DialogFuncionarioComponent implements OnInit {
     id: any,
     funcionarios: any[]
   ): { [key: string]: any } | null {
+    let ext: any;
+    let carnet;
+
+    if (!this.FormJob || !this.FormJob.get("ext")) {
+      ext = "vacio";
+    } else {
+      ext = this.FormJob.get("ext")?.value;
+    }
+
+    if (!this.FormJob || !this.FormJob.get("ci")) {
+      carnet = "vacio";
+    } else {
+      carnet = this.FormJob.get("ci")?.value;
+    }
+
+    //console.log(carnet + ext);
     let value = control.value;
     if (!value) {
       return null;
     }
+    let exists;
+    if (ext === "vacio" || ext === "") {
+      exists = funcionarios.some(
+        (element) =>
+          element[campo] &&
+          element[campo].toString() === value &&
+          element._id !== id
+      );
+    } else {
+      exists = funcionarios.some(
+        (element) =>
+          element[campo] &&
+          element[campo].toString() === value &&
+          element.ext === ext.toUpperCase() &&
+          element._id !== id
+      );
+    }
 
-    let exists = funcionarios.some(
-      (element) =>
-        element[campo] &&
-        element[campo].toString() === value &&
-        element._id !== id
-    );
+    //actualiza el estado de ext al introducir algun valor en el campo ci, pero genera errores y retardo en respuesta
+    // if (control === this.FormJob.get("ci")) {
+    //   this.FormJob.get("ext")?.updateValueAndValidity({
+    //     onlySelf: true,
+    //     emitEvent: false,
+    //   });
+    // }
+
+    //actualiza el estado de ci al introducir algun valor en el campo ext
+    if (control === this.FormJob.get("ext")) {
+      this.FormJob.get("ci")?.updateValueAndValidity({
+        onlySelf: true,
+        emitEvent: false,
+      });
+    }
 
     return exists ? { [`${campo}Exists`]: { value } } : null;
   }
@@ -550,12 +626,24 @@ export class DialogFuncionarioComponent implements OnInit {
         );
       }
       //console.log(registro[0]._id);
-
-      //Agregando campos al formulario
-      this.FormJob.addControl(
-        "id_secretaria_contratante",
-        this.fb.control(registro[0]._id)
-      );
+      //comprobando si se tiene asignado un funcionario al cargo de secretario, teniendo en cuenta que que si no lo tiene asignado no se generará correctamente el contrato y genera error.
+      if (registro[0] && registro[0] !== undefined) {
+        //Agregando campos al formulario
+        this.FormJob.addControl(
+          "id_secretaria_contratante",
+          this.fb.control(registro[0]._id)
+        );
+      } else {
+        const dialogRef = this.dialog.open(MessageDialogComponent, {
+          width: "450px",
+          data: {
+            message:
+              "No puede asignar los cargos dependientes de esta secretaria, debido a que no se tiene asignado al cargo de secretario(a) municipal perteneciente a esta secretaria.",
+          },
+        });
+        dialogRef.afterClosed().subscribe((result) => {});
+        return;
+      }
 
       //teniendo en cuenta que la sigla para despacho no es la misma en el contrato
       if (this.sigla === "DESPACHO") {
@@ -568,6 +656,7 @@ export class DialogFuncionarioComponent implements OnInit {
         //importante que el cite se genere para ambos
         if (this.selectedContrato === "ITEM") {
           years = fecha_ingreso_text.slice(-4);
+          await this.assignementRegistro();
           this.selectedRegistro =
             "GAMS-" +
             this.sigla +
@@ -608,7 +697,7 @@ export class DialogFuncionarioComponent implements OnInit {
     convertToUpperCase(this.FormJob, "materno");
     convertToUpperCase(this.FormJob, "casada");
     convertToUpperCase(this.FormJob, "ext");
-    convertToUpperCase(this.FormJob, "expedido");
+    //convertToUpperCase(this.FormJob, "expedido");
     convertToUpperCase(this.FormJob, "genero");
     convertToUpperCase(this.FormJob, "descripcion");
     convertToUpperCase(this.FormJob, "tipo_contrato");
@@ -653,7 +742,7 @@ export class DialogFuncionarioComponent implements OnInit {
     const register = this.registros.filter(
       (element) => element.id_funcionario === this.data?._id
     );
-    console.log(form);
+    //console.log(form);
     if (Object.keys(register).length > 0) {
       this.registroService.updateRegistro(register[0]._id, form).subscribe(
         (response) => {
