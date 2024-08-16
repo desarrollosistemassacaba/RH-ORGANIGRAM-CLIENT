@@ -179,7 +179,9 @@ export class OrganigramaComponent implements AfterViewInit {
           dato.agrupado.length > 1
             ? dato.contrato === "ITEM"
               ? dato.agrupado.length + " (I)"
-              : dato.agrupado.length + " (C)"
+              : dato.contrato === "EVENTUAL"
+              ? dato.agrupado.length + " (C)"
+              : dato.agrupado.length + " (R)"
             : "",
         id_cargo_superior: [{ _id: dato.id_cargo_superior }],
       };
