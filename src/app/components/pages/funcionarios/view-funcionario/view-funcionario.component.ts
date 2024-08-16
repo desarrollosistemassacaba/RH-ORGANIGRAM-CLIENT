@@ -24,6 +24,7 @@ import {
 
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { OrganigramaService } from "src/app/services/organigrama.service";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -75,30 +76,36 @@ export class ViewFuncionarioComponent implements OnInit {
     private registroService: RegistrosService,
     private funcionarioService: FuncionariosService,
     private dependenciaService: DependenciasService,
+    private organigramaService: OrganigramaService,
+
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
-
+  element: any;
   ngOnInit(): void {
     this.load();
   }
 
   async load() {
-    //console.log(this.data);
-    if (this.data) {
-      this.nombre = this.data.nombre || "";
-      this.paterno = this.data.paterno || "";
-      this.materno = this.data.materno || "";
-      this.casada = this.data.casada || "";
-      this.ci = this.data.ci || "";
-      this.ext = this.data.ext || "";
-      this.cargo = this.data.registros[0]?.id_cargo.nombre || this.nulo;
-      this.contrato = this.data.registros[0]?.id_cargo.contrato || this.nulo;
-      this.fecha_ingreso = this.data.registros[0]?.fecha_ingreso || this.nulo;
-      this.fecha_conclusion =
-        this.data.registros[0]?.fecha_conclusion || this.nulo;
-      this.fecha_nac = this.data.fecha_nacimiento || this.nulo;
-      this.registro = this.data.registros[0]?.id_cargo.registro || this.nulo;
-      this.unidad = this.data.registros[0]?.id_cargo.id_unidad || this.nulo;
+    console.log(this.data);
+    this.element = await this.organigramaService
+      .getElementoById(this.data)
+      .toPromise();
+    console.log(this.element);
+    if (this.element) {
+      this.nombre = this.element.id_funcionario.nombre || "";
+      this.paterno = this.element.id_funcionario.paterno || "";
+      this.materno = this.element.id_funcionario.materno || "";
+      this.casada = this.element.id_funcionario.casada || "";
+      this.ci = this.element.id_funcionario.ci || "";
+      this.ext = this.element.id_funcionario.ext || "";
+      this.cargo = this.element.id_cargo.nombre || this.nulo;
+      this.contrato = this.element.id_cargo.contrato || this.nulo;
+      this.fecha_ingreso = this.element.fecha_ingreso || this.nulo;
+      this.fecha_conclusion = this.element.fecha_conclusion || this.nulo;
+      this.fecha_nac =
+        this.element.id_funcionario.fecha_nacimiento || this.nulo;
+      this.registro = this.element.id_cargo.registro || this.nulo;
+      this.unidad = this.element.id_cargo.id_unidad || this.nulo;
       this.funcionario =
         this.nombre +
         " " +
@@ -108,10 +115,10 @@ export class ViewFuncionarioComponent implements OnInit {
         " " +
         this.casada;
       this.id_secretaria_contratante =
-        this.data.registros[0]?.id_secretaria_contratante || this.nulo;
-      this.tipo_contrato = this.data.registros[0]?.tipo_contrato || this.nulo;
-      this.cite = this.data.registros[0]?.cite || this.nulo;
-      this.decreto_edil = this.data.registros[0]?.decreto_edil || this.nulo;
+        this.element.id_secretaria_contratante || this.nulo;
+      this.tipo_contrato = this.element.tipo_contrato || this.nulo;
+      this.cite = this.element.cite || this.nulo;
+      this.decreto_edil = this.element.decreto_edil || this.nulo;
 
       //Obteniendo datos del secretario o alcalde para el contrato
       if (this.id_secretaria_contratante !== this.nulo) {
@@ -180,17 +187,24 @@ export class ViewFuncionarioComponent implements OnInit {
       }
 
       //Obtenemos el nombre de la sigla para generarlo en texto: Secretaria Municipal De Finanzas Y Administración
-      this.dependenciaService
-        .getFiltroCampos("sigla", this.data.sigla)
-        .subscribe((element) => {
-          const campo = element[0]?.nombre || this.nulo;
-          this.dependencia = campo !== this.nulo ? ordenPalabras(campo) : campo;
-        });
+
+      let dependence = await this.dependenciaService
+        .getDependenciaById(this.element.id_cargo.id_dependencia)
+        .toPromise();
+
+      let campo;
+      if (dependence.length > 0) {
+        campo = this.nulo;
+      } else {
+        campo = dependence ? dependence.nombre : this.nulo;
+      }
+
+      this.dependencia = campo !== this.nulo ? ordenPalabras(campo) : campo;
 
       //Obtenemos valores del id_nivel_salario correspondientes al cargo del contratado
-      if (this.data.registros[0]?.id_cargo) {
+      if (this.element.id_cargo) {
         this.nivelService
-          .getNivelesById(this.data.registros[0]?.id_cargo.id_nivel_salarial)
+          .getNivelesById(this.element.id_cargo.id_nivel_salarial)
           .subscribe((element) => {
             this.nivel = element.nombre;
             this.salario = element.haber_basico;
@@ -220,7 +234,7 @@ export class ViewFuncionarioComponent implements OnInit {
       }
     }
 
-    //console.log(this.data);
+    //console.log(this.element);
     this.cdr.detectChanges();
   }
 

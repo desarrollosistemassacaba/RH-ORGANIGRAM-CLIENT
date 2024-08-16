@@ -13,6 +13,8 @@ import { OrganigramaService } from "src/app/services/organigrama.service";
 import { RegistrosService } from "src/app/services/registros.service";
 
 import { getColor } from "src/app/utils/utils";
+import { ViewFuncionarioComponent } from "../funcionarios/view-funcionario/view-funcionario.component";
+import { CargosService } from "src/app/services/cargos.service";
 
 interface Nodo {
   _id: string;
@@ -51,6 +53,7 @@ export class OrganigramaComponent implements AfterViewInit {
   constructor(
     private organigramaService: OrganigramaService,
     private registrosService: RegistrosService,
+    private cargoService: CargosService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {}
@@ -112,6 +115,8 @@ export class OrganigramaComponent implements AfterViewInit {
                 } ${funcionario.paterno ? funcionario.paterno : ""} ${
                   funcionario.materno ? funcionario.materno : ""
                 } ${funcionario.casada ? funcionario.casada : ""}`;
+
+                cargo.registroId = registroEncontrado._id;
               } else {
                 cargo.personal = "SIN PERSONAL";
               }
@@ -166,9 +171,11 @@ export class OrganigramaComponent implements AfterViewInit {
 
   modelarEstructura(dato: any) {
     let nodo;
+    // console.log(dato);
     if (dato.id_cargo_superior) {
       nodo = {
         _id: dato._id,
+        registroid: dato.registroId,
         nombre: dato.nombre,
         registro: dato.registro,
         contrato: dato.contrato,
@@ -188,6 +195,7 @@ export class OrganigramaComponent implements AfterViewInit {
     } else {
       nodo = {
         _id: dato._id,
+        registroid: dato.registroId,
         nombre: dato.nombre,
         registro: dato.registro,
         contrato: dato.contrato,
@@ -251,6 +259,32 @@ export class OrganigramaComponent implements AfterViewInit {
     }
   }
 
+  async buscarRegistro(nodo: any) {
+    let register = await this.registrosService.getRegistros().toPromise();
+
+    register = register.filter(
+      (element: any) =>
+        element.estado === true && nodo.includes(element.id_cargo?._id)
+    );
+
+    for (let index = 0; index < nodo.length; index++) {
+      let elemento: any = await this.cargoService
+        .getCargosById(nodo[index])
+        .toPromise();
+      this.cargos.push(elemento);
+    }
+
+    if (this.cargos.length === 1) {
+      if (register.length > 0) {
+        const dialogRef = this.dialog.open(ViewFuncionarioComponent, {
+          data: register[0]._id, // Pasar los datos del cargo al componente de edición
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {});
+      }
+    }
+  }
+
   addEventListeners(): void {
     if (this.organigramaContainer) {
       const btnAdds =
@@ -264,11 +298,25 @@ export class OrganigramaComponent implements AfterViewInit {
 
       btnAdds.forEach((btn: HTMLButtonElement) => {
         btn.addEventListener("click", () => {
-          const id = parseInt(btn.getAttribute("data-id") || "0", 10); // Convertir a número entero
-          if (!isNaN(id)) {
+          let elemento = btn.getAttribute("data-agrupados") || "";
+          let personal = btn.getAttribute("data-personal") || "";
+          let registro = btn.getAttribute("data-registroid") || "";
+          let agrupados = elemento.split(",");
+          //   console.log(personal);
+          //   console.log(agrupados.length);
+          //   console.log(registro);
+          if (agrupados.length === 1 && personal !== "SIN PERSONAL") {
+            const dialogRef = this.dialog.open(ViewFuncionarioComponent, {
+              data: registro,
+            });
+            dialogRef.afterClosed().subscribe((result) => {
+              if (result) {
+              }
+            });
+          } else {
             const dialogRef = this.dialog.open(DialogOrganigramaComponent, {
               width: "200px",
-              data: { node_id: id },
+              //data: { data: registro },
             });
           }
         });
@@ -276,7 +324,7 @@ export class OrganigramaComponent implements AfterViewInit {
 
       btnEdits.forEach((btn: HTMLButtonElement) => {
         btn.addEventListener("click", () => {
-          const id = btn.getAttribute("data-id");
+          let id = btn.getAttribute("data-id");
           if (id) {
             //this.openNodeDetailModal(id);
           }
@@ -305,6 +353,7 @@ export class OrganigramaComponent implements AfterViewInit {
   //   }
   //hasta aqui
   addNode(parent: HTMLElement, data: any): void {
+    //console.log(data);
     const row = document.createElement("tr");
     //row.style.backgroundColor = "black";
     row.style.alignItems = "center";
@@ -316,6 +365,15 @@ export class OrganigramaComponent implements AfterViewInit {
     nodo.className = "nodo";
     nodo.setAttribute("data-id", data._id.toString());
     row.className = "nodo-header";
+    //agregado el elemento agrupado a la propiedad del nodo y habilitar data-agrupados con sus datos en el DOM
+    if (data.agrupados) {
+      nodo.setAttribute("data-agrupados", data.agrupados.join(","));
+      nodo.setAttribute("data-personal", data.personal);
+      nodo.setAttribute("data-registroid", data.registroid);
+      //console.log("Nodo creado con agrupados:", data.agrupados);
+    } else {
+      //console.log("Nodo creado sin agrupados.");
+    }
 
     if (data !== undefined) {
       const childs = data.hijos !== undefined ? data.hijos.length * 2 : 0;
@@ -439,21 +497,28 @@ export class OrganigramaComponent implements AfterViewInit {
 
   createControls(tabla: HTMLElement): void {
     const nodos = tabla.querySelectorAll(".nodo");
+    //console.log("Nodos encontrados:", nodos);
+
     for (let i = 0; i < nodos.length; i++) {
-      const id = nodos[i].getAttribute("data-id");
+      const agrupados = nodos[i].getAttribute("data-agrupados");
+      const personal = nodos[i].getAttribute("data-personal");
+      const registroid = nodos[i].getAttribute("data-registroid");
       const div = document.createElement("div");
       div.className = "controls";
 
       // Btn Add
-      //   let btn = document.createElement("button");
-      //   btn.setAttribute("type", "button");
-      //   btn.setAttribute("data-id", id ?? "");
-      //   btn.className = "btn btn-primary btn-block btn-add";
+      let btn = document.createElement("button");
+      btn.setAttribute("type", "button");
+      //btn.setAttribute("data-id", id ?? "");
+      btn.setAttribute("data-agrupados", agrupados ?? "");
+      btn.setAttribute("data-personal", personal ?? "");
+      btn.setAttribute("data-registroid", registroid ?? "");
+      btn.className = "btn btn-primary btn-block btn-add";
 
-      //   let icon = document.createElement("i");
-      //   icon.className = "glyphicon glyphicon-plus";
-      //   btn.appendChild(icon);
-      //   div.appendChild(btn);
+      let icon = document.createElement("i");
+      icon.className = "glyphicon glyphicon-plus";
+      btn.appendChild(icon);
+      div.appendChild(btn);
 
       //boton de acción que se visualiza en cada cargo del organigrama dibujado
       // Btn Edit

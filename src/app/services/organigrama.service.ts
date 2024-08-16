@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { server } from "../../environments/environment.staging";
+import { Observable } from "rxjs";
 
 const base_url = server.base_url + "/organization";
 
@@ -17,5 +18,9 @@ export class OrganigramaService {
   }
   updateOrganigram(id: string, data: any) {
     return this.http.put<any>(`${base_url}/${id}`, data);
+  }
+
+  getElementoById(id: string): Observable<any> {
+    return this.http.get<any>(`${base_url}/${id}`);
   }
 }

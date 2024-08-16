@@ -15,6 +15,10 @@ export class DependenciasService {
     return this.http.get<any>(`${base_url}`);
   }
 
+  getDependenciaById(id: string): Observable<any> {
+    return this.http.get<any>(`${base_url}/${id}`);
+  }
+
   getFiltroCampos(campo: string, valor: string) {
     return this.http.get<any>(`${base_url}/filtro/${campo}/${valor}`);
   }

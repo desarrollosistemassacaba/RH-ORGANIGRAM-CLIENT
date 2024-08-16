@@ -302,8 +302,9 @@ export class FuncionariosComponent implements AfterViewInit {
   }
 
   view(funcionario: any) {
+    //console.log(funcionario);
     const dialogRef = this.dialog.open(ViewFuncionarioComponent, {
-      data: funcionario, // Pasar los datos del cargo al componente de edición
+      data: funcionario.registros[0]._id, // Pasar los datos del cargo al componente de edición
     });
 
     dialogRef.afterClosed().subscribe((result) => {

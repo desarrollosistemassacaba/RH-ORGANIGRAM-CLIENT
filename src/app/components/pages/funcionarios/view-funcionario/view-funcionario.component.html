@@ -12,8 +12,11 @@
             <div>{{this.dependencia}}</div>
             <div class="card-content-body-content">
                 <ul>
-                    <li>{{this.contrato !== "Sin Registro"? "Tipo de contrato " + "'" + this.contrato.toLowerCase()+
-                        "'": this.contrato}}.
+                    <li>{{
+                        this.contrato && this.contrato !== "Sin Registro"
+                        ? "Tipo de contrato " + "'" + this.contrato.toLowerCase() + "'"
+                        : "Sin Registro"
+                        }}.
                     </li>
                     <li>{{this.nivel !== "Sin Registro"? "Nivel salarial "+ this.nivel +": Percibe el haber básico de "
                         +
