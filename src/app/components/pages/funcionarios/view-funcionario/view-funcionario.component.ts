@@ -86,11 +86,11 @@ export class ViewFuncionarioComponent implements OnInit {
   }
 
   async load() {
-    console.log(this.data);
+    //console.log(this.data);
     this.element = await this.organigramaService
       .getElementoById(this.data)
       .toPromise();
-    console.log(this.element);
+    //console.log(this.element);
     if (this.element) {
       this.nombre = this.element.id_funcionario.nombre || "";
       this.paterno = this.element.id_funcionario.paterno || "";
@@ -118,7 +118,6 @@ export class ViewFuncionarioComponent implements OnInit {
         this.element.id_secretaria_contratante || this.nulo;
       this.tipo_contrato = this.element.tipo_contrato || this.nulo;
       this.cite = this.element.cite || this.nulo;
-      this.decreto_edil = this.element.decreto_edil || this.nulo;
 
       //Obteniendo datos del secretario o alcalde para el contrato
       if (this.id_secretaria_contratante !== this.nulo) {
@@ -129,7 +128,7 @@ export class ViewFuncionarioComponent implements OnInit {
         const secretario_datos = await this.funcionarioService
           .getFuncionarioById(registro_secretaria.id_funcionario)
           .toPromise();
-
+        //console.log(registro_secretaria);
         this.contratante =
           (secretario_datos.nombre ? secretario_datos.nombre : "") +
           " " +
@@ -144,7 +143,7 @@ export class ViewFuncionarioComponent implements OnInit {
         this.genero_contratante = secretario_datos.genero
           ? secretario_datos.genero
           : "";
-
+        this.decreto_edil = registro_secretaria.decreto_edil || this.nulo;
         this.cargo_contratante = registro_secretaria.id_cargo.nombre;
       }
 
@@ -249,7 +248,7 @@ export class ViewFuncionarioComponent implements OnInit {
 
     const edil =
       this.decreto_edil && this.decreto_edil !== this.nulo
-        ? ", " + this.decreto_edil
+        ? this.decreto_edil
         : "";
     const contratante = ordenPalabras(this.contratante);
     const ci_ext = this.ext ? this.ci + " - " + this.ext : this.ci;

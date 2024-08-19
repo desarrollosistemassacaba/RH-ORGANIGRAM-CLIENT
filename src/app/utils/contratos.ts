@@ -41,8 +41,15 @@ export function contratoAuxiliar(detalle: any) {
               text: `, representado por ${detalle.pronombre} `,
             },
             {
-              text: `${detalle.abreviatura} ${detalle.secretario_nombre} ${detalle.secretario_cargo} ${detalle.edil}`,
+              text: `${detalle.abreviatura} ${detalle.secretario_nombre} ${detalle.secretario_cargo}`,
               style: "negrita",
+            },
+            {
+              text: `${
+                detalle.edil
+                  ? ", designado por decreto Edil Nº " + detalle.edil
+                  : ""
+              }`,
             },
             {
               text: ", con domicilio legal en pasaje consistorial NS-002, de esta ciudad de Sacaba, en el marco de las atribuciones conferidas por la Ley 482 de Gobiernos Autónomos Municipales, a los efectos del presente contrato se denominará el  G.A.M.S.",
@@ -616,8 +623,15 @@ export function contratoTecnico(detalle: any) {
               text: `, representado por ${detalle.pronombre} `,
             },
             {
-              text: `${detalle.abreviatura} ${detalle.secretario_nombre} ${detalle.secretario_cargo} ${detalle.edil}`,
+              text: `${detalle.abreviatura} ${detalle.secretario_nombre} ${detalle.secretario_cargo}`,
               style: "negrita",
+            },
+            {
+              text: `${
+                detalle.edil
+                  ? ", designado por decreto Edil Nº " + detalle.edil
+                  : ""
+              }`,
             },
             {
               text: ", con domicilio legal en pasaje consistorial NS-002, de esta ciudad de Sacaba, en el marco de las atribuciones conferidas por la Ley 482 de Gobiernos Autónomos Municipales, a los efectos del presente contrato se denominará el  G.A.M.S.",
@@ -1225,8 +1239,15 @@ export function contratoProfesional(detalle: any) {
               text: `, representado por ${detalle.pronombre} `,
             },
             {
-              text: `${detalle.abreviatura} ${detalle.secretario_nombre} ${detalle.secretario_cargo} ${detalle.edil}`,
+              text: `${detalle.abreviatura} ${detalle.secretario_nombre} ${detalle.secretario_cargo}`,
               style: "negrita",
+            },
+            {
+              text: `${
+                detalle.edil
+                  ? ", designado por decreto Edil Nº " + detalle.edil
+                  : ""
+              }`,
             },
             {
               text: ", con domicilio legal en pasaje consistorial NS-002, de esta ciudad de Sacaba, en el marco de las atribuciones conferidas por la Ley 482 de Gobiernos Autónomos Municipales, a los efectos del presente contrato se denominará el  G.A.M.S.",

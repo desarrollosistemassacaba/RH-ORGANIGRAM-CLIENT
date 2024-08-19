@@ -55,7 +55,7 @@ export class DialogOrganigramaComponent {
         dialogRef.afterClosed().subscribe((result) => {});
       }
     }
-    console.log(this.cargos.length);
-    console.log(register);
+    // console.log(this.cargos.length);
+    // console.log(register);
   }
 }
