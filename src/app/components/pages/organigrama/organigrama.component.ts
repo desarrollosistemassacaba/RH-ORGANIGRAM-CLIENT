@@ -314,10 +314,11 @@ export class OrganigramaComponent implements AfterViewInit {
               }
             });
           } else {
-            const dialogRef = this.dialog.open(DialogOrganigramaComponent, {
-              width: "200px",
-              //data: { data: registro },
-            });
+            console.log("En contrucción.");
+            // const dialogRef = this.dialog.open(DialogOrganigramaComponent, {
+            //   width: "200px",
+            //   //data: { data: registro },
+            // });
           }
         });
       });
